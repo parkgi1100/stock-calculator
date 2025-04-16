@@ -4,9 +4,536 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>물타기 계산기</title>
-  <script src="script.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Pretendard', sans-serif;
+      display: flex;
+      background: #fff;
+    }
+    aside {
+      width: 200px;
+      background: #f5f5f5;
+      border-right: 1px solid #ccc;
+      padding: 20px;
+    }
+    .category-btn {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: none;
+      font-size: 14px;
+      border-radius: 6px;
+      background-color: #f0f0f0;
+      color: #333;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+    .category-btn.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+    main {
+      flex: 1;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0 15px;
+      border: 2px solid #4CAF50;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button.submit {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px;
+      width: 100%;
+      font-weight: bold;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
-<!-- 생략: 본문 생략 -->
+
+<aside>
+  <h2 style="font-size:16px; color:#4CAF50; margin-bottom: 20px;">물타기 계산기</h2>
+  <button onclick="setCategory('stock')" id="btn-stock" class="category-btn active">🪙 주식/해외주식</button>
+  <button onclick="setCategory('coin')" id="btn-coin" class="category-btn">💰 코인</button>
+  <button onclick="setCategory('stockfut')" id="btn-stockfut" class="category-btn">✨ 주식선물</button>
+  <button onclick="setCategory('coinfut')" id="btn-coinfut" class="category-btn">🌐 코인선물</button>
+</aside>
+
+<main id="stock-section">
+  <h2 style="text-align:center; color:#4CAF50;">📊 물타기 계산기(주식)</h2>
+
+  <label style="font-weight:bold; color:#b71c1c;">📌 종목명</label>
+  <input id="stockName" type="text" placeholder="예: 삼성전자">
+
+  <label style="font-weight:bold;">📊 현재 보유 수량</label>
+  <input id="stockQuantity" type="number" placeholder="예: 1">
+
+  <label style="font-weight:bold;">📈 현재 평단가 (₩)</label>
+  <input id="stockAvgPrice" type="number" placeholder="예: 70000">
+
+  <label style="font-weight:bold;">💵 현재 주가 (₩)</label>
+  <input id="stockCurrentPrice" type="number" placeholder="예: 70000">
+
+  <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+  <input id="stockFeeRate" type="number" placeholder="예: 0.04" value="0.04">
+  <h3 style="color:#3f51b5; font-size:16px; margin-top:20px;">➕ 추가 매수 방식</h3>
+  <div style="display: flex; gap: 10px;">
+    <select id="stockAddOption">
+      <option value="amount">금액 (₩)</option>
+      <option value="shares">수량 (주)</option>
+    </select>
+    <input id="stockAddInput" type="number" placeholder="예: 50000">
+  </div>
+
+  <button class="submit" onclick="calculateStock()">물타기 계산하기</button>
+
+  <div class="result" id="stockResult"></div>
+  <div class="error" id="stockError"></div>
+<div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+    ⚠️ <strong>주의사항</strong><br>
+    - 이 계산기는 참고용이며 실제 주식 거래 조건(수수료, 체결지연 등)과 다를 수 있습니다.<br>
+    - 입력한 수수료율이 실제와 다르면 손익 계산이 왜곡될 수 있습니다.<br>
+    - 본 계산기의 사용은 사용자 본인의 판단이며, 법적 책임을 지지 않습니다.
+  </div>
+</main>
+
+<main id="coin-section" style="display:none">
+  <h2 style="text-align:center; color:#4CAF50;">💰 코인 물타기 계산기</h2>
+  
+  <label style="font-weight:bold;">📌 코인명</label>
+  <input id="coinName" placeholder="코인명">
+  <label style="font-weight:bold;">📊 보유 수량</label>
+  <input id="coinQuantity" type="number" placeholder="보유 수량">
+  <label style="font-weight:bold;">📈 현재 평단가 (₩)</label>
+  <input id="coinAvgPrice" type="number" placeholder="예: 43000000">
+
+  <label style="font-weight:bold;">💵 현재 가격 (₩)</label>
+  <input id="coinPrice" type="number" placeholder="현재 가격 (₩)">
+  <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+  <input id="coinFeeRate" type="number" placeholder="예: 0.04" value="0.04">
+  <label style="font-weight:bold;">➕ 추가 매수 방식</label>
+  <div style="display: flex; gap: 10px;">
+    <select id="coinAddOption">
+      <option value="amount">금액 (₩)</option>
+      <option value="shares">수량 (코인)</option>
+    </select>
+    <input id="coinAddInput" type="number" placeholder="예: 100000">
+  </div>
+  <button class="submit" onclick="calculateCoin()">물타기 계산하기</button>
+  <div class="result" id="coinResult"></div>
+  <div class="error" id="coinError"></div>
+  <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+    ⚠️ <strong>주의사항</strong><br>
+    - 이 계산기는 참고용이며 실제 거래소 환경(슬리피지, 레버리지, 강제 청산 조건 등)과 다를 수 있습니다.<br>
+    - 입력한 수수료율이 정확하지 않으면 손익 계산이 왜곡될 수 있으므로 확인 후 입력하세요.<br>
+    - 본 계산기의 사용은 사용자 본인의 책임이며, 법적 책임을 지지 않습니다.
+  </div>
+</main>
+
+<main id="stockfut-section" style="display:none">
+  <h2 style="text-align:center; color:#4CAF50;">🧭 주식선물 물타기 계산기</h2>
+  <label style="font-weight:bold;">📌 종목명</label>
+  <input id="stockfutName" placeholder="종목명">
+  <label style="font-weight:bold;">📊 보유 계약 수</label>
+  <input id="stockfutQuantity" type="number" placeholder="보유 계약 수">
+  <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💵 현재 가격</label>
+    <input id="stockfutPrice" type="number" placeholder="현재 가격">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💵 진입 가격</label>
+    <input id="stockfutEntryPrice" type="number" placeholder="진입 가격">
+  </div>
+</div>
+  <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">📐 레버리지 배율</label>
+    <input id="stockfutLeverage" type="number" placeholder="레버리지 배율">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💰 내 예수금</label>
+    <input id="stockfutBalance" type="number" placeholder="내 예수금">
+  </div>
+</div>
+  <div style="display:flex; gap: 10px; align-items: center;">
+  <div style="flex:1">
+    <label style="font-weight:bold;">📈 포지션 선택</label>
+    <select id="stockfutPosition">
+      <option value="long">롱</option>
+      <option value="short">숏</option>
+    </select>
+  </div>
+  <div style="flex:1">
+    <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+    <input id="stockfutFeeRate" type="number" placeholder="예: 0.04" value="0.04">
+  </div>
+</div>
+  <label style="font-weight:bold;">➕ 추가 매수 방식</label>
+<div style="display: flex; gap: 10px;">
+  <select id="stockfutAddOption" style="flex: 1;">
+    <option value="amount">금액</option>
+    <option value="shares">계약 수</option>
+  </select>
+  <input id="stockfutAddInput" type="number" placeholder="예: 50000" style="flex: 1;">
+</div>
+  <button class="submit" onclick="calculateStockFut()">물타기 계산하기</button>
+  <div class="result" id="stockfutResult"></div>
+  <div class="error" id="stockfutError"></div>
+  <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+    ⚠️ <strong>주의사항</strong><br>
+    - 이 계산기는 참고용으로, 실제 선물 거래소의 청산 조건, 마진 유지율, 수수료 정책과 다를 수 있습니다.<br>
+    - 수수료율을 조정하여 더 현실적인 손익 예측이 가능합니다.<br>
+    - 본 계산기의 결과는 법적 효력이 없으며, 투자 손실에 대한 책임을 지지 않습니다.
+  </div>
+</main>
+
+<main id="coinfut-section" style="display:none">
+  <h2 style="text-align:center; color:#4CAF50;">🌐 코인선물 물타기 계산기</h2>
+  <label style="font-weight:bold;">📌 코인명</label>
+  <input id="coinfutName" placeholder="코인명">
+  <label style="font-weight:bold;">📊 보유 계약 수</label>
+  <input id="coinfutQuantity" type="number" placeholder="보유 계약 수">
+  <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💵 현재 가격</label>
+    <input id="coinfutPrice" type="number" placeholder="현재 가격">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💵 진입 가격</label>
+    <input id="coinfutEntryPrice" type="number" placeholder="진입 가격">
+  </div>
+</div>
+  <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">📐 레버리지 배율</label>
+    <input id="coinfutLeverage" type="number" placeholder="레버리지 배율">
+  </div>
+  <div style="flex: 1;">
+    <label style="font-weight:bold;">💰 내 예수금</label>
+    <input id="coinfutBalance" type="number" placeholder="내 예수금">
+  </div>
+</div>
+  <div style="display:flex; gap: 10px; align-items: center;">
+  <div style="flex:1">
+    <label style="font-weight:bold;">📈 포지션 선택</label>
+    <select id="coinfutPosition">
+      <option value="long">롱</option>
+      <option value="short">숏</option>
+    </select>
+  </div>
+  <div style="flex:1">
+    <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+    <input id="coinfutFeeRate" type="number" placeholder="예: 0.04" value="0.04">
+  </div>
+</div>
+  <label style="font-weight:bold;">➕ 추가 매수 방식</label>
+<div style="display: flex; gap: 10px;">
+  <select id="coinfutAddOption" style="flex: 1;">
+    <option value="amount">금액</option>
+    <option value="shares">계약 수</option>
+  </select>
+  <input id="coinfutAddInput" type="number" placeholder="예: 100000" style="flex: 1;">
+</div>
+  <button class="submit" onclick="calculateCoinFut()">물타기 계산하기</button>
+  <div class="result" id="coinfutResult"></div>
+  <div class="error" id="coinfutError"></div>
+  <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+    ⚠️ <strong>주의사항</strong><br>
+    - 이 계산기는 참고용으로, 실제 거래소의 레버리지 정책, 청산 로직과 다를 수 있습니다.<br>
+    - 슬리피지, 청산 우선순위, 거래소 수수료를 감안하여 수수료율을 조정해 주세요.<br>
+    - 본 계산기의 사용 결과는 투자 권유가 아니며, 법적 책임을 지지 않습니다.
+  </div>
+</main>
+
+<script>
+function calculateCoin() {
+  const name = document.getElementById("coinName").value.trim();
+  const quantity = parseFloat(document.getElementById("coinQuantity").value);
+  const price = parseFloat(document.getElementById("coinPrice").value);
+  const addOption = document.getElementById("coinAddOption").value;
+  const addInput = parseFloat(document.getElementById("coinAddInput").value);
+  const result = document.getElementById("coinResult");
+  const error = document.getElementById("coinError");
+
+  if (!name || isNaN(quantity) || isNaN(price) || isNaN(addInput) || isNaN(document.getElementById("coinAvgPrice").value)) {
+    error.innerText = "입력값을 모두 확인해주세요.";
+    result.innerHTML = "";
+    return;
+  }
+  error.innerText = "";
+
+  let addQty = 0;
+  let addTotal = 0;
+  if (addOption === "amount") {
+    addQty = addInput / price;
+    addTotal = addInput;
+  } else {
+    addQty = addInput;
+    addTotal = price * addQty;
+  }
+
+  const totalQty = quantity + addQty;
+  const avgPrice = parseFloat(document.getElementById("coinAvgPrice").value);
+  const totalInvest = (quantity * avgPrice) + addTotal;
+  const currentVal = totalQty * price;
+  const feeRate = parseFloat(document.getElementById("coinFeeRate").value) / 100;
+  const fees = totalQty * price * feeRate;
+  const profit = currentVal - totalInvest - fees;
+  const profitRate = (profit / totalInvest) * 100;
+
+  result.innerHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color:#f0f0f0;">
+          <th>코인명</th>
+          <th>평가손익</th>
+          <th>수익률</th>
+          <th>보유수량</th>
+          <th>평가금액</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${name}</td>
+          <td style="color:${profit >= 0 ? 'red' : 'blue'}">₩${profit.toFixed(2).toLocaleString()}</td>
+          <td style="color:${profitRate >= 0 ? 'red' : 'blue'}">${profitRate.toFixed(2)}%</td>
+          <td>${totalQty.toFixed(4)} 코인</td>
+          <td>₩${currentVal.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 10px; font-weight: bold;">총 매입금액: ₩${totalInvest.toLocaleString()}</p>
+    <p style="margin-top: 5px;">➕ 추가 매수 단가: ₩${price.toLocaleString()}</p>
+    <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
+}
+function setCategory(category) {
+  const sections = ['stock', 'coin', 'stockfut', 'coinfut'];
+  sections.forEach(cat => {
+    const section = document.getElementById(`${cat}-section`);
+    const button = document.getElementById(`btn-${cat}`);
+    if (section) section.style.display = 'none';
+    if (button) button.classList.remove('active');
+  });
+  const activeSection = document.getElementById(`${category}-section`);
+  const activeButton = document.getElementById(`btn-${category}`);
+  if (activeSection) activeSection.style.display = 'block';
+  if (activeButton) activeButton.classList.add('active');
+}
+function calculateStock() {
+  const name = document.getElementById("stockName").value.trim();
+  const quantity = parseFloat(document.getElementById("stockQuantity").value);
+  const currentPrice = parseFloat(document.getElementById("stockCurrentPrice").value);
+  const avgPrice = parseFloat(document.getElementById("stockAvgPrice").value);
+  const feeRate = parseFloat(document.getElementById("stockFeeRate").value) / 100;
+  const addOption = document.getElementById("stockAddOption").value;
+  const addInput = parseFloat(document.getElementById("stockAddInput").value);
+  const result = document.getElementById("stockResult");
+  const error = document.getElementById("stockError");
+
+  if (!name || isNaN(quantity) || isNaN(currentPrice) || isNaN(avgPrice) || isNaN(addInput)) {
+    error.innerText = "입력값을 모두 확인해주세요.";
+    result.innerHTML = "";
+    return;
+  }
+  error.innerText = "";
+
+  let addQty = 0;
+  let addTotal = 0;
+  if (addOption === "amount") {
+    addQty = addInput / currentPrice;
+    addTotal = addInput;
+  } else {
+    addQty = addInput;
+    addTotal = currentPrice * addQty;
+  }
+
+  const totalQty = quantity + addQty;
+  const totalInvest = (quantity * avgPrice) + addTotal;
+  const currentVal = totalQty * currentPrice;
+  const fees = totalQty * currentPrice * feeRate;
+  const profit = currentVal - totalInvest - fees;
+  const profitRate = (profit / totalInvest) * 100;
+
+  result.innerHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color:#f0f0f0;">
+          <th>종목명</th>
+          <th>평가손익</th>
+          <th>수익률</th>
+          <th>보유수량</th>
+          <th>평가금액</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${name}</td>
+          <td style="color:${profit >= 0 ? 'red' : 'blue'}">₩${profit.toFixed(2).toLocaleString()}</td>
+          <td style="color:${profitRate >= 0 ? 'red' : 'blue'}">${profitRate.toFixed(2)}%</td>
+          <td>${totalQty.toFixed(2)}주</td>
+          <td>₩${currentVal.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 10px; font-weight: bold;">총 매입금액: ₩${totalInvest.toLocaleString()}</p>
+    <p style="margin-top: 5px;">➕ 추가 매수 단가: ₩${currentPrice.toLocaleString()}</p>
+    <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
+}
+
+function calculateStockFut() {
+  const name = document.getElementById("stockfutName").value.trim();
+  const quantity = parseFloat(document.getElementById("stockfutQuantity").value);
+  const price = parseFloat(document.getElementById("stockfutPrice").value);
+  const entryPrice = parseFloat(document.getElementById("stockfutEntryPrice").value);
+  const leverage = parseFloat(document.getElementById("stockfutLeverage").value);
+  const balance = parseFloat(document.getElementById("stockfutBalance").value);
+  const position = document.getElementById("stockfutPosition").value;
+  const feeRate = parseFloat(document.getElementById("stockfutFeeRate").value) / 100;
+  const addOption = document.getElementById("stockfutAddOption").value;
+  const addInput = parseFloat(document.getElementById("stockfutAddInput").value);
+  const result = document.getElementById("stockfutResult");
+  const error = document.getElementById("stockfutError");
+
+  if (!name || isNaN(quantity) || isNaN(price) || isNaN(entryPrice) || isNaN(leverage) || isNaN(balance) || isNaN(addInput)) {
+    error.innerText = "입력값을 모두 확인해주세요.";
+    result.innerHTML = "";
+    return;
+  }
+  error.innerText = "";
+
+  let addQty = 0;
+  let addTotal = 0;
+  if (addOption === "amount") {
+    addQty = addInput / price;
+    addTotal = addInput;
+  } else {
+    addQty = addInput;
+    addTotal = price * addQty;
+  }
+
+  const totalQty = quantity + addQty;
+  const totalInvest = (quantity * entryPrice) + addTotal;
+  const currentVal = totalQty * price;
+  const fees = totalQty * price * feeRate;
+  const profit = currentVal - totalInvest - fees;
+  const profitRate = (profit / totalInvest) * 100;
+
+  result.innerHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color:#f0f0f0;">
+          <th>종목명</th>
+          <th>평가손익</th>
+          <th>수익률</th>
+          <th>보유계약</th>
+          <th>평가금액</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${name}</td>
+          <td style="color:${profit >= 0 ? 'red' : 'blue'}">₩${profit.toFixed(2).toLocaleString()}</td>
+          <td style="color:${profitRate >= 0 ? 'red' : 'blue'}">${profitRate.toFixed(2)}%</td>
+          <td>${totalQty.toFixed(2)} 계약</td>
+          <td>₩${currentVal.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 10px; font-weight: bold;">총 매입금액: ₩${totalInvest.toLocaleString()}</p>
+    <p style="margin-top: 5px;">➕ 추가 매수 단가: ₩${price.toLocaleString()}</p>
+    <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
+}
+
+function calculateCoinFut() {
+  const name = document.getElementById("coinfutName").value.trim();
+  const quantity = parseFloat(document.getElementById("coinfutQuantity").value);
+  const price = parseFloat(document.getElementById("coinfutPrice").value);
+  const entryPrice = parseFloat(document.getElementById("coinfutEntryPrice").value);
+  const leverage = parseFloat(document.getElementById("coinfutLeverage").value);
+  const balance = parseFloat(document.getElementById("coinfutBalance").value);
+  const position = document.getElementById("coinfutPosition").value;
+  const feeRate = parseFloat(document.getElementById("coinfutFeeRate").value) / 100;
+  const addOption = document.getElementById("coinfutAddOption").value;
+  const addInput = parseFloat(document.getElementById("coinfutAddInput").value);
+  const result = document.getElementById("coinfutResult");
+  const error = document.getElementById("coinfutError");
+
+  if (!name || isNaN(quantity) || isNaN(price) || isNaN(entryPrice) || isNaN(leverage) || isNaN(balance) || isNaN(addInput)) {
+    error.innerText = "입력값을 모두 확인해주세요.";
+    result.innerHTML = "";
+    return;
+  }
+  error.innerText = "";
+
+  let addQty = 0;
+  let addTotal = 0;
+  if (addOption === "amount") {
+    addQty = addInput / price;
+    addTotal = addInput;
+  } else {
+    addQty = addInput;
+    addTotal = price * addQty;
+  }
+
+  const totalQty = quantity + addQty;
+  const totalInvest = (quantity * entryPrice) + addTotal;
+  const currentVal = totalQty * price;
+  const fees = totalQty * price * feeRate;
+  const profit = currentVal - totalInvest - fees;
+  const profitRate = (profit / totalInvest) * 100;
+
+  result.innerHTML = `
+    <table style="width:100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background-color:#f0f0f0;">
+          <th>코인명</th>
+          <th>평가손익</th>
+          <th>수익률</th>
+          <th>보유계약</th>
+          <th>평가금액</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${name}</td>
+          <td style="color:${profit >= 0 ? 'red' : 'blue'}">₩${profit.toFixed(2).toLocaleString()}</td>
+          <td style="color:${profitRate >= 0 ? 'red' : 'blue'}">${profitRate.toFixed(2)}%</td>
+          <td>${totalQty.toFixed(2)} 계약</td>
+          <td>₩${currentVal.toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top: 10px; font-weight: bold;">총 매입금액: ₩${totalInvest.toLocaleString()}</p>
+    <p style="margin-top: 5px;">➕ 추가 매수 단가: ₩${price.toLocaleString()}</p>
+    <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
+}
+window.onload = function() {
+  setCategory('stock');
+};
+</script>
 </body>
 </html>
