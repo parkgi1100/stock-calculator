@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calcu.kr 계산기 모음</title>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #f8f9fa;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+    }
+    li {
+      margin: 20px 0;
+    }
+    a {
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: #007bff;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧮 Calcu.kr 계산기 모음</h1>
+  <ul>
+    <li><a href="fx-calculator/">💱 환차익 계산기</a></li>
+    <li><a href="stock-avg/">📈 주식 물타기 계산기</a></li>
+    <li><a href="coin-avg/">🪙 코인 물타기 계산기</a></li>
+  </ul>
+</body>
+</html>
