@@ -1,14 +1,281 @@
-<section id="sapal-calculator">
-  <h2>🔢 사팔사팔 계산기</h2>
-  <div>
-    <label>금액 입력:</label>
-    <input type="number" id="sapalAmount" placeholder="금액 입력">
-  </div>
-  <div>
-    <label>단가 입력:</label>
-    <input type="number" id="sapalPrice" placeholder="단가 입력">
-  </div>
-  <button onclick="calculateSapal()">계산하기</button>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사팔사팔 단타 계산기</title>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      padding: 20px;
+      background: #f8f9fa;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    h2 {
+      color: #4CAF50;
+    }
+    input, select, button {
+      margin: 5px;
+      padding: 6px;
+      font-size: 14px;
+    }
+    label {
+      font-weight: bold;
+      margin-left: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+    th {
+      background: #eee;
+    }
+    .buy { background: #e0f7fa; }
+    .sell { background: #ffebee; }
+    .controls {
+      margin-top: 15px;
+    }
+    .controls button {
+      background-color: #ddd;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
+    .summary {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📐 사팔사팔 단타 계산기</h2>
 
-  <div id="sapal-result"></div>
-</section>
+  
+
+  
+
+  <div style="margin: 20px 0; max-width: 1000px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+  <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+    <div style="flex: 1; min-width: 200px;">
+      <label for="initialQty">현재 보유수량</label>
+      <input type="number" id="initialQty" placeholder="보유 수량" value="0" style="width: 100%;">
+    </div>
+    <div style="flex: 1; min-width: 200px;">
+      <label for="initialAvg">현재 평단가</label>
+      <input type="number" id="initialAvg" placeholder="평단가" value="0" style="width: 100%;">
+    </div>
+    <div style="flex: 1; min-width: 200px;">
+      <label for="initialReturn">현재 수익률 (%)</label>
+      <input type="number" id="initialReturn" placeholder="예: 3.5" value="0" style="width: 100%;">
+    </div>
+    <div style="flex: 1; min-width: 200px;">
+      <label for="userCash">현재 예수금</label>
+      <input type="number" id="userCash" placeholder="예: 1000000" value="10000000" style="width: 100%;">
+    </div>
+    <div style="flex: 1; min-width: 150px; display: flex; align-items: flex-end;">
+      <button onclick="applyInitialHoldings()" style="width: 100%;">보유 내역 적용</button>
+    </div>
+  </div>
+</div>
+    
+  </div>
+    
+  </div>
+  
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; align-items: flex-end;">
+  <div style="display: flex; flex-direction: column; min-width: 130px;">
+    <label for="tradeType">거래 유형</label>
+    <select id="tradeType">
+      <option value="buy">매수</option>
+      <option value="sell">매도</option>
+    </select>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 130px;">
+    <label for="tradePrice">단가</label>
+    <input type="number" id="tradePrice" placeholder="단가">
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 130px;">
+    <label for="tradeQty">수량</label>
+    <input type="number" id="tradeQty" placeholder="수량" value="5">
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 130px;">
+    <label for="tradeFee">수수료율 (%)</label>
+    <input type="number" id="tradeFee" placeholder="예: 0.15" value="0">
+  </div>
+  <div style="display: flex; flex-direction: column;">
+    <label style="visibility: hidden;">거래 추가</label>
+    <button onclick="addTrade()">거래 추가</button>
+  </div>
+</div>
+   
+
+  <div class="summary" style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+    💰 누적 손익: <span id="totalProfit">0</span>원
+    | 📊 누적 수익률: <span id="totalReturn">0.00</span>%<br>
+    📦 총 수량: <span id="holdQty">0</span>주
+    | 💵 평단가: <span id="avgPrice">0</span>원
+    | 🧾 총 매입금: <span id="totalBuy">0</span>원
+    | 💸 잔여 예수금: <span id="cashRemaining">0</span>원
+    | ⏱ 진행률: <span id="progressRate">0.00</span>%
+      </div>
+    <div>
+      <button onclick="resetTable()">초기화</button>
+      <button onclick="copyTable()">복사</button>
+      <button onclick="downloadCSV()">저장</button>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>회차</th>
+        <th>시간</th>
+        <th>포지션</th>
+        <th>단가</th>
+        <th>수량</th>
+        <th>체결금액</th>
+        <th>평단</th>
+        <th>실현 손익</th>
+        <th>누적 손익</th>
+        <th>수행</th>
+      </tr>
+    </thead>
+    <tbody id="tradeTable"></tbody>
+  </table>
+
+  <script>
+    let avgPrice = 0;
+    let holdQty = 0;
+    let totalProfit = 0;
+    let count = 0;
+    let totalBuyAmount = 0;
+    let startingCapital = 10000000;
+
+    function updateSummary() {
+      document.getElementById('totalProfit').innerText = totalProfit.toLocaleString();
+      const returnRate = totalBuyAmount > 0 ? (totalProfit / totalBuyAmount) * 100 : 0;
+      document.getElementById('totalReturn').innerText = returnRate.toFixed(2);
+      document.getElementById('holdQty').innerText = holdQty;
+      document.getElementById('avgPrice').innerText = avgPrice.toFixed(2);
+      document.getElementById('totalBuy').innerText = totalBuyAmount.toLocaleString();
+      document.getElementById('cashRemaining').innerText = (startingCapital - totalBuyAmount + totalProfit).toLocaleString();
+      const progress = (totalBuyAmount / startingCapital) * 100;
+      document.getElementById('progressRate').innerText = progress.toFixed(2);
+    }
+
+    function addTrade() {
+      const type = document.getElementById('tradeType').value;
+      const price = parseFloat(document.getElementById('tradePrice').value);
+      const qty = parseInt(document.getElementById('tradeQty').value);
+      const now = new Date().toLocaleTimeString('ko-KR');
+
+      if (!price || !qty) return alert('가격과 수량을 입력해주세요.');
+
+      const row = document.createElement('tr');
+      row.className = type === 'buy' ? 'buy' : 'sell';
+      const feeRate = parseFloat(document.getElementById('tradeFee').value) || 0;
+      const total = price * qty * (1 + feeRate / 100);
+      let profit = '-';
+
+      if (type === 'buy') {
+        avgPrice = ((avgPrice * holdQty) + total) / (holdQty + qty);
+        holdQty += qty;
+        totalBuyAmount += total;
+      } else {
+        if (qty > holdQty) return alert('보유 수량 초과!');
+        profit = ((price - avgPrice) * qty);
+        totalProfit += profit;
+        holdQty -= qty;
+        if (holdQty === 0) {
+          avgPrice = 0;
+          totalBuyAmount = 0;
+        }
+      }
+
+      count++;
+      row.innerHTML = `
+        <td>${count}</td>
+        <td>${now}</td>
+        <td>${type === 'buy' ? '매수' : '매도'}</td>
+        <td>${price}</td>
+        <td>${qty}</td>
+        <td>${total.toLocaleString()}</td>
+        <td>${type === 'buy' ? avgPrice.toFixed(2) : '-'}</td>
+        <td>${profit === '-' ? '-' : profit.toLocaleString()}</td>
+        <td>${totalProfit.toLocaleString()}</td>
+        <td>${type === 'sell' ? 'SELL' : 'BUY'}</td>
+      `;
+      document.getElementById('tradeTable').appendChild(row);
+      updateSummary();
+    }
+
+    function resetTable() {
+      document.getElementById('tradeTable').innerHTML = '';
+      avgPrice = 0;
+      holdQty = 0;
+      totalProfit = 0;
+      totalBuyAmount = 0;
+      count = 0;
+      updateSummary();
+    }
+
+    function copyTable() {
+      const table = document.querySelector("table");
+      const range = document.createRange();
+      range.selectNode(table);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      try {
+        document.execCommand("copy");
+        alert("표가 복사되었습니다. Ctrl+V로 붙여넣기 하세요.");
+      } catch (err) {
+        alert("복사에 실패했습니다.");
+      }
+      window.getSelection().removeAllRanges();
+    }
+
+    function downloadCSV() {
+      let csv = "회차,시간,포지션,단가,수량,체결금액,평단,실현 손익,누적 손익,수행\n";
+      document.querySelectorAll("#tradeTable tr").forEach(row => {
+        const cols = row.querySelectorAll("td");
+        const rowData = Array.from(cols).map(td => td.innerText).join(",");
+        csv += rowData + "\n";
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sapal_trade_log.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  function applyInitialHoldings() {
+      const qty = parseInt(document.getElementById('initialQty').value);
+      const avg = parseFloat(document.getElementById('initialAvg').value);
+      const returnRate = parseFloat(document.getElementById('initialReturn').value);
+      const userCash = parseFloat(document.getElementById('userCash').value);
+
+      if (isNaN(qty) || isNaN(avg) || isNaN(returnRate) || isNaN(userCash)) {
+        alert('보유 수량, 평단가, 수익률, 예수금을 정확히 입력해주세요.');
+        return;
+      }
+
+      holdQty = qty;
+      avgPrice = avg;
+      totalBuyAmount = qty * avg;
+      totalProfit = totalBuyAmount * (returnRate / 100);
+      startingCapital = userCash + totalBuyAmount;
+      updateSummary();
+    }
+
+  </script>
+</body>
+</html>
