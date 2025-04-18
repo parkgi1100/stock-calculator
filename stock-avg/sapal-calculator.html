@@ -50,6 +50,25 @@
       margin-top: 20px;
       font-size: 16px;
     }
+      @media (max-width: 600px) {
+      .summary {
+        flex-direction: column;
+        gap: 10px;
+        font-size: 14px;
+        align-items: flex-start;
+      }
+      .summary button {
+        width: 100%;
+        margin-top: 8px;
+      }
+      .controls {
+        flex-direction: column;
+      }
+      table th, table td {
+        font-size: 12px;
+        padding: 4px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -277,5 +296,12 @@
     }
 
   </script>
+  <div style="margin-top: 30px; font-size: 13px; color: #666; line-height: 1.6; background: #f9f9f9; padding: 14px 18px; border-radius: 8px;">
+    ⚠️ <strong>이 계산기는 투자 참고용입니다.</strong><br>
+    - 이 계산기의 결과는 단순 참고용이며, 실제 투자 손익과 차이가 날 수 있습니다.<br>
+    - 수수료, 세금, 슬리피지 등 모든 거래 조건이 반영되지 않을 수 있습니다.<br>
+    - 본 도구는 투자 자문을 제공하지 않으며, 결과에 따른 투자 손실에 대해 책임지지 않습니다.<br>
+    - 모든 투자 판단은 사용자 본인의 책임 하에 이루어져야 하며, 필요시 전문가의 조언을 받아야 합니다.
+  </div>
 </body>
 </html>
