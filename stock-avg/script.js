@@ -51,3 +51,18 @@ function calculateMultagi() {
   document.getElementById('avg-price-1').innerText = avgPrice1.toFixed(2);
   document.getElementById('profit-1').innerText = `${profit1.toFixed(2)}%`;
 }
+
+function showTab(tabId) {
+  // 기본적으로 모든 탭 영역 숨기기
+  document.getElementById("coinfut-section").style.display = "none";
+  document.getElementById("stock-avg-tab").style.display = "none";
+
+  // 선택된 탭만 보이게
+  if (tabId === 'coinfut') {
+    document.getElementById("coinfut-section").style.display = "block";
+  }
+
+  if (tabId === 'stock-avg') {
+    document.getElementById("stock-avg-tab").style.display = "block";
+  }
+}
