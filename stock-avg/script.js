@@ -58,16 +58,39 @@ function calculateMultagi() {
 }
 
 function showTab(tabId) {
-  // 기본적으로 모든 탭 영역 숨기기
+  // 모든 탭 숨기기
+  document.getElementById("sapal-tab").style.display = "none";
+  document.getElementById("multagi-tab").style.display = "none";
   document.getElementById("coinfut-section").style.display = "none";
-  document.getElementById("stock-avg-tab").style.display = "none";
 
   // 선택된 탭만 보이게
-  if (tabId === 'coinfut') {
-    document.getElementById("coinfut-section").style.display = "block";
+  if (tabId === 'sapal') {
+    document.getElementById("sapal-tab").style.display = "block";
+
+    // 사팔사팔 HTML만 로드
+    if (!document.getElementById('sapal-container').innerHTML) {
+      fetch('sapal-calculator.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('sapal-container').innerHTML = html;
+        });
+    }
   }
 
-  if (tabId === 'stock-avg') {
-    document.getElementById("stock-avg-tab").style.display = "block";
+  if (tabId === 'multagi') {
+    document.getElementById("multagi-tab").style.display = "block";
+
+    // 물타기 HTML만 로드
+    if (!document.getElementById('multagi-container').innerHTML) {
+      fetch('multagi-table.html')
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('multagi-container').innerHTML = html;
+        });
+    }
+  }
+
+  if (tabId === 'coinfut') {
+    document.getElementById("coinfut-section").style.display = "block";
   }
 }
