@@ -93,7 +93,8 @@
 
 <aside>
   <h2 style="font-size:16px; color:#4CAF50; margin-bottom: 20px;">물타기 계산기</h2>
-  <button class="category-btn" onclick="showTab('stock-avg')">📊 사팔사팔 & 물타기 계산기</button>
+  <button class="category-btn" onclick="showTab('sapal')">📐 사팔사팔 계산기</button>
+  <button class="category-btn" onclick="showTab('multagi')">📊 물타기 계산기(표)</button>
   <button onclick="setCategory('stock')" id="btn-stock" class="category-btn active">🪙 주식/해외주식</button>
   <button onclick="setCategory('coin')" id="btn-coin" class="category-btn">💰 코인</button>
   <button onclick="setCategory('stockfut')" id="btn-stockfut" class="category-btn">✨ 주식선물</button>
@@ -291,8 +292,13 @@
   </div>
 </main>
 
-  <div id="stock-avg-tab" style="display: none;">
+<!-- 사팔사팔 계산기 전용 -->
+<div id="sapal-tab" style="display: none;">
   <div id="sapal-container"></div>
+</div>
+
+<!-- 물타기 계산기 전용 -->
+<div id="multagi-tab" style="display: none;">
   <div id="multagi-container"></div>
 </div>
 
