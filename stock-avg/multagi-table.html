@@ -1,0 +1,30 @@
+<section id="multagi-table">
+  <h2>📊 물타기 계산기 (표)</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>회차</th>
+        <th>물탈 금액</th>
+        <th>물탈 단가</th>
+        <th>매수 수량</th>
+        <th>총 매수 금액</th>
+        <th>평단가</th>
+        <th>수익률</th>
+      </tr>
+    </thead>
+    <tbody id="multagi-body">
+      <tr>
+        <td>1회차</td>
+        <td><input type="number" id="amount-1"></td>
+        <td><input type="number" id="price-1"></td>
+        <td id="qty-1">-</td>
+        <td id="total-amount-1">-</td>
+        <td id="avg-price-1">-</td>
+        <td id="profit-1">-</td>
+      </tr>
+      <!-- 더 추가하려면 행 복사 붙여넣기 -->
+    </tbody>
+  </table>
+
+  <button onclick="calculateMultagi()">계산하기</button>
+</section>
