@@ -57,7 +57,7 @@ function calculateMultagi() {
 }
 
 function showTab(tabId) {
-  // 🔻 모든 탭들을 전부 숨긴다 (꼭 필요한 핵심 포인트)
+  // 모든 탭 숨기기
   const allTabs = [
     "sapal-tab",
     "multagi-tab",
@@ -72,7 +72,7 @@ function showTab(tabId) {
     if (el) el.style.display = "none";
   });
 
-  // 🔻 해당 탭만 보이게 하고, 필요한 경우 fetch
+  // 탭별로 보이기 + fetch
   if (tabId === 'sapal') {
     const el = document.getElementById("sapal-tab");
     el.style.display = "block";
