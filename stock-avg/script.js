@@ -1,21 +1,26 @@
-// HTML 로딩 끝난 뒤에 실행되게 함
 document.addEventListener('DOMContentLoaded', () => {
-  // 사팔사팔 계산기 HTML 불러오기
-  fetch('sapal-calculator.html')
-    .then(response => response.text())
-    .then(html => {
-      document.getElementById('sapal-container').innerHTML = html;
-    })
-    .catch(err => console.error('사팔사팔 HTML 불러오기 실패:', err));
+  // ✅ stock-avg 탭이 선택된 경우에만 실행되도록 조건 추가!
+  const stockAvgTab = document.getElementById('stock-avg-tab');
 
-  // 물타기 계산기(표) HTML 불러오기
-  fetch('multagi-table.html')
-    .then(response => response.text())
-    .then(html => {
-      document.getElementById('multagi-container').innerHTML = html;
-    })
-    .catch(err => console.error('물타기표 HTML 불러오기 실패:', err));
+  if (stockAvgTab && stockAvgTab.style.display !== 'none') {
+    // 사팔사팔 계산기 HTML 불러오기
+    fetch('sapal-calculator.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('sapal-container').innerHTML = html;
+      })
+      .catch(err => console.error('사팔사팔 HTML 불러오기 실패:', err));
+
+    // 물타기 계산기(표) HTML 불러오기
+    fetch('multagi-table.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('multagi-container').innerHTML = html;
+      })
+      .catch(err => console.error('물타기표 HTML 불러오기 실패:', err));
+  }
 });
+
 
 // 사팔사팔 계산기 동작
 function calculateSapal() {
