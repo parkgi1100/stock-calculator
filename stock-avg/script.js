@@ -57,16 +57,26 @@ function calculateMultagi() {
 }
 
 function showTab(tabId) {
-  // 모든 탭 숨기기
-  document.getElementById("sapal-tab").style.display = "none";
-  document.getElementById("multagi-tab").style.display = "none";
-  document.getElementById("coinfut-section").style.display = "none";
+  // 🔻 모든 탭들을 전부 숨긴다 (꼭 필요한 핵심 포인트)
+  const allTabs = [
+    "sapal-tab",
+    "multagi-tab",
+    "coinfut-section",
+    "stock-section",
+    "stockfut-section",
+    "coin-section"
+  ];
 
-  // 선택된 탭만 보이게
+  allTabs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+
+  // 🔻 해당 탭만 보이게 하고, 필요한 경우 fetch
   if (tabId === 'sapal') {
-    document.getElementById("sapal-tab").style.display = "block";
+    const el = document.getElementById("sapal-tab");
+    el.style.display = "block";
 
-    // 사팔사팔 HTML만 로드
     if (!document.getElementById('sapal-container').innerHTML) {
       fetch('sapal-calculator.html')
         .then(response => response.text())
@@ -77,9 +87,9 @@ function showTab(tabId) {
   }
 
   if (tabId === 'multagi') {
-    document.getElementById("multagi-tab").style.display = "block";
+    const el = document.getElementById("multagi-tab");
+    el.style.display = "block";
 
-    // 물타기 HTML만 로드
     if (!document.getElementById('multagi-container').innerHTML) {
       fetch('multagi-table.html')
         .then(response => response.text())
@@ -91,5 +101,17 @@ function showTab(tabId) {
 
   if (tabId === 'coinfut') {
     document.getElementById("coinfut-section").style.display = "block";
+  }
+
+  if (tabId === 'stock') {
+    document.getElementById("stock-section").style.display = "block";
+  }
+
+  if (tabId === 'stockfut') {
+    document.getElementById("stockfut-section").style.display = "block";
+  }
+
+  if (tabId === 'coin') {
+    document.getElementById("coin-section").style.display = "block";
   }
 }
