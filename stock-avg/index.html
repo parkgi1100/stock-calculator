@@ -100,8 +100,8 @@
 
 <aside>
   <h2 style="font-size:16px; color:#4CAF50; margin-bottom: 20px;">물타기 계산기</h2>
-  <button class="category-btn" onclick="showTab('sapal')">📐 사팔사팔 계산기</button>
-  <button class="category-btn" onclick="showTab('multagi')">📊 물타기 계산기(표)</button>
+  <button class="category-btn" id="btn-sapal" onclick="showTab('sapal')">📐 사팔사팔 계산기</button>
+  <button class="category-btn" id="btn-multagi" onclick="showTab('multagi')">📊 물타기 계산기(표)</button>
   <button onclick="setCategory('stock')" id="btn-stock" class="category-btn active">🪙 주식/해외주식</button>
   <button onclick="setCategory('coin')" id="btn-coin" class="category-btn">💰 코인</button>
   <button onclick="setCategory('stockfut')" id="btn-stockfut" class="category-btn">✨ 주식선물</button>
@@ -379,10 +379,16 @@ function setCategory(category) {
     if (section) section.style.display = 'none';
     if (button) button.classList.remove('active');
   });
+
+  // 선택된 섹션 보이기
   const activeSection = document.getElementById(`${category}-section`);
   const activeButton = document.getElementById(`btn-${category}`);
   if (activeSection) activeSection.style.display = 'block';
   if (activeButton) activeButton.classList.add('active');
+
+  // 사팔사팔, 물타기 표는 숨기기
+  document.getElementById("sapal-tab").style.display = "none";
+  document.getElementById("multagi-tab").style.display = "none";
 }
 function calculateStock() {
   const name = document.getElementById("stockName").value.trim();
@@ -577,11 +583,27 @@ function showTab(tabName) {
   const container = document.getElementById("content-area");
   container.innerHTML = "";
 
+  // 모든 버튼의 active 클래스 제거
+  const tabButtons = document.querySelectorAll('.category-btn');
+  tabButtons.forEach(btn => btn.classList.remove('active'));
+
+  // 선택한 탭에 active 클래스 추가
   if (tabName === 'sapal') {
     container.innerHTML = `<iframe src="sapal-calculator.html" frameborder="0"></iframe>`;
+    document.getElementById("btn-sapal").classList.add('active'); // ⭐ 이거!
+    document.getElementById("sapal-tab").style.display = 'block';
+    document.getElementById("multagi-tab").style.display = 'none';
   } else if (tabName === 'multagi') {
     container.innerHTML = `<iframe src="multagi-table.html" frameborder="0"></iframe>`;
+    document.getElementById("btn-multagi").classList.add('active'); // ⭐ 이거!
+    document.getElementById("sapal-tab").style.display = 'none';
+    document.getElementById("multagi-tab").style.display = 'block';
   }
+
+  // 계산기 본문 다 숨기기
+  ['stock-section', 'coin-section', 'stockfut-section', 'coinfut-section'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
 }
 
 
