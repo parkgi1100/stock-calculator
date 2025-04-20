@@ -87,6 +87,13 @@
         font-size: 14px;
         padding: 10px;
       }
+      iframe {
+              width: 100%;
+              height: 650px;
+              border: 1px solid #ccc;
+              border-radius: 8px;
+      }
+  
   </style>
 </head>
 <body>
@@ -571,11 +578,12 @@ function calculateCoinFut() {
       container.innerHTML = "";
 
       if (tabName === 'sapal') {
-        container.innerHTML = `<div>📐 사팔사팔 계산기 내용입니다.</div>`;
+        container.innerHTML = `<iframe src="sapal-calculator.html" frameborder="0"></iframe>`;
       } else if (tabName === 'multagi') {
-        container.innerHTML = `<div>📊 물타기 계산기(표) 내용입니다.</div>`;
+        container.innerHTML = `<iframe src="multagi-table.html" frameborder="0"></iframe>`;
       }
     }
+
 
     function setCategory(type) {
       const container = document.getElementById("content-area");
