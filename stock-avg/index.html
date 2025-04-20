@@ -573,32 +573,33 @@ function calculateCoinFut() {
     <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
 }
 
-      function showTab(tabName) {
-      const container = document.getElementById("content-area");
-      container.innerHTML = "";
+function showTab(tabName) {
+  const container = document.getElementById("content-area");
+  container.innerHTML = "";
 
-      if (tabName === 'sapal') {
-        container.innerHTML = `<iframe src="sapal-calculator.html" frameborder="0"></iframe>`;
-      } else if (tabName === 'multagi') {
-        container.innerHTML = `<iframe src="multagi-table.html" frameborder="0"></iframe>`;
-      }
-    }
+  if (tabName === 'sapal') {
+    container.innerHTML = `<iframe src="sapal-calculator.html" frameborder="0"></iframe>`;
+  } else if (tabName === 'multagi') {
+    container.innerHTML = `<iframe src="multagi-table.html" frameborder="0"></iframe>`;
+  }
+}
 
 
-    function setCategory(type) {
-      const container = document.getElementById("content-area");
-      container.innerHTML = "";
+function setCategoryIframe(type) {
+  const container = document.getElementById("content-area");
+  container.innerHTML = "";
 
-      if (type === 'stock') {
-        container.innerHTML = `<div>🪙 주식 계산기 내용입니다.</div>`;
-      } else if (type === 'coin') {
-        container.innerHTML = `<div>💰 코인 계산기 내용입니다.</div>`;
-      } else if (type === 'stockfut') {
-        container.innerHTML = `<div>✨ 주식선물 계산기 내용입니다.</div>`;
-      } else if (type === 'coinfut') {
-        container.innerHTML = `<div>🌐 코인선물 계산기 내용입니다.</div>`;
-      }
-    }
+  if (type === 'stock') {
+    container.innerHTML = `<div>🪙 주식 계산기 내용입니다.</div>`;
+  } else if (type === 'coin') {
+    container.innerHTML = `<div>💰 코인 계산기 내용입니다.</div>`;
+  } else if (type === 'stockfut') {
+    container.innerHTML = `<div>✨ 주식선물 계산기 내용입니다.</div>`;
+  } else if (type === 'coinfut') {
+    container.innerHTML = `<div>🌐 코인선물 계산기 내용입니다.</div>`;
+  }
+}
+
 window.onload = function() {
   setCategory('stock');
 };
