@@ -57,7 +57,7 @@ function calculateMultagi() {
 }
 
 function showTab(tabId) {
-  // 모든 탭 숨기기
+  // ✅ 모든 탭 숨기기
   const allTabs = [
     "sapal-tab",
     "multagi-tab",
@@ -72,7 +72,18 @@ function showTab(tabId) {
     if (el) el.style.display = "none";
   });
 
-  // 탭별로 보이기 + fetch
+  // ✅ 모든 버튼의 active 제거
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // ✅ 눌린 버튼에 active 추가
+  const activeBtn = document.querySelector(`.category-btn[data-tab="${tabId}"]`);
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+  }
+
+  // ✅ 탭별 컨텐츠 보여주기 + fetch 로딩
   if (tabId === 'sapal') {
     const el = document.getElementById("sapal-tab");
     el.style.display = "block";
@@ -115,3 +126,4 @@ function showTab(tabId) {
     document.getElementById("coin-section").style.display = "block";
   }
 }
+
