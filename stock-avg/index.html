@@ -565,6 +565,32 @@ function calculateCoinFut() {
     <p style="margin-top: 5px;">➕ 추가 매수 단가: ₩${price.toLocaleString()}</p>
     <p style="margin-top: 5px;">📈 물타기 후 평단가: ₩${(totalInvest / totalQty).toLocaleString()}</p>`;
 }
+
+      function showTab(tabName) {
+      const container = document.getElementById("content-area");
+      container.innerHTML = "";
+
+      if (tabName === 'sapal') {
+        container.innerHTML = `<div>📐 사팔사팔 계산기 내용입니다.</div>`;
+      } else if (tabName === 'multagi') {
+        container.innerHTML = `<div>📊 물타기 계산기(표) 내용입니다.</div>`;
+      }
+    }
+
+    function setCategory(type) {
+      const container = document.getElementById("content-area");
+      container.innerHTML = "";
+
+      if (type === 'stock') {
+        container.innerHTML = `<div>🪙 주식 계산기 내용입니다.</div>`;
+      } else if (type === 'coin') {
+        container.innerHTML = `<div>💰 코인 계산기 내용입니다.</div>`;
+      } else if (type === 'stockfut') {
+        container.innerHTML = `<div>✨ 주식선물 계산기 내용입니다.</div>`;
+      } else if (type === 'coinfut') {
+        container.innerHTML = `<div>🌐 코인선물 계산기 내용입니다.</div>`;
+      }
+    }
 window.onload = function() {
   setCategory('stock');
 };
