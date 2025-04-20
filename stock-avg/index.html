@@ -101,13 +101,20 @@
 
 <aside>
   <h2 style="font-size:16px; color:#4CAF50; margin-bottom: 20px;">물타기 계산기</h2>
-<button class="category-btn" id="btn-sapal" onclick="showTab('sapal')">📐 사팔사팔 계산기</button>
-<button class="category-btn" id="btn-multagi" onclick="showTab('multagi')">📊 물타기 계산기(표)</button>
+  <button class="category-btn" onclick="showTab('sapal')" data-tab="sapal">사팔</button>
+  <button class="category-btn" onclick="showTab('multagi')" data-tab="multagi">물타기</button>
   <button onclick="setCategory('stock')" id="btn-stock" class="category-btn active">🪙 주식/해외주식</button>
   <button onclick="setCategory('coin')" id="btn-coin" class="category-btn">💰 코인</button>
   <button onclick="setCategory('stockfut')" id="btn-stockfut" class="category-btn">✨ 주식선물</button>
   <button onclick="setCategory('coinfut')" id="btn-coinfut" class="category-btn">🌐 코인선물</button>
 </aside>
+  <div id="sapal-tab" style="display: none;">
+  <div id="sapal-container"></div> <!-- 여기에 사팔 HTML이 fetch로 들어옴 -->
+</div>
+
+<div id="multagi-tab" style="display: none;">
+  <div id="multagi-container"></div> <!-- 여기에 물타기 HTML이 fetch로 들어옴 -->
+</div>
   <div id="content-area"
      style="width: 100%;
             max-width: 800px;
