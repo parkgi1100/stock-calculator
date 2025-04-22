@@ -313,6 +313,9 @@ function calculateStockFut() {
       </tr>
     </tbody>
   </table>`;
+ // ✅ 계산 후 iframe 높이 조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
 
 // ✅ 코인선물 계산기 리디자인
@@ -365,4 +368,7 @@ function calculateCoinFut() {
       </tr>
     </tbody>
   </table>`;
+ // ✅ 계산 후 iframe 높이 조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
