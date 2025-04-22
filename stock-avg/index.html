@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>물타기 계산기 포털</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Pretendard', sans-serif;
+    html, body {
+      height: 100%;
+    }
+    iframe {
+      width: 100%;
+      min-height: 1800px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 min-h-screen">
   <div class="flex flex-col md:flex-row min-h-screen">
     <aside class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm">
       <h2 class="text-lg font-semibold text-green-600 mb-4">📂 계산기 목록</h2>
@@ -24,8 +30,8 @@
     </aside>
 
     <main class="flex-1 p-4">
-      <div class="w-full h-[750px] shadow rounded-lg overflow-hidden border border-gray-200">
-        <iframe id="calc-frame" src="stock-multagi.html" class="w-full h-full"></iframe>
+      <div class="w-full shadow rounded-lg overflow-hidden">
+        <iframe id="calc-frame" src="stock-multagi.html"></iframe>
       </div>
     </main>
   </div>
