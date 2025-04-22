@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>물타기 계산기 (주식)</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="stock-section">
+    <h2 style="text-align:center; color:#4CAF50;">📊 물타기 계산기(주식)</h2>
+
+    <label style="font-weight:bold; color:#b71c1c;">📌 종목명</label>
+    <input id="stockName" type="text" placeholder="예: 삼성전자" />
+
+    <label style="font-weight:bold;">📊 현재 보유 수량</label>
+    <input id="stockQuantity" type="number" placeholder="예: 1" />
+
+    <label style="font-weight:bold;">📈 현재 평단가 (₩)</label>
+    <input id="stockAvgPrice" type="number" placeholder="예: 70000" />
+
+    <label style="font-weight:bold;">💵 현재 주가 (₩)</label>
+    <input id="stockCurrentPrice" type="number" placeholder="예: 70000" />
+
+    <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+    <input id="stockFeeRate" type="number" placeholder="예: 0.04" value="0.04" />
+
+    <h3 style="color:#3f51b5; font-size:16px; margin-top:20px;">➕ 추가 매수 방식</h3>
+    <div style="display: flex; gap: 10px;">
+      <select id="stockAddOption">
+        <option value="amount">금액 (₩)</option>
+        <option value="shares">수량 (주)</option>
+      </select>
+      <input id="stockAddInput" type="number" placeholder="예: 50000" />
+    </div>
+
+    <button class="submit" onclick="calculateStock()">물타기 계산하기</button>
+
+    <div class="result" id="stockResult"></div>
+    <div class="error" id="stockError"></div>
+
+    <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+      ⚠️ <strong>주의사항</strong><br />
+      - 이 계산기는 참고용이며 실제 주식 거래 조건(수수료, 체결지연 등)과 다를 수 있습니다.<br />
+      - 입력한 수수료율이 실제와 다르면 손익 계산이 왜곡될 수 있습니다.<br />
+      - 본 계산기의 사용은 사용자 본인의 판단이며, 투자 손실 시 법적 책임을 지지 않습니다.<br />
+      - 본 계산기의 결과는 참고용이며, 투자 판단은 사용자 본인의 책임입니다.
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
