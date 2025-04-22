@@ -186,7 +186,7 @@ function calculateCoin() {
         <td class="border px-4 py-2 text-left">${name}</td>
         <td class="border px-4 py-2 text-right">${price.toLocaleString()}</td>
         <td class="border px-4 py-2 text-right">${(totalInvest / totalQty).toFixed(1).toLocaleString()}</td>
-        <td class="border px-4 py-2 text-center">${totalQty.toFixed(4)}</td>
+        <td class="border px-4 py-2 text-center">${totalQty.toFixed(8)}</td>
         <td class="border px-4 py-2 text-right">${currentVal.toLocaleString()}</td>
         <td class="border px-4 py-2 text-right ${profitColor}">${formattedProfit}</td>
         <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
@@ -197,6 +197,7 @@ function calculateCoin() {
   const updatedHeight = document.body.scrollHeight;
   window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
+
 
 
 
