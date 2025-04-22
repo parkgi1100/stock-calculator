@@ -1,111 +1,119 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>사팔사팔 단타 계산기</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사팔사팔 계산기</title>
   <script src="script.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <main id="sapal-section">
-    <h2 style="text-align:center; color:#4CAF50;">📐 사팔사팔 단타 계산기</h2>
+<body class="bg-gray-50 text-gray-800 p-4">
+  <div class="max-w-2xl mx-auto space-y-6">
+    <h2 class="text-xl font-bold text-green-600">📐 사팔사팔 단타 계산기</h2>
 
-    <!-- 초기 보유 정보 입력 -->
-    <div style="margin: 20px 0; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
-        <div style="flex: 1; min-width: 200px;">
-          <label>현재 보유수량</label>
-          <input type="number" id="initialQty" placeholder="보유 수량" value="0" />
+    <!-- 보유 내역 입력 -->
+    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="font-semibold">📦 현재 보유수량</label>
+          <input id="initialQty" type="number" placeholder="보유 수량" class="input">
         </div>
-        <div style="flex: 1; min-width: 200px;">
-          <label>현재 평단가</label>
-          <input type="number" id="initialAvg" placeholder="평단가" value="0" />
+        <div>
+          <label class="font-semibold">📈 현재 평단가</label>
+          <input id="initialAvg" type="number" placeholder="평단가" class="input">
         </div>
-        <div style="flex: 1; min-width: 200px;">
-          <label>현재 수익률 (%)</label>
-          <input type="number" id="initialReturn" placeholder="예: 3.5" value="0" />
+        <div>
+          <label class="font-semibold">📊 현재 수익률 (%)</label>
+          <input id="initialReturn" type="number" placeholder="예: 3.5" class="input">
         </div>
-        <div style="flex: 1; min-width: 200px;">
-          <label>현재 예수금</label>
-          <input type="number" id="userCash" placeholder="예: 1000000" value="10000000" />
+        <div>
+          <label class="font-semibold">💰 현재 예수금</label>
+          <input id="userCash" type="number" placeholder="예: 1000000" value="10000000" class="input">
         </div>
-        <div style="flex: 1; min-width: 150px;">
-          <button class="submit" onclick="applyInitialHoldings()">보유 내역 적용</button>
+      </div>
+      <button onclick="applyInitialHoldings()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">보유 내역 적용</button>
+    </div>
+
+    <!-- 거래 추가 입력 -->
+    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div>
+          <label class="font-semibold">🛒 거래 유형</label>
+          <select id="tradeType" class="input">
+            <option value="buy">매수</option>
+            <option value="sell">매도</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-semibold">💵 단가</label>
+          <input id="tradePrice" type="number" placeholder="단가" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">🔢 수량</label>
+          <input id="tradeQty" type="number" placeholder="수량" value="5" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">💸 수수료율 (%)</label>
+          <input id="tradeFee" type="number" placeholder="예: 0.15" value="0" class="input">
+        </div>
+        <div class="flex items-end">
+          <button onclick="addTrade()" class="w-full bg-blue-500 text-white py-2 rounded-md">거래 추가</button>
         </div>
       </div>
     </div>
 
-    <!-- 거래 입력 -->
-    <div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; align-items: flex-end;">
-      <div style="flex: 1; min-width: 130px;">
-        <label>거래 유형</label>
-        <select id="tradeType">
-          <option value="buy">매수</option>
-          <option value="sell">매도</option>
-        </select>
+    <!-- 거래 요약 및 결과 -->
+    <div class="bg-white rounded-xl shadow p-4 text-sm">
+      <p>💰 <b>누적 손익:</b> <span id="totalProfit">0</span>원</p>
+      <p>📊 <b>누적 수익률:</b> <span id="totalReturn">0.00</span>%</p>
+      <p>📦 <b>총 수량:</b> <span id="holdQty">0</span>주</p>
+      <p>💵 <b>평단가:</b> <span id="avgPrice">0</span>원</p>
+      <p>🧾 <b>총 매입금:</b> <span id="totalBuy">0</span>원</p>
+      <p>💸 <b>잔여 예수금:</b> <span id="cashRemaining">0</span>원</p>
+      <p>⏱ <b>진행률:</b> <span id="progressRate">0.00</span>%</p>
+      <div class="mt-4 flex gap-2">
+        <button onclick="resetTable()" class="flex-1 bg-gray-300 py-2 rounded">초기화</button>
+        <button onclick="copyTable()" class="flex-1 bg-gray-300 py-2 rounded">복사</button>
+        <button onclick="downloadCSV()" class="flex-1 bg-gray-300 py-2 rounded">저장</button>
       </div>
-      <div style="flex: 1; min-width: 130px;">
-        <label>단가</label>
-        <input type="number" id="tradePrice" placeholder="단가" />
-      </div>
-      <div style="flex: 1; min-width: 130px;">
-        <label>수량</label>
-        <input type="number" id="tradeQty" placeholder="수량" value="5" />
-      </div>
-      <div style="flex: 1; min-width: 130px;">
-        <label>수수료율 (%)</label>
-        <input type="number" id="tradeFee" placeholder="예: 0.15" value="0" />
-      </div>
-      <div style="min-width: 130px;">
-        <button class="submit" onclick="addTrade()">거래 추가</button>
-      </div>
-    </div>
-
-    <!-- 요약 -->
-    <div class="result" style="margin-top: 30px;">
-      💰 누적 손익: <span id="totalProfit">0</span>원 |
-      📊 누적 수익률: <span id="totalReturn">0.00</span>%<br />
-      📦 총 수량: <span id="holdQty">0</span>주 |
-      💵 평단가: <span id="avgPrice">0</span>원 |
-      🧾 총 매입금: <span id="totalBuy">0</span>원 |
-      💸 잔여 예수금: <span id="cashRemaining">0</span>원 |
-      ⏱ 진행률: <span id="progressRate">0.00</span>%
-    </div>
-
-    <!-- 컨트롤 버튼 -->
-    <div style="display: flex; gap: 10px; margin: 15px 0;">
-      <button onclick="resetTable()">초기화</button>
-      <button onclick="copyTable()">복사</button>
-      <button onclick="downloadCSV()">저장</button>
     </div>
 
     <!-- 거래 내역 테이블 -->
-    <table>
-      <thead>
-        <tr>
-          <th>회차</th>
-          <th>시간</th>
-          <th>포지션</th>
-          <th>단가</th>
-          <th>수량</th>
-          <th>체결금액</th>
-          <th>평단</th>
-          <th>실현 손익</th>
-          <th>누적 손익</th>
-          <th>수행</th>
-        </tr>
-      </thead>
-      <tbody id="tradeTable"></tbody>
-    </table>
-
-    <div style="margin-top: 30px; font-size: 13px; color: #666; line-height: 1.6; background: #f9f9f9; padding: 14px 18px; border-radius: 8px;">
-      ⚠️ <strong>이 계산기는 투자 참고용입니다.</strong><br />
-      - 이 계산기의 결과는 단순 참고용이며, 실제 투자 손익과 차이가 날 수 있습니다.<br />
-      - 수수료, 세금, 슬리피지 등 모든 거래 조건이 반영되지 않을 수 있습니다.<br />
-      - 본 도구는 투자 자문을 제공하지 않으며, 결과에 따른 투자 손실에 대해 책임지지 않습니다.<br />
-      - 모든 투자 판단은 사용자 본인의 책임 하에 이루어져야 하며, 필요시 전문가의 조언을 받아야 합니다.
+    <div class="overflow-auto">
+      <table class="table-auto w-full text-sm border mt-4">
+        <thead class="bg-gray-100">
+          <tr>
+            <th>회차</th>
+            <th>시간</th>
+            <th>포지션</th>
+            <th>단가</th>
+            <th>수량</th>
+            <th>체결금액</th>
+            <th>평단</th>
+            <th>실현 손익</th>
+            <th>누적 손익</th>
+            <th>수행</th>
+          </tr>
+        </thead>
+        <tbody id="tradeTable"></tbody>
+      </table>
     </div>
-  </main>
+
+    <!-- 주의 문구 -->
+    <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow mt-6">
+      ⚠️ <strong>이 계산기는 투자 참고용입니다.</strong><br>
+      - 계산 결과는 실제 투자 손익과 차이가 날 수 있으며, 세금 및 수수료가 반영되지 않을 수 있습니다.<br>
+      - 본 계산기의 결과는 투자 자문이 아니며, 모든 투자 판단은 사용자 본인의 책임입니다.
+    </div>
+  </div>
+
+  <style>
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+    }
+  </style>
 </body>
 </html>
