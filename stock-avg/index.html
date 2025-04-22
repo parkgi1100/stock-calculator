@@ -9,7 +9,6 @@
     html, body { height: 100%; }
     iframe {
       width: 100%;
-      min-height: 1800px;
       border: 1px solid #ccc;
       border-radius: 8px;
     }
@@ -48,15 +47,18 @@
     }
 
     function loadCalculator(src) {
-      document.getElementById('calc-frame').src = src;
+      const iframe = document.getElementById('calc-frame');
+      iframe.src = src;
+
       document.querySelectorAll('.category-btn').forEach(btn => {
         btn.classList.remove('bg-green-100', 'active');
       });
+
       const id = 'btn-' + src.split('-')[0];
       const activeBtn = document.getElementById(id);
       if (activeBtn) activeBtn.classList.add('bg-green-100');
 
-      // 모바일에서 메뉴 접기
+      // 모바일에서 메뉴 자동 접기
       if (window.innerWidth < 768) {
         document.getElementById('menuPanel').classList.add('hidden');
       }
@@ -65,6 +67,14 @@
     window.onload = function () {
       document.getElementById('btn-stock').classList.add('bg-green-100');
     };
+
+    // 자동 높이 조절 수신
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'resize') {
+        const iframe = document.getElementById('calc-frame');
+        iframe.style.height = event.data.height + 'px';
+      }
+    });
   </script>
 </body>
 </html>
