@@ -45,6 +45,34 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
+    @media screen and (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+  aside {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  .category-btn {
+    flex: 1 1 calc(50% - 10px);
+    font-size: 13px;
+    padding: 10px;
+  }
+  #content-area {
+    padding: 10px;
+  }
+  iframe {
+    height: 800px;
+    width: 100%;
+  }
+}
+
   </style>
 </head>
 <body>
