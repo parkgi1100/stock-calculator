@@ -151,6 +151,9 @@ function calculateStock() {
       </tr>
     </tbody>
   </table>`;
+ // ✅ 계산 후 iframe 높이 조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
 
 
