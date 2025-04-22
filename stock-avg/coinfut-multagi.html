@@ -1,76 +1,71 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>코인선물 물타기 계산기</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>코인선물 계산기</title>
   <script src="script.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <main id="coinfut-section">
-    <h2 style="text-align:center; color:#4CAF50;">🌐 코인선물 물타기 계산기</h2>
+<body class="bg-gray-50 text-gray-800 p-4">
+  <div class="max-w-3xl mx-auto space-y-6">
+    <h2 class="text-xl font-bold text-green-600">🌐 코인선물 물타기 계산기</h2>
 
-    <label style="font-weight:bold;">📌 코인명</label>
-    <input id="coinfutName" placeholder="코인명" />
-    <label style="font-weight:bold;">📊 보유 계약 수</label>
-    <input id="coinfutQuantity" type="number" placeholder="보유 계약 수" />
-
-    <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
-      <div style="flex: 1;">
-        <label style="font-weight:bold;">💵 현재 가격</label>
-        <input id="coinfutPrice" type="number" placeholder="현재 가격" />
+    <div class="bg-white rounded-xl shadow p-4 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="font-semibold">📌 코인명</label>
+          <input id="coinfutName" type="text" placeholder="예: BTCUSDT" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">📊 보유 계약 수</label>
+          <input id="coinfutQuantity" type="number" placeholder="보유 계약 수" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">💵 진입 가격</label>
+          <input id="coinfutEntryPrice" type="number" placeholder="진입 가격" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">💵 현재 가격</label>
+          <input id="coinfutPrice" type="number" placeholder="현재 가격" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">📐 레버리지 배율</label>
+          <input id="coinfutLeverage" type="number" placeholder="예: 10" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">💸 수수료율 (%)</label>
+          <input id="coinfutFeeRate" type="number" placeholder="예: 0.04" value="0.04" class="input">
+        </div>
+        <div>
+          <label class="font-semibold">📈 포지션</label>
+          <select id="coinfutPosition" class="input">
+            <option value="long">롱</option>
+            <option value="short">숏</option>
+          </select>
+        </div>
       </div>
-      <div style="flex: 1;">
-        <label style="font-weight:bold;">💵 진입 가격</label>
-        <input id="coinfutEntryPrice" type="number" placeholder="진입 가격" />
-      </div>
+      <button onclick="calculateCoinFut()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📊 물타기 계산하기</button>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: flex-end; margin-bottom: 15px;">
-      <div style="flex: 1;">
-        <label style="font-weight:bold;">📐 레버리지 배율</label>
-        <input id="coinfutLeverage" type="number" placeholder="레버리지 배율" />
-      </div>
-      <div style="flex: 1;">
-        <label style="font-weight:bold;">💰 내 예수금</label>
-        <input id="coinfutBalance" type="number" placeholder="내 예수금" />
-      </div>
-    </div>
+    <div id="coinfutResult" class="text-sm"></div>
+    <div id="coinfutError" class="text-red-600 font-semibold mt-2"></div>
 
-    <div style="display:flex; gap: 10px; align-items: center;">
-      <div style="flex:1">
-        <label style="font-weight:bold;">📈 포지션 선택</label>
-        <select id="coinfutPosition">
-          <option value="long">롱</option>
-          <option value="short">숏</option>
-        </select>
-      </div>
-      <div style="flex:1">
-        <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
-        <input id="coinfutFeeRate" type="number" placeholder="예: 0.04" value="0.04" />
-      </div>
+    <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
+      ⚠️ <strong>주의사항</strong><br>
+      - 이 계산기는 참고용이며 실제 거래 조건과 다를 수 있습니다.<br>
+      - 수수료, 레버리지, 포지션 방향에 따라 손익이 달라질 수 있습니다.<br>
+      - 사용자의 입력값에 따라 결과가 달라지며, 투자 판단은 본인의 책임입니다.
     </div>
+  </div>
 
-    <label style="font-weight:bold;">➕ 추가 매수 방식</label>
-    <div style="display: flex; gap: 10px;">
-      <select id="coinfutAddOption" style="flex: 1;">
-        <option value="amount">금액</option>
-        <option value="shares">계약 수</option>
-      </select>
-      <input id="coinfutAddInput" type="number" placeholder="예: 100000" style="flex: 1;" />
-    </div>
-
-    <button class="submit" onclick="calculateCoinFut()">물타기 계산하기</button>
-    <div class="result" id="coinfutResult"></div>
-    <div class="error" id="coinfutError"></div>
-
-    <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
-      ⚠️ <strong>주의사항</strong><br />
-      - 실제 거래소의 레버리지 정책, 청산 로직과 다를 수 있습니다.<br />
-      - 슬리피지, 청산 우선순위, 거래소 수수료를 감안하여 수수료율을 조정해 주세요.<br />
-      - 본 계산기의 사용 결과는 투자 권유가 아니며, 투자 손실 시 법적 책임을 지지 않습니다.
-    </div>
-  </main>
+  <style>
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+    }
+  </style>
 </body>
 </html>
