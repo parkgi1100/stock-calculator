@@ -6,11 +6,12 @@
   <title>물타기 계산기 포털</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; padding: 0; }
     iframe {
       width: 100%;
       border: 1px solid #ccc;
       border-radius: 8px;
+      display: block;
     }
   </style>
 </head>
@@ -22,7 +23,7 @@
     </button>
   </div>
 
-  <div class="flex flex-col md:flex-row min-h-screen">
+  <div class="w-full max-w-screen-xl mx-auto flex flex-col md:flex-row">
     <aside id="menuPanel" class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm md:block hidden">
       <h2 class="text-lg font-semibold text-green-600 mb-4">📂 물타기계산기 목록</h2>
       <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50 active bg-green-100" onclick="loadCalculator('stock-multagi.html')" id="btn-stock">🪙 주식</button>
@@ -34,7 +35,7 @@
     </aside>
 
     <main class="flex-1 p-4">
-      <div class="w-full shadow rounded-lg overflow-hidden">
+      <div class="w-full">
         <iframe id="calc-frame" src="stock-multagi.html"></iframe>
       </div>
     </main>
