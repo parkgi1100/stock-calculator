@@ -66,6 +66,7 @@ function calculateCoin() {
   const profitRate = (profit / totalInvest) * 100;
 
   const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+  const formattedProfit = (profit < 0 ? '-' : '') + Math.abs(Math.floor(profit)).toLocaleString();
 
   result.innerHTML = `
   <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
@@ -87,12 +88,17 @@ function calculateCoin() {
         <td class="border px-4 py-2 text-right">${(totalInvest / totalQty).toFixed(1).toLocaleString()}</td>
         <td class="border px-4 py-2 text-center">${totalQty.toFixed(4)}</td>
         <td class="border px-4 py-2 text-right">${currentVal.toLocaleString()}</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
+        <td class="border px-4 py-2 text-right ${profitColor}">${formattedProfit}</td>
         <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
       </tr>
     </tbody>
   </table>`;
+
+  // ✅ 계산 후 iframe 높이 조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
+
 
 // ✅ 주식 물타기 계산기
 function calculateStock() {
