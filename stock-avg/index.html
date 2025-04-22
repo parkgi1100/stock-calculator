@@ -6,7 +6,11 @@
   <title>물타기 계산기 포털</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    html, body { height: 100%; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
     iframe {
       width: 100%;
       border: 1px solid #ccc;
@@ -34,8 +38,8 @@
       <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('multagi-table.html')" id="btn-multagi">📊 물타기계산기(표)</button>
     </aside>
 
-    <main class="flex-1 p-4">
-      <div class="w-full">
+    <main class="flex-1 p-4 overflow-x-auto">
+      <div class="w-full min-w-[360px]">
         <iframe id="calc-frame" src="stock-multagi.html"></iframe>
       </div>
     </main>
