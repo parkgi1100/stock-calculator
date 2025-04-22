@@ -18,8 +18,15 @@
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen">
+  <div class="md:hidden p-4">
+    <button onclick="document.getElementById('mobileMenu').classList.toggle('hidden')" class="bg-green-500 text-white px-4 py-2 rounded">
+      ☰ 카테고리 열기/닫기
+    </button>
+  </div>
+
   <div class="flex flex-col md:flex-row min-h-screen">
-    <aside class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm">
+    <!-- 모바일 접힘 메뉴 -->
+    <aside id="mobileMenu" class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm md:block hidden">
       <h2 class="text-lg font-semibold text-green-600 mb-4">📂 물타기계산기 목록</h2>
       <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50 active bg-green-100" onclick="loadCalculator('stock-multagi.html')" id="btn-stock">🪙 주식</button>
       <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('coin-multagi.html')" id="btn-coin">💰 코인</button>
