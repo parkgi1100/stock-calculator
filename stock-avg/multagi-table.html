@@ -55,5 +55,16 @@
       text-align: right;
     }
   </style>
+  <script>
+  // 메뉴 관련 기존 코드 그대로 유지
+
+  window.addEventListener('message', (event) => {
+    if (event.data.type === 'resize') {
+      const iframe = document.getElementById('calc-frame');
+      iframe.style.height = event.data.height + 'px';
+    }
+  });
+</script>
+
 </body>
 </html>
