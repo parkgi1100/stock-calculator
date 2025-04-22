@@ -124,32 +124,33 @@ function calculateStock() {
   const profitRate = (profit / totalInvest) * 100;
 
   const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+  const formattedProfit = (profit < 0 ? '-' : '') + Math.abs(Math.floor(profit)).toLocaleString();
 
   result.innerHTML = `
-    <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
-      <thead class="bg-gray-100 text-gray-700 font-semibold">
-        <tr>
-          <th class="border px-4 py-2">종목명</th>
-          <th class="border px-4 py-2">현재가</th>
-          <th class="border px-4 py-2">평단가</th>
-          <th class="border px-4 py-2">보유수량</th>
-          <th class="border px-4 py-2">평가금액</th>
-          <th class="border px-4 py-2">평가손익</th>
-          <th class="border px-4 py-2">수익률</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="hover:bg-gray-50">
-          <td class="border px-4 py-2 text-left">${name}</td>
-          <td class="border px-4 py-2 text-right">${price.toLocaleString()}</td>
-          <td class="border px-4 py-2 text-right">${(totalInvest / totalQty).toFixed(1).toLocaleString()}</td>
-          <td class="border px-4 py-2 text-center">${totalQty.toFixed(2)}주</td>
-          <td class="border px-4 py-2 text-right">${currentVal.toLocaleString()}</td>
-          <td class="border px-4 py-2 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
-          <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-        </tr>
-      </tbody>
-    </table>`;
+  <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
+    <thead class="bg-gray-100 text-gray-700 font-semibold">
+      <tr>
+        <th class="border px-4 py-2">종목명</th>
+        <th class="border px-4 py-2">현재가</th>
+        <th class="border px-4 py-2">평단가</th>
+        <th class="border px-4 py-2">보유수량</th>
+        <th class="border px-4 py-2">평가금액</th>
+        <th class="border px-4 py-2">평가손익</th>
+        <th class="border px-4 py-2">수익률</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="hover:bg-gray-50">
+        <td class="border px-4 py-2 text-left">${name}</td>
+        <td class="border px-4 py-2 text-right">${price.toLocaleString()}</td>
+        <td class="border px-4 py-2 text-right">${(totalInvest / totalQty).toFixed(1).toLocaleString()}</td>
+        <td class="border px-4 py-2 text-center">${totalQty.toFixed(2)}주</td>
+        <td class="border px-4 py-2 text-right">${currentVal.toLocaleString()}</td>
+        <td class="border px-4 py-2 text-right ${profitColor}">${formattedProfit}</td>
+        <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
+      </tr>
+    </tbody>
+  </table>`;
 }
 
 
