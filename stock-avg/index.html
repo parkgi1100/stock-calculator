@@ -1,111 +1,50 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📊 물타기 계산기 포털</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>물타기 계산기 포털</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
   <style>
     body {
-      margin: 0;
       font-family: 'Pretendard', sans-serif;
-      display: flex;
-      background: #fff;
     }
-    aside {
-      width: 220px;
-      background: #f5f5f5;
-      border-right: 1px solid #ccc;
-      padding: 20px;
-    }
-    .category-btn {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border: none;
-      font-size: 14px;
-      border-radius: 6px;
-      background-color: #f0f0f0;
-      color: #333;
-      font-weight: 600;
-      text-align: left;
-      cursor: pointer;
-    }
-    .category-btn.active {
-      background-color: #4CAF50;
-      color: white;
-    }
-    #content-area {
-      flex: 1;
-      padding: 30px;
-    }
-    iframe {
-      width: 100%;
-      height: 750px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    @media screen and (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
-  aside {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #ccc;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  .category-btn {
-    flex: 1 1 calc(50% - 10px);
-    font-size: 13px;
-    padding: 10px;
-  }
-  #content-area {
-    padding: 10px;
-  }
-  iframe {
-    height: 800px;
-    width: 100%;
-  }
-}
-
   </style>
 </head>
-<body>
-  <aside>
-    <h2 style="font-size:18px; color:#4CAF50; margin-bottom: 20px;">📂 계산기 목록</h2>
-    <button class="category-btn" onclick="loadCalculator('stock-multagi.html')" id="btn-stock">🪙 주식 물타기</button>
-    <button class="category-btn" onclick="loadCalculator('coin-multagi.html')" id="btn-coin">💰 코인 물타기</button>
-    <button class="category-btn" onclick="loadCalculator('stockfut-multagi.html')" id="btn-stockfut">📈 주식선물 물타기</button>
-    <button class="category-btn" onclick="loadCalculator('coinfut-multagi.html')" id="btn-coinfut">🌐 코인선물 물타기</button>
-    <button class="category-btn" onclick="loadCalculator('sapal-calculator.html')" id="btn-sapal">📐 사팔사팔 계산기</button>
-    <button class="category-btn" onclick="loadCalculator('multagi-table.html')" id="btn-multagi">📊 물타기 계산기 (표)</button>
-  </aside>
+<body class="bg-gray-50 text-gray-800">
+  <div class="flex flex-col md:flex-row min-h-screen">
+    <aside class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm">
+      <h2 class="text-lg font-semibold text-green-600 mb-4">📂 계산기 목록</h2>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50 active bg-green-100" onclick="loadCalculator('stock-multagi.html')" id="btn-stock">🪙 주식 물타기</button>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('coin-multagi.html')" id="btn-coin">💰 코인 물타기</button>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('stockfut-multagi.html')" id="btn-stockfut">📈 주식선물 물타기</button>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('coinfut-multagi.html')" id="btn-coinfut">🌐 코인선물 물타기</button>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('sapal-calculator.html')" id="btn-sapal">📐 사팔사팔 계산기</button>
+      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('multagi-table.html')" id="btn-multagi">📊 물타기 계산기 (표)</button>
+    </aside>
 
-  <div id="content-area">
-    <iframe id="calc-frame" src="stock-multagi.html"></iframe>
+    <main class="flex-1 p-4">
+      <div class="w-full h-[750px] shadow rounded-lg overflow-hidden border border-gray-200">
+        <iframe id="calc-frame" src="stock-multagi.html" class="w-full h-full"></iframe>
+      </div>
+    </main>
   </div>
 
   <script>
     function loadCalculator(src) {
       document.getElementById('calc-frame').src = src;
 
-      // 버튼 스타일 초기화
-      document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.classList.remove('bg-green-100', 'active');
+      });
 
-      // 해당 src랑 연결된 버튼에 active 부여
-      const id = 'btn-' + src.split('-')[0]; // ex: stock-multagi.html → btn-stock
+      const id = 'btn-' + src.split('-')[0];
       const activeBtn = document.getElementById(id);
-      if (activeBtn) activeBtn.classList.add('active');
+      if (activeBtn) activeBtn.classList.add('bg-green-100');
     }
 
     window.onload = function () {
-      // 초기 로딩 시 첫 번째 버튼 활성화
-      document.getElementById('btn-stock').classList.add('active');
+      document.getElementById('btn-stock').classList.add('bg-green-100');
     };
   </script>
 </body>
