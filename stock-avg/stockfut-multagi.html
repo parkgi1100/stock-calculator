@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주식선물 물타기 계산기</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main id="stockfut-section">
+    <h2 style="text-align:center; color:#4CAF50;">🧭 주식선물 물타기 계산기</h2>
+
+    <label style="font-weight:bold;">📌 종목명</label>
+    <input id="stockfutName" placeholder="종목명" />
+    <label style="font-weight:bold;">📊 보유 계약 수</label>
+    <input id="stockfutQuantity" type="number" placeholder="보유 계약 수" />
+
+    <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
+      <div style="flex: 1;">
+        <label style="font-weight:bold;">💵 현재 가격</label>
+        <input id="stockfutPrice" type="number" placeholder="현재 가격" />
+      </div>
+      <div style="flex: 1;">
+        <label style="font-weight:bold;">💵 진입 가격</label>
+        <input id="stockfutEntryPrice" type="number" placeholder="진입 가격" />
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px;">
+      <div style="flex: 1;">
+        <label style="font-weight:bold;">📐 레버리지 배율</label>
+        <input id="stockfutLeverage" type="number" placeholder="레버리지 배율" />
+      </div>
+      <div style="flex: 1;">
+        <label style="font-weight:bold;">💰 내 예수금</label>
+        <input id="stockfutBalance" type="number" placeholder="내 예수금" />
+      </div>
+    </div>
+
+    <div style="display:flex; gap: 10px; align-items: center;">
+      <div style="flex:1">
+        <label style="font-weight:bold;">📈 포지션 선택</label>
+        <select id="stockfutPosition">
+          <option value="long">롱</option>
+          <option value="short">숏</option>
+        </select>
+      </div>
+      <div style="flex:1">
+        <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
+        <input id="stockfutFeeRate" type="number" placeholder="예: 0.04" value="0.04" />
+      </div>
+    </div>
+
+    <label style="font-weight:bold;">➕ 추가 매수 방식</label>
+    <div style="display: flex; gap: 10px;">
+      <select id="stockfutAddOption" style="flex: 1;">
+        <option value="amount">금액</option>
+        <option value="shares">계약 수</option>
+      </select>
+      <input id="stockfutAddInput" type="number" placeholder="예: 50000" style="flex: 1;" />
+    </div>
+
+    <button class="submit" onclick="calculateStockFut()">물타기 계산하기</button>
+    <div class="result" id="stockfutResult"></div>
+    <div class="error" id="stockfutError"></div>
+
+    <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
+      ⚠️ <strong>주의사항</strong><br />
+      - 실제 선물 거래소의 청산 조건, 마진 유지율, 수수료 정책과 다를 수 있습니다.<br />
+      - 수수료율을 조정하여 더 현실적인 손익 예측이 가능합니다.<br />
+      - 본 계산기의 결과는 법적 효력이 없으며, 투자 손실에 대한 책임을 지지 않습니다.
+    </div>
+  </main>
+</body>
+</html>
