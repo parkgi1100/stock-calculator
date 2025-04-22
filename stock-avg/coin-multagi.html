@@ -4,45 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코인 물타기 계산기</title>
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="script.js" defer></script>
 </head>
-<body>
-  <main id="coin-section">
-    <h2 style="text-align:center; color:#4CAF50;">💰 코인 물타기 계산기</h2>
+<body class="bg-gray-50 text-gray-800">
+  <main class="max-w-xl mx-auto p-4 bg-white rounded-lg shadow mt-6">
+    <h2 class="text-xl font-bold text-green-600 text-center mb-6">💰 코인 물타기 계산기</h2>
 
-    <label style="font-weight:bold;">📌 코인명</label>
-    <input id="coinName" placeholder="코인명" />
-    <label style="font-weight:bold;">📊 보유 수량</label>
-    <input id="coinQuantity" type="number" placeholder="보유 수량" />
-    <label style="font-weight:bold;">📈 현재 평단가 (₩)</label>
-    <input id="coinAvgPrice" type="number" placeholder="예: 43000000" />
-    <label style="font-weight:bold;">💵 현재 가격 (₩)</label>
-    <input id="coinPrice" type="number" placeholder="현재 가격 (₩)" />
-    <label style="font-weight:bold;">💸 거래 수수료율 (%)</label>
-    <input id="coinFeeRate" type="number" placeholder="예: 0.04" value="0.04" />
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">📌 코인명</label>
+        <input id="coinName" class="w-full rounded-md border-gray-300 shadow-sm" placeholder="코인명" />
+      </div>
 
-    <label style="font-weight:bold;">➕ 추가 매수 방식</label>
-    <div style="display: flex; gap: 10px;">
-      <select id="coinAddOption">
-        <option value="amount">금액 (₩)</option>
-        <option value="shares">수량 (코인)</option>
-      </select>
-      <input id="coinAddInput" type="number" placeholder="예: 100000" />
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">📦 보유 수량</label>
+          <input id="coinQuantity" type="number" class="w-full rounded-md border-gray-300 shadow-sm" placeholder="보유 수량" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">📈 현재 평단가 (₩)</label>
+          <input id="coinAvgPrice" type="number" class="w-full rounded-md border-gray-300 shadow-sm" placeholder="예: 43000000" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">💵 현재 가격 (₩)</label>
+          <input id="coinPrice" type="number" class="w-full rounded-md border-gray-300 shadow-sm" placeholder="현재 가격" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">💸 거래 수수료율 (%)</label>
+          <input id="coinFeeRate" type="number" class="w-full rounded-md border-gray-300 shadow-sm" value="0.04" />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">➕ 추가 매수 방식</label>
+        <div class="flex gap-2">
+          <select id="coinAddOption" class="rounded-md border-gray-300 shadow-sm">
+            <option value="amount">금액 (₩)</option>
+            <option value="shares">수량 (코인)</option>
+          </select>
+          <input id="coinAddInput" type="number" class="flex-1 rounded-md border-gray-300 shadow-sm" placeholder="예: 100000" />
+        </div>
+      </div>
+
+      <button onclick="calculateCoin()" class="w-full mt-4 bg-green-600 text-white py-2 rounded-md font-bold hover:bg-green-700">
+        계산하기
+      </button>
+
+      <div class="result mt-4 text-sm text-gray-800" id="coinResult"></div>
+      <div class="error text-red-600 font-semibold mt-2" id="coinError"></div>
     </div>
 
-    <button class="submit" onclick="calculateCoin()">물타기 계산하기</button>
-
-    <div class="result" id="coinResult"></div>
-    <div class="error" id="coinError"></div>
-
-    <div style="margin-top: 20px; font-size: 14px; color: #666; line-height: 1.6; background: #f8f8f8; padding: 10px 15px; border-radius: 6px;">
-      ⚠️ <strong>주의사항</strong><br />
-      - 이 계산기는 참고용이며 실제 거래소 환경(슬리피지, 레버리지, 강제 청산 조건 등)과 다를 수 있습니다.<br />
-      - 입력한 수수료율이 정확하지 않으면 손익 계산이 왜곡될 수 있으므로 확인 후 입력하세요.<br />
-      - 본 계산기의 사용은 사용자 본인의 책임이며, 투자 손실 시 법적 책임을 지지 않습니다.<br />
-      - 본 계산기의 결과는 참고용이며, 투자 판단은 사용자 본인의 책임입니다.
-    </div>
+    <p class="mt-6 text-xs text-gray-500 bg-gray-50 p-3 rounded-md">
+      ⚠️ 이 계산기는 참고용입니다. 실제 수익률과 다를 수 있으며, 투자 판단은 본인의 책임입니다.
+    </p>
   </main>
 </body>
 </html>
