@@ -1,50 +1,59 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>물타기 계산기 (표)</title>
-  <link rel="stylesheet" href="style.css" />
   <script src="script.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <main id="multagi-table" style="padding: 30px; max-width: 800px; margin: auto;">
-    <h2 style="text-align: center; color: #4CAF50;">📊 물타기 계산기 (표)</h2>
+<body class="bg-gray-50 text-gray-800 p-4">
+  <div class="max-w-3xl mx-auto space-y-6">
+    <h2 class="text-xl font-bold text-green-600">📊 물타기 계산기 (표)</h2>
 
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-      <thead style="background-color: #f0f0f0;">
-        <tr>
-          <th>회차</th>
-          <th>물탈 금액 (₩)</th>
-          <th>물탈 단가 (₩)</th>
-          <th>매수 수량</th>
-          <th>총 매수 금액</th>
-          <th>평단가</th>
-          <th>수익률</th>
-        </tr>
-      </thead>
-      <tbody id="multagi-body">
-        <tr>
-          <td>1회차</td>
-          <td><input type="number" id="amount-1" placeholder="₩" /></td>
-          <td><input type="number" id="price-1" placeholder="₩" /></td>
-          <td id="qty-1">-</td>
-          <td id="total-amount-1">-</td>
-          <td id="avg-price-1">-</td>
-          <td id="profit-1">-</td>
-        </tr>
-        <!-- 필요 시 행 추가 -->
-      </tbody>
-    </table>
+    <div class="bg-white rounded-xl shadow p-4 overflow-x-auto">
+      <table class="w-full text-sm table-auto border">
+        <thead class="bg-gray-100 text-center">
+          <tr>
+            <th>회차</th>
+            <th>물탈 금액</th>
+            <th>물탈 단가</th>
+            <th>매수 수량</th>
+            <th>총 매수 금액</th>
+            <th>평단가</th>
+            <th>수익률</th>
+          </tr>
+        </thead>
+        <tbody id="multagi-body" class="text-center">
+          <tr>
+            <td>1회차</td>
+            <td><input type="number" id="amount-1" class="input w-24"></td>
+            <td><input type="number" id="price-1" class="input w-24"></td>
+            <td id="qty-1">-</td>
+            <td id="total-amount-1">-</td>
+            <td id="avg-price-1">-</td>
+            <td id="profit-1">-</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <button class="submit" style="margin-top: 20px;" onclick="calculateMultagi()">계산하기</button>
-
-    <div style="margin-top: 30px; font-size: 13px; color: #666; line-height: 1.6; background: #f9f9f9; padding: 14px 18px; border-radius: 8px;">
-      ⚠️ <strong>이 계산기는 투자 참고용입니다.</strong><br />
-      - 수수료 및 세금은 계산에 포함되지 않았습니다.<br />
-      - 계산 결과는 참고용일 뿐이며, 실제 투자 결과와 다를 수 있습니다.<br />
-      - 모든 투자 판단은 사용자 본인의 책임입니다.
+      <button onclick="calculateMultagi()" class="mt-4 w-full bg-green-500 text-white py-2 rounded-md font-bold">📈 계산하기</button>
     </div>
-  </main>
+
+    <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
+      ⚠️ <strong>이 계산기는 참고용입니다.</strong><br>
+      - 단일 입력행 기준이며, 수수료 및 기타 조건은 미포함입니다.<br>
+      - 입력값의 정확성은 사용자에게 있으며, 결과에 대한 법적 책임은 없습니다.
+    </div>
+  </div>
+
+  <style>
+    .input {
+      padding: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      text-align: right;
+    }
+  </style>
 </body>
 </html>
