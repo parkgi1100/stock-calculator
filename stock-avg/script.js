@@ -215,54 +215,64 @@ function calculateStockFut() {
   </table>`;
 }
 
-// ✅ 코인선물 계산기 리디자인
-function calculateCoinFut() {
-  const name = document.getElementById("coinfutName")?.value || '-';
-  const quantity = parseFloat(document.getElementById("coinfutQuantity")?.value);
-  const price = parseFloat(document.getElementById("coinfutPrice")?.value);
-  const entry = parseFloat(document.getElementById("coinfutEntryPrice")?.value);
-  const leverage = parseFloat(document.getElementById("coinfutLeverage")?.value);
-  const feeRate = parseFloat(document.getElementById("coinfutFeeRate")?.value) / 100;
-  const position = document.getElementById("coinfutPosition")?.value;
-  const result = document.getElementById("coinfutResult");
-  const error = document.getElementById("coinfutError");
+// ✅ 코인 물타기 계산기
+function calculateCoin() {
+  const name = document.getElementById("coinName").value.trim();
+  const quantity = parseFloat(document.getElementById("coinQuantity").value);
+  const price = parseFloat(document.getElementById("coinPrice").value);
+  const avgPrice = parseFloat(document.getElementById("coinAvgPrice").value);
+  const feeRate = parseFloat(document.getElementById("coinFeeRate").value) / 100;
+  const addOption = document.getElementById("coinAddOption").value;
+  const addInput = parseFloat(document.getElementById("coinAddInput").value);
+  const result = document.getElementById("coinResult");
+  const error = document.getElementById("coinError");
 
-  if (isNaN(price) || isNaN(entry) || isNaN(leverage) || isNaN(quantity)) {
+  if (!name || isNaN(quantity) || isNaN(price) || isNaN(avgPrice) || isNaN(addInput)) {
     error.innerText = "입력값을 모두 확인해주세요.";
     result.innerHTML = "";
     return;
   }
   error.innerText = "";
 
-  let pnl = position === "long" ? (price - entry) : (entry - price);
-  pnl *= quantity * leverage;
-  const fees = price * quantity * feeRate;
-  const profit = pnl - fees;
-  const profitRate = (profit / (entry * quantity)) * 100;
+  let addQty = addOption === "amount" ? addInput / price : addInput;
+  let addTotal = addOption === "amount" ? addInput : price * addInput;
+
+  const totalQty = quantity + addQty;
+  const totalInvest = (quantity * avgPrice) + addTotal;
+  const currentVal = totalQty * price;
+  const fees = totalQty * price * feeRate;
+  const profit = currentVal - totalInvest - fees;
+  const profitRate = (profit / totalInvest) * 100;
 
   const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+  const formattedProfit = (profit < 0 ? '-' : '') + Math.abs(Math.floor(profit)).toLocaleString();
 
   result.innerHTML = `
   <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
     <thead class="bg-gray-100 text-gray-700 font-semibold">
       <tr>
         <th class="border px-4 py-2">코인명</th>
-        <th class="border px-4 py-2">포지션</th>
-        <th class="border px-4 py-2">레버리지</th>
+        <th class="border px-4 py-2">현재가</th>
+        <th class="border px-4 py-2">평단가</th>
+        <th class="border px-4 py-2">보유수량</th>
+        <th class="border px-4 py-2">평가금액</th>
+        <th class="border px-4 py-2">평가손익</th>
         <th class="border px-4 py-2">수익률</th>
-        <th class="border px-4 py-2">손익</th>
-        <th class="border px-4 py-2">수수료</th>
       </tr>
     </thead>
     <tbody>
       <tr class="hover:bg-gray-50">
         <td class="border px-4 py-2 text-left">${name}</td>
-        <td class="border px-4 py-2 text-center">${position}</td>
-        <td class="border px-4 py-2 text-center">${leverage}배</td>
+        <td class="border px-4 py-2 text-right">${price.toLocaleString()}</td>
+        <td class="border px-4 py-2 text-right">${(totalInvest / totalQty).toFixed(1).toLocaleString()}</td>
+        <td class="border px-4 py-2 text-center">${totalQty.toFixed(4)}</td>
+        <td class="border px-4 py-2 text-right">${currentVal.toLocaleString()}</td>
+        <td class="border px-4 py-2 text-right ${profitColor}">${formattedProfit}</td>
         <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
-        <td class="border px-4 py-2 text-right">${fees.toLocaleString()}</td>
       </tr>
     </tbody>
   </table>`;
+
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
