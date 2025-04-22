@@ -1,30 +1,50 @@
-<section id="multagi-table">
-  <h2>📊 물타기 계산기 (표)</h2>
-  <table border="1">
-    <thead>
-      <tr>
-        <th>회차</th>
-        <th>물탈 금액</th>
-        <th>물탈 단가</th>
-        <th>매수 수량</th>
-        <th>총 매수 금액</th>
-        <th>평단가</th>
-        <th>수익률</th>
-      </tr>
-    </thead>
-    <tbody id="multagi-body">
-      <tr>
-        <td>1회차</td>
-        <td><input type="number" id="amount-1"></td>
-        <td><input type="number" id="price-1"></td>
-        <td id="qty-1">-</td>
-        <td id="total-amount-1">-</td>
-        <td id="avg-price-1">-</td>
-        <td id="profit-1">-</td>
-      </tr>
-      <!-- 더 추가하려면 행 복사 붙여넣기 -->
-    </tbody>
-  </table>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>물타기 계산기 (표)</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main id="multagi-table" style="padding: 30px; max-width: 800px; margin: auto;">
+    <h2 style="text-align: center; color: #4CAF50;">📊 물타기 계산기 (표)</h2>
 
-  <button onclick="calculateMultagi()">계산하기</button>
-</section>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <thead style="background-color: #f0f0f0;">
+        <tr>
+          <th>회차</th>
+          <th>물탈 금액 (₩)</th>
+          <th>물탈 단가 (₩)</th>
+          <th>매수 수량</th>
+          <th>총 매수 금액</th>
+          <th>평단가</th>
+          <th>수익률</th>
+        </tr>
+      </thead>
+      <tbody id="multagi-body">
+        <tr>
+          <td>1회차</td>
+          <td><input type="number" id="amount-1" placeholder="₩" /></td>
+          <td><input type="number" id="price-1" placeholder="₩" /></td>
+          <td id="qty-1">-</td>
+          <td id="total-amount-1">-</td>
+          <td id="avg-price-1">-</td>
+          <td id="profit-1">-</td>
+        </tr>
+        <!-- 필요 시 행 추가 -->
+      </tbody>
+    </table>
+
+    <button class="submit" style="margin-top: 20px;" onclick="calculateMultagi()">계산하기</button>
+
+    <div style="margin-top: 30px; font-size: 13px; color: #666; line-height: 1.6; background: #f9f9f9; padding: 14px 18px; border-radius: 8px;">
+      ⚠️ <strong>이 계산기는 투자 참고용입니다.</strong><br />
+      - 수수료 및 세금은 계산에 포함되지 않았습니다.<br />
+      - 계산 결과는 참고용일 뿐이며, 실제 투자 결과와 다를 수 있습니다.<br />
+      - 모든 투자 판단은 사용자 본인의 책임입니다.
+    </div>
+  </main>
+</body>
+</html>
