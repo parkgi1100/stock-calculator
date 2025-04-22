@@ -67,16 +67,15 @@
       border-radius: 0.5rem;
     }
   </style>
-  <script>
-  // 메뉴 관련 기존 코드 그대로 유지
-
-  window.addEventListener('message', (event) => {
-    if (event.data.type === 'resize') {
-      const iframe = document.getElementById('calc-frame');
-      iframe.style.height = event.data.height + 'px';
-    }
+<script>
+  window.addEventListener('load', () => {
+    const height = document.body.scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: height }, '*');
   });
 </script>
+</body>
+</html>
+
 
 </body>
 </html>
