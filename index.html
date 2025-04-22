@@ -2,56 +2,43 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>물타기 계산기 포털</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calcu.kr 계산기 모음</title>
   <style>
-    html, body {
-      height: 100%;
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background-color: #f8f9fa;
+      text-align: center;
+      padding: 50px;
     }
-    iframe {
-      width: 100%;
-      min-height: 1800px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 30px;
+    }
+    li {
+      margin: 20px 0;
+    }
+    a {
+      text-decoration: none;
+      font-size: 1.2rem;
+      color: #007bff;
+    }
+    a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen">
-  <div class="flex flex-col md:flex-row min-h-screen">
-    <aside class="w-full md:w-60 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-4 space-y-3 shadow-sm">
-      <h2 class="text-lg font-semibold text-green-600 mb-4">📂 계산기 목록</h2>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50 active bg-green-100" onclick="loadCalculator('stock-multagi.html')" id="btn-stock">🪙 주식 물타기</button>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('coin-multagi.html')" id="btn-coin">💰 코인 물타기</button>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('stockfut-multagi.html')" id="btn-stockfut">📈 주식선물 물타기</button>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('coinfut-multagi.html')" id="btn-coinfut">🌐 코인선물 물타기</button>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('sapal-calculator.html')" id="btn-sapal">📐 사팔사팔 계산기</button>
-      <button class="category-btn w-full text-left py-2 px-3 rounded-md hover:bg-green-50" onclick="loadCalculator('multagi-table.html')" id="btn-multagi">📊 물타기 계산기 (표)</button>
-    </aside>
-
-    <main class="flex-1 p-4">
-      <div class="w-full shadow rounded-lg overflow-hidden">
-        <iframe id="calc-frame" src="stock-multagi.html"></iframe>
-      </div>
-    </main>
-  </div>
-
-  <script>
-    function loadCalculator(src) {
-      document.getElementById('calc-frame').src = src;
-
-      document.querySelectorAll('.category-btn').forEach(btn => {
-        btn.classList.remove('bg-green-100', 'active');
-      });
-
-      const id = 'btn-' + src.split('-')[0];
-      const activeBtn = document.getElementById(id);
-      if (activeBtn) activeBtn.classList.add('bg-green-100');
-    }
-
-    window.onload = function () {
-      document.getElementById('btn-stock').classList.add('bg-green-100');
-    };
-  </script>
+<body>
+  <h1>🧮 Calcu.kr 계산기 모음</h1>
+  <ul>
+    <li><a href="fx-calculator/">💱 환차익 계산기</a></li>
+    <li><a href="stock-avg/">📈 주식 물타기 계산기</a></li>
+    <li><a href="coin-avg/">🪙 코인 물타기 계산기</a></li>
+  </ul>
 </body>
 </html>
