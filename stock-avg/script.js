@@ -122,6 +122,8 @@ function calculateStock() {
 
 function renderMultiStockResults() {
   const resultArea = document.getElementById("stockResult");
+  resultArea.innerHTML = ""; // 강제 리렌더링 유도
+
   resultArea.innerHTML = Object.entries(multagiStockMap).map(([name, data]) => {
     const currentVal = data.totalQty * data.price;
     const fees = data.totalQty * data.price * data.feeRate;
@@ -167,6 +169,7 @@ function deleteStockResult(name) {
   delete multagiStockMap[name];
   renderMultiStockResults();
 }
+
 
 // ✅ 코인 물타기 계산기
 function calculateCoin() {
