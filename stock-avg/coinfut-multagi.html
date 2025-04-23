@@ -105,5 +105,14 @@
       border-radius: 0.5rem;
     }
   </style>
+  <script>
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ type: 'resize', height }, '*');
+    }, 300); // ✅ 지연 적용
+  });
+</script>
+
 </body>
 </html>
