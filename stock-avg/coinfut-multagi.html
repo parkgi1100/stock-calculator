@@ -1,61 +1,99 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>코인선물 계산기</title>
   <script src="script.js" defer></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 text-gray-800 p-4">
-  <div class="max-w-3xl mx-auto space-y-6">
-    <h2 class="text-xl font-bold text-green-600">🌐 코인선물 물타기 계산기</h2>
+  <div class="max-w-4xl mx-auto space-y-6">
+    <h2 class="text-2xl font-bold text-green-600">💹 코인선물 계산기 (USDT 기준)</h2>
 
-    <div class="bg-white rounded-xl shadow p-4 space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- ✅ 초기 포지션 입력 -->
+    <div class="bg-white p-4 rounded-xl shadow space-y-4">
+      <h3 class="text-lg font-semibold text-gray-700">1️⃣ 초기 포지션 입력</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>
-          <label class="font-semibold">📌 코인명</label>
-          <input id="coinfutName" type="text" placeholder="예: BTCUSDT" class="input">
+          <label class="block mb-1 font-medium">코인명</label>
+          <input id="coinfutName" class="input" placeholder="예: BTCUSDT" />
         </div>
         <div>
-          <label class="font-semibold">📊 보유 계약 수</label>
-          <input id="coinfutQuantity" type="number" placeholder="보유 계약 수" class="input">
+          <label class="block mb-1 font-medium">계약수</label>
+          <input id="coinfutQuantity" type="number" class="input" />
         </div>
         <div>
-          <label class="font-semibold">💵 진입 가격</label>
-          <input id="coinfutEntryPrice" type="number" placeholder="진입 가격" class="input">
+          <label class="block mb-1 font-medium">평균 진입가</label>
+          <input id="coinfutEntryPrice" type="number" class="input" />
         </div>
         <div>
-          <label class="font-semibold">💵 현재 가격</label>
-          <input id="coinfutPrice" type="number" placeholder="현재 가격" class="input">
+          <label class="block mb-1 font-medium">레버리지</label>
+          <input id="coinfutLeverage" type="number" class="input" value="50" />
         </div>
         <div>
-          <label class="font-semibold">📐 레버리지 배율</label>
-          <input id="coinfutLeverage" type="number" placeholder="예: 10" class="input">
+          <label class="block mb-1 font-medium">수수료율 (%)</label>
+          <input id="coinfutFeeRate" type="number" class="input" value="0.02" />
         </div>
         <div>
-          <label class="font-semibold">💸 수수료율 (%)</label>
-          <input id="coinfutFeeRate" type="number" placeholder="예: 0.04" value="0.04" class="input">
-        </div>
-        <div>
-          <label class="font-semibold">📈 포지션</label>
+          <label class="block mb-1 font-medium">포지션</label>
           <select id="coinfutPosition" class="input">
             <option value="long">롱</option>
             <option value="short">숏</option>
           </select>
         </div>
       </div>
-      <button onclick="calculateCoinFut()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📊 물타기 계산하기</button>
+      <button onclick="calculateCoinFutInitial()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold mt-2">✅ 초기 포지션 설정</button>
     </div>
 
-    <div id="coinfutResult" class="text-sm"></div>
-    <div id="coinfutError" class="text-red-600 font-semibold mt-2"></div>
+    <!-- ✅ 현재 가격 적용 -->
+    <div class="bg-white p-4 rounded-xl shadow">
+      <h3 class="text-lg font-semibold text-gray-700">📍 현재 가격 적용</h3>
+      <div class="flex gap-4 items-end">
+        <div class="flex-1">
+          <label class="block mb-1 font-medium">현재 가격</label>
+          <input id="coinfutPrice" type="number" class="input" placeholder="예: 63000" />
+        </div>
+        <button onclick="updateCoinFutPrice()" class="bg-blue-600 text-white px-4 py-2 rounded-md font-bold">📈 적용</button>
+      </div>
+    </div>
 
-    <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
+    <!-- ✅ 결과 출력 -->
+    <div id="coinfutInitialResult"></div>
+
+    <!-- ✅ 추가 진입 입력 -->
+    <div class="bg-white p-4 rounded-xl shadow space-y-4">
+      <h3 class="text-lg font-semibold text-gray-700">➕ 추가 진입</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div>
+          <label class="block mb-1 font-medium">추가 진입 단가</label>
+          <input id="coinfutAddEntryPrice" type="number" class="input" />
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">추가 계약 수</label>
+          <input id="coinfutAddQuantity" type="number" class="input" />
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">추가 포지션</label>
+          <select id="coinfutAddPosition" class="input">
+            <option value="long">롱</option>
+            <option value="short">숏</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="calculateCoinFutAdd()" class="w-full bg-blue-500 text-white py-2 rounded-md font-bold">➕ 추가 진입 반영</button>
+    </div>
+
+    <!-- ✅ 에러 메시지 및 초기화 -->
+    <div id="coinfutError" class="text-red-600 font-semibold"></div>
+    <button onclick="resetCoinFutData()" class="mt-4 w-full bg-gray-300 text-gray-800 py-2 rounded-md font-semibold">🔄 전체 초기화</button>
+
+    <!-- ✅ 안내사항 -->
+    <div class="bg-yellow-50 p-4 rounded-xl shadow text-sm text-gray-700">
       ⚠️ <strong>주의사항</strong><br>
-      - 이 계산기는 참고용이며 실제 거래 조건과 다를 수 있습니다.<br>
-      - 수수료, 레버리지, 포지션 방향에 따라 손익이 달라질 수 있습니다.<br>
-      - 사용자의 입력값에 따라 결과가 달라지며, 투자 판단은 본인의 책임입니다.
+      - 이 계산기는 참고용입니다. 실제 거래 조건과 차이가 있을 수 있습니다.<br>
+      - 수수료는 진입+청산 모두 반영되며, 레버리지 기반 계약 구조를 따릅니다.<br>
+      - 투자 판단은 사용자 본인에게 있으며, 본 계산기는 손실에 대한 책임을 지지 않습니다.
     </div>
   </div>
 
@@ -63,19 +101,9 @@
     .input {
       width: 100%;
       padding: 0.5rem;
-      border: 1px solid #ccc;
+      border: 1px solid #bbb;
       border-radius: 0.5rem;
     }
   </style>
-<script>
-  window.addEventListener('load', () => {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage({ type: 'resize', height: height }, '*');
-  });
-</script>
-</body>
-</html>
-
-
 </body>
 </html>
