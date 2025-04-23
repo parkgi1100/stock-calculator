@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>주식 물타기 계산기</title>
   <script src="script.js" defer></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -13,37 +13,26 @@
 
     <div class="bg-white rounded-xl shadow p-4 space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- 종목명 -->
         <div>
           <label class="font-semibold">📌 종목명</label>
           <input id="stockName" type="text" placeholder="예: 삼성전자" class="input">
         </div>
-
-        <!-- 현재 보유 수량 -->
         <div>
           <label class="font-semibold">📦 현재 보유 수량</label>
           <input id="stockQuantity" type="number" placeholder="예: 10" class="input">
         </div>
-
-        <!-- 현재 평단가 -->
         <div>
           <label class="font-semibold">💵 현재 평단가 (₩)</label>
           <input id="stockAvgPrice" type="number" placeholder="예: 70000" class="input">
         </div>
-
-        <!-- 현재 주가 -->
         <div>
           <label class="font-semibold">📈 현재 주가 (₩)</label>
           <input id="stockCurrentPrice" type="number" placeholder="예: 69000" class="input">
         </div>
-
-        <!-- 수수료율 -->
         <div>
           <label class="font-semibold">💸 거래 수수료율 (%)</label>
           <input id="stockFeeRate" type="number" placeholder="예: 0.04" value="0.04" class="input">
         </div>
-
-        <!-- 추가 매수 방식 -->
         <div>
           <label class="font-semibold">➕ 추가 매수 방식</label>
           <div class="flex gap-2">
@@ -54,15 +43,12 @@
             <input id="stockAddInput" type="number" placeholder="예: 50000" class="input">
           </div>
         </div>
-
-        <!-- 추가 매수 단가 -->
         <div>
           <label class="font-semibold">🧮 추가 매수 단가 (₩)</label>
-          <input id="stockAddPrice" type="number" placeholder="예: 72000" class="input">
+          <input id="stockAddPrice" type="number" placeholder="예: 68000" class="input">
         </div>
       </div>
-
-      <button onclick="calculateStock()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📈 계산하기</button>
+      <button onclick="calculateStockOnly()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📈 계산하기</button>
     </div>
 
     <div id="stockResult" class="text-sm mt-4"></div>
@@ -84,14 +70,12 @@
       border-radius: 0.5rem;
     }
   </style>
-
-  <!-- ✅ 초기 진입 시 iframe 높이 늦게 다시 조정 -->
   <script>
     window.addEventListener('load', () => {
       setTimeout(() => {
         const height = document.body.scrollHeight;
         window.parent.postMessage({ type: 'resize', height: height }, '*');
-      }, 500);
+      }, 300);
     });
   </script>
 </body>
