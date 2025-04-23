@@ -42,7 +42,7 @@ console.log("✅ script.js 로딩됨");
 // ✅ 종목별 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
 const multagiStockMap = {};
 
-function calculateStock() {
+function calculateStockOnly() {
   const name = document.getElementById("stockName").value.trim();
   const quantity = parseFloat(document.getElementById("stockQuantity").value);
   const price = parseFloat(document.getElementById("stockCurrentPrice").value);
@@ -140,6 +140,7 @@ function deleteStockResult(name) {
   delete multagiStockMap[name];
   renderMultiStockResults();
 }
+
 
 
 
