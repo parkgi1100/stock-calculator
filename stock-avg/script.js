@@ -36,7 +36,9 @@ function calculateMultagi() {
   document.getElementById('profit-1').innerText = `${profit1.toFixed(2)}%`;
 }
 
-// ✅ 종목별 주식 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
+// ✅ script.js 로딩 확인용
+console.log("✅ script.js 로딩됨");
+
 // ✅ 종목별 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
 const multagiStockMap = {};
 
@@ -138,6 +140,7 @@ function deleteStockResult(name) {
   delete multagiStockMap[name];
   renderMultiStockResults();
 }
+
 
 
 
