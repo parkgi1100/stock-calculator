@@ -15,44 +15,44 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="font-semibold">📌 코인명</label>
-          <input id="stockName" type="text" placeholder="예: 비트코인" class="input">
+          <input id="coinName" type="text" placeholder="예: 비트코인" class="input">
         </div>
         <div>
           <label class="font-semibold">📦 현재 보유 수량</label>
-          <input id="stockQuantity" type="number" placeholder="예: 1.5" class="input">
+          <input id="coinQuantity" type="number" placeholder="예: 1.5" class="input">
         </div>
         <div>
           <label class="font-semibold">💵 현재 평단가 (₩)</label>
-          <input id="stockAvgPrice" type="number" placeholder="예: 90000000" class="input">
+          <input id="coinAvgPrice" type="number" placeholder="예: 90000000" class="input">
         </div>
         <div>
           <label class="font-semibold">📈 현재 시세 (₩)</label>
-          <input id="stockCurrentPrice" type="number" placeholder="예: 100000000" class="input">
+          <input id="coinPrice" type="number" placeholder="예: 100000000" class="input">
         </div>
         <div>
           <label class="font-semibold">💸 수수료율 (%)</label>
-          <input id="stockFeeRate" type="number" placeholder="예: 0.04" value="0.04" class="input">
+          <input id="coinFeeRate" type="number" placeholder="예: 0.04" value="0.04" class="input">
         </div>
         <div>
           <label class="font-semibold">➕ 추가 매수 방식</label>
           <div class="flex gap-2">
-            <select id="stockAddOption" class="input">
+            <select id="coinAddOption" class="input">
               <option value="amount">금액 (₩)</option>
               <option value="shares">수량</option>
             </select>
-            <input id="stockAddInput" type="number" placeholder="예: 5000000" class="input">
+            <input id="coinAddInput" type="number" placeholder="예: 5000000" class="input">
           </div>
         </div>
         <div>
           <label class="font-semibold">🧮 추가 매수 단가 (₩)</label>
-          <input id="stockAddPrice" type="number" placeholder="예: 95000000" class="input">
+          <input id="coinAddPrice" type="number" placeholder="예: 95000000" class="input">
         </div>
       </div>
-      <button onclick="calculateStock()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📊 계산하기</button>
+      <button onclick="calculateCoinOnly()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📈 계산하기</button>
     </div>
 
-    <div id="stockResult" class="text-sm mt-4"></div>
-    <div id="stockError" class="text-red-600 font-semibold mt-2"></div>
+    <div id="coinResult" class="text-sm mt-4"></div>
+    <div id="coinError" class="text-red-600 font-semibold mt-2"></div>
 
     <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
       ⚠️ <strong>주의사항</strong><br>
@@ -76,7 +76,7 @@
       setTimeout(() => {
         const height = document.body.scrollHeight;
         window.parent.postMessage({ type: 'resize', height: height }, '*');
-      }, 500);
+      }, 300);
     });
   </script>
 </body>
