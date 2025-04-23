@@ -227,7 +227,9 @@ function deleteCoinResult(name) {
 
 
 
-// ✅ 주식선물 계산기 리디자인
+// ✅ 주식선물 계산기 리디자인 (누적 + 삭제 기능 포함)
+const multagiFutMap = {};
+
 function calculateStockFut() {
   const name = document.getElementById("stockfutName")?.value || '-';
   const quantity = parseFloat(document.getElementById("stockfutQuantity")?.value);
@@ -239,47 +241,71 @@ function calculateStockFut() {
   const result = document.getElementById("stockfutResult");
   const error = document.getElementById("stockfutError");
 
-  if (isNaN(price) || isNaN(entry) || isNaN(leverage) || isNaN(quantity)) {
+  if (!name || isNaN(price) || isNaN(entry) || isNaN(leverage) || isNaN(quantity)) {
     error.innerText = "입력값을 모두 확인해주세요.";
-    result.innerHTML = "";
     return;
   }
   error.innerText = "";
 
-  let pnl = position === "long" ? (price - entry) : (entry - price);
-  pnl *= quantity * leverage;
-  const fees = price * quantity * feeRate;
-  const profit = pnl - fees;
-  const profitRate = (profit / (entry * quantity)) * 100;
+  if (!multagiFutMap[name]) {
+    multagiFutMap[name] = [];
+  }
+  multagiFutMap[name].push({ quantity, price, entry, leverage, feeRate, position });
 
-  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+  renderStockFutResults();
 
-  result.innerHTML = `
-  <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
-    <thead class="bg-gray-100 text-gray-700 font-semibold">
-      <tr>
-        <th class="border px-4 py-2">종목명</th>
-        <th class="border px-4 py-2">포지션</th>
-        <th class="border px-4 py-2">레버리지</th>
-        <th class="border px-4 py-2">수익률</th>
-        <th class="border px-4 py-2">손익</th>
-        <th class="border px-4 py-2">수수료</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="hover:bg-gray-50">
-        <td class="border px-4 py-2 text-left">${name}</td>
-        <td class="border px-4 py-2 text-center">${position}</td>
-        <td class="border px-4 py-2 text-center">${leverage}배</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
-        <td class="border px-4 py-2 text-right">${fees.toLocaleString()}</td>
-      </tr>
-    </tbody>
-  </table>`;
- // ✅ 계산 후 iframe 높이 조정
   const updatedHeight = document.body.scrollHeight;
   window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
+}
+
+function renderStockFutResults() {
+  const result = document.getElementById("stockfutResult");
+  result.innerHTML = Object.entries(multagiFutMap).map(([name, entries]) => {
+    const rows = entries.map(data => {
+      let pnl = data.position === "long" ? (data.price - data.entry) : (data.entry - data.price);
+      pnl *= data.quantity * data.leverage;
+      const fees = data.price * data.quantity * data.feeRate;
+      const profit = pnl - fees;
+      const profitRate = (profit / (data.entry * data.quantity)) * 100;
+      const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+
+      return `
+        <tr class="hover:bg-gray-50">
+          <td class="border px-2 py-1 text-center">${data.position}</td>
+          <td class="border px-2 py-1 text-center">${data.leverage}배</td>
+          <td class="border px-2 py-1 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
+          <td class="border px-2 py-1 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
+          <td class="border px-2 py-1 text-right">${fees.toLocaleString()}</td>
+        </tr>
+      `;
+    }).join('');
+
+    return `
+      <div class="mt-4 border rounded shadow p-3 bg-white">
+        <div class="flex justify-between items-center">
+          <strong class="text-lg">${name}</strong>
+          <button onclick="deleteStockFutResult('${name}')" class="text-sm text-red-500 font-semibold">❌ 삭제</button>
+        </div>
+        <table class="w-full text-sm mt-2">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-2 py-1">포지션</th>
+              <th class="border px-2 py-1">레버리지</th>
+              <th class="border px-2 py-1">수익률</th>
+              <th class="border px-2 py-1">손익</th>
+              <th class="border px-2 py-1">수수료</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteStockFutResult(name) {
+  delete multagiFutMap[name];
+  renderStockFutResults();
 }
 
 // ✅ 코인선물 계산기 리디자인
