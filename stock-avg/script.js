@@ -118,6 +118,10 @@ function calculateStock() {
   }
 
   renderMultiStockResults();
+
+  // ✅ 계산 후 iframe 높이 조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
 
 function renderMultiStockResults() {
@@ -163,12 +167,17 @@ function renderMultiStockResults() {
       </div>
     `;
   }).join('');
+
+  // ✅ 결과 렌더 후 iframe 높이 재조정
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
 
 function deleteStockResult(name) {
   delete multagiStockMap[name];
   renderMultiStockResults();
 }
+
 
 
 // ✅ 코인 물타기 계산기
