@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>주식선물 계산기</title>
   <script src="script.js" defer></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -48,7 +48,7 @@
       <button onclick="calculateStockFut()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📊 물타기 계산하기</button>
     </div>
 
-    <div id="stockfutResult" class="text-sm"></div>
+    <div id="stockfutResult" class="text-sm mt-4"></div>
     <div id="stockfutError" class="text-red-600 font-semibold mt-2"></div>
 
     <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
@@ -67,15 +67,12 @@
       border-radius: 0.5rem;
     }
   </style>
-<script>
-  window.addEventListener('load', () => {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage({ type: 'resize', height: height }, '*');
-  });
-</script>
-</body>
-</html>
 
-
+  <script>
+    window.addEventListener('load', () => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ type: 'resize', height: height }, '*');
+    });
+  </script>
 </body>
 </html>
