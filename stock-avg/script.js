@@ -1,19 +1,90 @@
 // ✅ script.js 로딩 확인용
 console.log("✅ script.js 로딩됨");
  
-// ✅ 사팔사팔 계산기
-function calculateSapal() {
-  const amount = parseFloat(document.getElementById('sapalAmount')?.value);
-  const price = parseFloat(document.getElementById('sapalPrice')?.value);
+<!-- ✅ 사팔사팔 단타 계산기 HTML -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사팔사팔 단타 계산기</title>
+  <script src="script.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 text-gray-800 p-4">
+  <div class="max-w-3xl mx-auto space-y-6">
+    <h2 class="text-2xl font-bold text-green-600">📐 사팔사팔 단타 계산기</h2>
 
-  if (isNaN(amount) || isNaN(price)) {
-    document.getElementById('sapal-result').innerText = '❗숫자를 정확히 입력해주세요.';
-    return;
-  }
+    <!-- 🔸 초기 보유 정보 입력 -->
+    <div class="bg-white p-4 rounded-xl shadow space-y-4">
+      <h3 class="text-lg font-semibold text-gray-700">1️⃣ 초기 보유 정보</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label>현재 보유 수량</label><input id="sapalQuantity" class="input" type="number" /></div>
+        <div><label>평균 평단가</label><input id="sapalAvgPrice" class="input" type="number" /></div>
+      </div>
+      <button onclick="setSapalInitial()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">✅ 초기 설정</button>
+    </div>
 
-  const qty = amount / price;
-  document.getElementById('sapal-result').innerText = `🟢 구매 가능 수량: ${qty.toFixed(2)}주`;
-}
+    <!-- 🔸 매매 입력 -->
+    <div class="bg-white p-4 rounded-xl shadow space-y-4">
+      <h3 class="text-lg font-semibold text-gray-700">2️⃣ 매수/매도 입력</h3>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label>매매 방식</label>
+          <select id="sapalTradeType" class="input">
+            <option value="buy">매수</option>
+            <option value="sell">매도</option>
+          </select>
+        </div>
+        <div><label>단가</label><input id="sapalTradePrice" class="input" type="number" /></div>
+        <div><label>수량</label><input id="sapalTradeQty" class="input" type="number" /></div>
+        <div><label>수수료율 (%)</label><input id="sapalFeeRate" class="input" type="number" value="0.04" /></div>
+      </div>
+      <button onclick="addSapalTrade()" class="w-full bg-blue-500 text-white py-2 rounded-md font-bold">➕ 거래 반영</button>
+    </div>
+
+    <!-- 🔹 누적 결과 -->
+    <div id="sapalResult" class="text-sm bg-white p-4 rounded-xl shadow"></div>
+
+    <!-- 🔸 거래 이력 테이블 -->
+    <div class="bg-white p-4 rounded-xl shadow">
+      <h3 class="text-lg font-semibold text-gray-700">📜 거래 이력</h3>
+      <table class="w-full text-sm border-collapse mt-2">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="border px-3 py-2">회차</th>
+            <th class="border px-3 py-2">매매</th>
+            <th class="border px-3 py-2">단가</th>
+            <th class="border px-3 py-2">수량</th>
+            <th class="border px-3 py-2">실현 손익</th>
+            <th class="border px-3 py-2">누적 손익</th>
+            <th class="border px-3 py-2">수익률</th>
+            <th class="border px-3 py-2">삭제</th>
+          </tr>
+        </thead>
+        <tbody id="sapalHistory"></tbody>
+      </table>
+    </div>
+
+    <!-- 🔸 초기화 버튼 -->
+    <button onclick="resetSapalData()" class="w-full bg-gray-300 text-gray-800 py-2 rounded-md font-semibold mt-4">🔄 전체 초기화</button>
+
+    <!-- 🔸 에러 메시지 -->
+    <div id="sapalError" class="text-red-600 font-semibold mt-2"></div>
+  </div>
+
+  <style>
+    .input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #999;
+      border-radius: 0.5rem;
+      background-color: #fff;
+    }
+  </style>
+</body>
+</html>
+
 
 
 // ✅ script.js 로딩 확인용
