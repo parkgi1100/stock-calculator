@@ -225,140 +225,164 @@ function deleteCoinResult(name) {
 
 
 
+// ✅ 코인선물 계산기 로직 (레버리지 기반, USDT 기준 - 바이낸스 구조 반영)
 
+let coinfutState = {
+  name: '',
+  quantity: 0,
+  entryPrice: 0,
+  leverage: 0,
+  feeRate: 0,
+  position: '',
+  currentPrice: 0,
+  realizedProfit: 0,
+  totalFee: 0,
+  totalProfit: 0
+};
 
-// ✅ 주식선물 계산기 리디자인 (누적 + 삭제 기능 포함)
-const multagiFutMap = {};
+function calculateCoinFutInitial() {
+  const name = document.getElementById('coinfutName').value.trim();
+  const quantity = parseFloat(document.getElementById('coinfutQuantity').value);
+  const entryPrice = parseFloat(document.getElementById('coinfutEntryPrice').value);
+  const leverage = parseFloat(document.getElementById('coinfutLeverage').value);
+  const feeRate = parseFloat(document.getElementById('coinfutFeeRate').value) / 100;
+  const position = document.getElementById('coinfutPosition').value;
 
-function calculateStockFut() {
-  const name = document.getElementById("stockfutName")?.value || '-';
-  const quantity = parseFloat(document.getElementById("stockfutQuantity")?.value);
-  const price = parseFloat(document.getElementById("stockfutPrice")?.value);
-  const entry = parseFloat(document.getElementById("stockfutEntryPrice")?.value);
-  const leverage = parseFloat(document.getElementById("stockfutLeverage")?.value);
-  const feeRate = parseFloat(document.getElementById("stockfutFeeRate")?.value) / 100;
-  const position = document.getElementById("stockfutPosition")?.value;
-  const result = document.getElementById("stockfutResult");
-  const error = document.getElementById("stockfutError");
-
-  if (!name || isNaN(price) || isNaN(entry) || isNaN(leverage) || isNaN(quantity)) {
-    error.innerText = "입력값을 모두 확인해주세요.";
+  if (!name || isNaN(quantity) || isNaN(entryPrice) || isNaN(leverage) || isNaN(feeRate)) {
+    document.getElementById('coinfutError').innerText = '❗ 모든 값을 올바르게 입력해주세요.';
     return;
   }
-  error.innerText = "";
 
-  if (!multagiFutMap[name]) {
-    multagiFutMap[name] = [];
-  }
-  multagiFutMap[name].push({ quantity, price, entry, leverage, feeRate, position });
+  coinfutState = {
+    name,
+    quantity,
+    entryPrice,
+    leverage,
+    feeRate,
+    position,
+    currentPrice: 0,
+    realizedProfit: 0,
+    totalFee: 0,
+    totalProfit: 0
+  };
 
-  renderStockFutResults();
-
-  const updatedHeight = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
+  renderCoinFutTable();
+  document.getElementById('coinfutError').innerText = '';
 }
 
-function renderStockFutResults() {
-  const result = document.getElementById("stockfutResult");
-  result.innerHTML = Object.entries(multagiFutMap).map(([name, entries]) => {
-    const rows = entries.map(data => {
-      let pnl = data.position === "long" ? (data.price - data.entry) : (data.entry - data.price);
-      pnl *= data.quantity * data.leverage;
-      const fees = data.price * data.quantity * data.feeRate;
-      const profit = pnl - fees;
-      const profitRate = (profit / (data.entry * data.quantity)) * 100;
-      const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+function updateCoinFutPrice() {
+  const price = parseFloat(document.getElementById('coinfutPrice').value);
+  if (isNaN(price)) return;
 
-      return `
-        <tr class="hover:bg-gray-50">
-          <td class="border px-2 py-1 text-center">${data.position}</td>
-          <td class="border px-2 py-1 text-center">${data.leverage}배</td>
-          <td class="border px-2 py-1 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-          <td class="border px-2 py-1 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
-          <td class="border px-2 py-1 text-right">${fees.toLocaleString()}</td>
+  coinfutState.currentPrice = price;
+  renderCoinFutTable();
+}
+
+function calculateCoinFutAdd() {
+  const addPrice = parseFloat(document.getElementById('coinfutAddEntryPrice').value);
+  const addQty = parseFloat(document.getElementById('coinfutAddQuantity').value);
+  const addPosition = document.getElementById('coinfutAddPosition').value;
+
+  if (isNaN(addPrice) || isNaN(addQty)) {
+    document.getElementById('coinfutError').innerText = '❗ 추가 진입값을 정확히 입력해주세요.';
+    return;
+  }
+
+  let realizedProfit = 0;
+  if (coinfutState.position !== addPosition) {
+    const offsetQty = Math.min(addQty, coinfutState.quantity);
+    const remainingQty = Math.abs(coinfutState.quantity - addQty);
+    const entry = coinfutState.entryPrice;
+    const fee = (addPrice + entry) * offsetQty * coinfutState.feeRate;
+
+    if (coinfutState.position === 'long') {
+      realizedProfit = (addPrice - entry) * offsetQty - fee;
+    } else {
+      realizedProfit = (entry - addPrice) * offsetQty - fee;
+    }
+
+    coinfutState.quantity = coinfutState.quantity - offsetQty;
+    coinfutState.totalProfit += realizedProfit;
+    coinfutState.totalFee += fee;
+
+    if (addQty > offsetQty) {
+      coinfutState.entryPrice = addPrice;
+      coinfutState.quantity = remainingQty;
+      coinfutState.position = addPosition;
+    } else if (coinfutState.quantity === 0) {
+      coinfutState.entryPrice = 0;
+    }
+  } else {
+    const totalCost = (coinfutState.entryPrice * coinfutState.quantity) + (addPrice * addQty);
+    coinfutState.quantity += addQty;
+    coinfutState.entryPrice = totalCost / coinfutState.quantity;
+    const fee = addPrice * addQty * coinfutState.feeRate * 2;
+    coinfutState.totalFee += fee;
+  }
+
+  renderCoinFutTable();
+  document.getElementById('coinfutError').innerText = '';
+}
+
+function renderCoinFutTable() {
+  const { name, quantity, entryPrice, leverage, currentPrice, totalProfit, totalFee } = coinfutState;
+  if (!name || quantity === 0 || entryPrice === 0 || !currentPrice) return;
+
+  const position = coinfutState.position;
+  let unrealized = 0;
+
+  if (position === 'long') {
+    unrealized = (currentPrice - entryPrice) * quantity;
+  } else {
+    unrealized = (entryPrice - currentPrice) * quantity;
+  }
+
+  const margin = (entryPrice * quantity) / leverage;
+  const totalUnrealized = unrealized - totalFee;
+  const profitRate = margin ? (totalUnrealized / margin) * 100 : 0;
+
+  const resultHTML = `
+    <table class="w-full text-sm mt-4 border-collapse border shadow">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-3 py-2">코인명</th>
+          <th class="border px-3 py-2">총 계약수</th>
+          <th class="border px-3 py-2">평균 진입가</th>
+          <th class="border px-3 py-2">현재가</th>
+          <th class="border px-3 py-2">레버리지</th>
+          <th class="border px-3 py-2">미실현 손익 (USDT)</th>
+          <th class="border px-3 py-2">수익률 (%)</th>
         </tr>
-      `;
-    }).join('');
+      </thead>
+      <tbody>
+        <tr>
+          <td class="border px-3 py-2 text-center">${name}</td>
+          <td class="border px-3 py-2 text-center">${quantity}</td>
+          <td class="border px-3 py-2 text-center">${entryPrice.toLocaleString()}</td>
+          <td class="border px-3 py-2 text-center">${currentPrice.toLocaleString()}</td>
+          <td class="border px-3 py-2 text-center">${leverage}x</td>
+          <td class="border px-3 py-2 text-center">${totalUnrealized.toFixed(2)}</td>
+          <td class="border px-3 py-2 text-center">${profitRate.toFixed(2)}%</td>
+        </tr>
+      </tbody>
+    </table>`;
 
-    return `
-      <div class="mt-4 border rounded shadow p-3 bg-white">
-        <div class="flex justify-between items-center">
-          <strong class="text-lg">${name}</strong>
-          <button onclick="deleteStockFutResult('${name}')" class="text-sm text-red-500 font-semibold">❌ 삭제</button>
-        </div>
-        <table class="w-full text-sm mt-2">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="border px-2 py-1">포지션</th>
-              <th class="border px-2 py-1">레버리지</th>
-              <th class="border px-2 py-1">수익률</th>
-              <th class="border px-2 py-1">손익</th>
-              <th class="border px-2 py-1">수수료</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `;
-  }).join('');
+  document.getElementById('coinfutInitialResult').innerHTML = resultHTML;
 }
 
-function deleteStockFutResult(name) {
-  delete multagiFutMap[name];
-  renderStockFutResults();
-}
-
-// ✅ 코인선물 계산기 리디자인
-function calculateCoinFut() {
-  const name = document.getElementById("coinfutName")?.value || '-';
-  const quantity = parseFloat(document.getElementById("coinfutQuantity")?.value);
-  const price = parseFloat(document.getElementById("coinfutPrice")?.value);
-  const entry = parseFloat(document.getElementById("coinfutEntryPrice")?.value);
-  const leverage = parseFloat(document.getElementById("coinfutLeverage")?.value);
-  const feeRate = parseFloat(document.getElementById("coinfutFeeRate")?.value) / 100;
-  const position = document.getElementById("coinfutPosition")?.value;
-  const result = document.getElementById("coinfutResult");
-  const error = document.getElementById("coinfutError");
-
-  if (isNaN(price) || isNaN(entry) || isNaN(leverage) || isNaN(quantity)) {
-    error.innerText = "입력값을 모두 확인해주세요.";
-    result.innerHTML = "";
-    return;
-  }
-  error.innerText = "";
-
-  let pnl = position === "long" ? (price - entry) : (entry - price);
-  pnl *= quantity * leverage;
-  const fees = price * quantity * feeRate;
-  const profit = pnl - fees;
-  const profitRate = (profit / (entry * quantity)) * 100;
-
-  const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
-
-  result.innerHTML = `
-  <table class="w-full table-auto border-collapse text-sm shadow rounded overflow-hidden mt-4">
-    <thead class="bg-gray-100 text-gray-700 font-semibold">
-      <tr>
-        <th class="border px-4 py-2">코인명</th>
-        <th class="border px-4 py-2">포지션</th>
-        <th class="border px-4 py-2">레버리지</th>
-        <th class="border px-4 py-2">수익률</th>
-        <th class="border px-4 py-2">손익</th>
-        <th class="border px-4 py-2">수수료</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="hover:bg-gray-50">
-        <td class="border px-4 py-2 text-left">${name}</td>
-        <td class="border px-4 py-2 text-center">${position}</td>
-        <td class="border px-4 py-2 text-center">${leverage}배</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-        <td class="border px-4 py-2 text-right ${profitColor}">${profit.toFixed(0).toLocaleString()}</td>
-        <td class="border px-4 py-2 text-right">${fees.toLocaleString()}</td>
-      </tr>
-    </tbody>
-  </table>`;
- // ✅ 계산 후 iframe 높이 조정
-  const updatedHeight = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
+function resetCoinFutData() {
+  coinfutState = {
+    name: '',
+    quantity: 0,
+    entryPrice: 0,
+    leverage: 0,
+    feeRate: 0,
+    position: '',
+    currentPrice: 0,
+    realizedProfit: 0,
+    totalFee: 0,
+    totalProfit: 0
+  };
+  document.getElementById('coinfutInitialResult').innerHTML = '';
+  document.getElementById('coinfutError').innerText = '';
 }
