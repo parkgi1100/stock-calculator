@@ -54,23 +54,20 @@
             <input id="stockAddInput" type="number" placeholder="예: 50000" class="input">
           </div>
         </div>
-<!-- 추가 매수 단가 (바로 밑에 위치) -->
-<div>
-  <label class="font-semibold">🧮 추가 매수 단가 (₩)</label>
-  <input id="stockAddPrice" type="number" placeholder="예: 72000" class="input">
-</div>
 
- 
+        <!-- 추가 매수 단가 -->
+        <div>
+          <label class="font-semibold">🧮 추가 매수 단가 (₩)</label>
+          <input id="stockAddPrice" type="number" placeholder="예: 72000" class="input">
+        </div>
+      </div>
 
-      <!-- 계산 버튼 -->
       <button onclick="calculateStock()" class="w-full bg-green-500 text-white py-2 rounded-md font-bold">📈 계산하기</button>
     </div>
 
-    <!-- 결과 영역 -->
     <div id="stockResult" class="text-sm mt-4"></div>
     <div id="stockError" class="text-red-600 font-semibold mt-2"></div>
 
-    <!-- 안내문 -->
     <div class="bg-yellow-50 text-gray-700 text-sm p-4 rounded-xl shadow">
       ⚠️ <strong>주의사항</strong><br>
       - 이 계산기는 참고용이며 실제 거래 조건과 다를 수 있습니다.<br>
@@ -87,5 +84,15 @@
       border-radius: 0.5rem;
     }
   </style>
+
+  <!-- ✅ 초기 진입 시 iframe 높이 늦게 다시 조정 -->
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({ type: 'resize', height: height }, '*');
+      }, 500);
+    });
+  </script>
 </body>
 </html>
