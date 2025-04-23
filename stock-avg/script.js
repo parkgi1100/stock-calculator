@@ -1,6 +1,6 @@
 // ✅ script.js 로딩 확인용
 console.log("✅ script.js 로딩됨");
-
+ 
 // ✅ 사팔사팔 계산기
 function calculateSapal() {
   const amount = parseFloat(document.getElementById('sapalAmount')?.value);
