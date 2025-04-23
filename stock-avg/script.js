@@ -75,6 +75,7 @@ function calculateMultagi() {
 }
 
 // ✅ 종목별 주식 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
+// ✅ 종목별 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
 const multagiStockMap = {};
 
 function calculateStock() {
@@ -119,14 +120,13 @@ function calculateStock() {
 
   renderMultiStockResults();
 
-  // ✅ 계산 후 iframe 높이 조정
   const updatedHeight = document.body.scrollHeight;
   window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
 
 function renderMultiStockResults() {
   const resultArea = document.getElementById("stockResult");
-  resultArea.innerHTML = ""; // 강제 리렌더링 유도
+  resultArea.innerHTML = "";
 
   resultArea.innerHTML = Object.entries(multagiStockMap).map(([name, data]) => {
     const currentVal = data.totalQty * data.price;
@@ -157,7 +157,7 @@ function renderMultiStockResults() {
             <tr>
               <td class="border px-2 py-1 text-right">${data.price.toLocaleString()}</td>
               <td class="border px-2 py-1 text-right">${(data.totalInvest / data.totalQty).toFixed(1).toLocaleString()}</td>
-              <td class="border px-2 py-1 text-center">${data.totalQty.toFixed(2)}주</td>
+              <td class="border px-2 py-1 text-center">${data.totalQty.toFixed(2)}</td>
               <td class="border px-2 py-1 text-right">${currentVal.toLocaleString()}</td>
               <td class="border px-2 py-1 text-right ${profitColor}">${formattedProfit}</td>
               <td class="border px-2 py-1 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
@@ -168,7 +168,6 @@ function renderMultiStockResults() {
     `;
   }).join('');
 
-  // ✅ 결과 렌더 후 iframe 높이 재조정
   const updatedHeight = document.body.scrollHeight;
   window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
 }
