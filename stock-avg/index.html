@@ -12,12 +12,13 @@
       padding: 0;
       overflow-x: hidden;
     }
-    iframe {
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      display: block;
-    }
+iframe {
+  width: 100%;
+  min-height: 800px; /* ✅ 초기 최소 높이 설정 */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: block;
+}
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen overflow-x-hidden">
