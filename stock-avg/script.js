@@ -179,108 +179,38 @@ function deleteStockResult(name) {
 
 
 
-// ✅ 종목별 코인 누적 물타기 계산기 (다중 종목 + 누적 + 삭제)
-const multagiStockMap = {};
-const multagiCoinMap = {};
+// ✅ 코인 전용 물타기 계산기
+const coinMap = {};
 
-function calculateStock() {
-  const name = document.getElementById("stockName").value.trim();
-  const quantity = parseFloat(document.getElementById("stockQuantity").value);
-  const price = parseFloat(document.getElementById("stockCurrentPrice").value);
-  const avgPrice = parseFloat(document.getElementById("stockAvgPrice").value);
-  const feeRate = parseFloat(document.getElementById("stockFeeRate").value) / 100;
-  const addOption = document.getElementById("stockAddOption").value;
-  const addInput = parseFloat(document.getElementById("stockAddInput").value);
-  const addPrice = parseFloat(document.getElementById("stockAddPrice")?.value);
-  const resultArea = document.getElementById("stockResult");
-  const error = document.getElementById("stockError");
+function calculateCoinOnly() {
+  const name = document.getElementById("coinName").value.trim();
+  const quantity = parseFloat(document.getElementById("coinQuantity").value);
+  const price = parseFloat(document.getElementById("coinPrice").value);
+  const avgPrice = parseFloat(document.getElementById("coinAvgPrice").value);
+  const feeRate = parseFloat(document.getElementById("coinFeeRate").value) / 100;
+  const addOption = document.getElementById("coinAddOption").value;
+  const addInput = parseFloat(document.getElementById("coinAddInput").value);
+  const addPrice = parseFloat(document.getElementById("coinAddPrice")?.value);
+  const resultArea = document.getElementById("coinResult");
+  const error = document.getElementById("coinError");
 
-  if (!name || isNaN(quantity) || isNaN(price) || isNaN(avgPrice) || isNaN(addInput)) {
+  if (!name || isNaN(quantity) || isNaN(price) || isNaN(avgPrice) || isNaN(addInput) || isNaN(addPrice)) {
     error.innerText = "입력값을 모두 확인해주세요.";
     return;
   }
   error.innerText = "";
 
-  let addQty = addOption === "amount" ? addInput / price : addInput;
-  const addTotal = addQty * price;
+  let addQty = addOption === "amount" ? addInput / addPrice : addInput;
+  const addTotal = addQty * addPrice;
   const currentTotalQty = quantity + addQty;
   const currentTotalInvest = (quantity * avgPrice) + addTotal;
 
-  if (!multagiStockMap[name]) {
-    multagiStockMap[name] = {
+  if (!coinMap[name]) {
+    coinMap[name] = {
       totalQty: currentTotalQty,
       totalInvest: currentTotalInvest,
       price: price,
-      feeRate: feeRate
-    };
-  } else {
-    const prev = multagiStockMap[name];
-    multagiStockMap[name] = {
-      totalQty: prev.totalQty + addQty,
-      totalInvest: prev.totalInvest + addTotal,
-      price: price,
-      feeRate: feeRate
-    };
-  }
 
-  renderMultiStockResults();
-
-  const updatedHeight = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
-}
-
-function renderMultiStockResults() {
-  const resultArea = document.getElementById("stockResult");
-  resultArea.innerHTML = "";
-
-  resultArea.innerHTML = Object.entries(multagiStockMap).map(([name, data]) => {
-    const currentVal = data.totalQty * data.price;
-    const fees = data.totalQty * data.price * data.feeRate;
-    const profit = currentVal - data.totalInvest - fees;
-    const profitRate = (profit / data.totalInvest) * 100;
-    const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
-    const formattedProfit = (profit < 0 ? '-' : '') + Math.abs(Math.floor(profit)).toLocaleString();
-
-    return `
-      <div class="mt-4 border rounded shadow p-3 bg-white">
-        <div class="flex justify-between items-center">
-          <strong class="text-lg">${name}</strong>
-          <button onclick="deleteStockResult('${name}')" class="text-sm text-red-500 font-semibold">❌ 삭제</button>
-        </div>
-        <table class="w-full text-sm mt-2">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="border px-2 py-1">현재가</th>
-              <th class="border px-2 py-1">평단가</th>
-              <th class="border px-2 py-1">보유수량</th>
-              <th class="border px-2 py-1">평가금액</th>
-              <th class="border px-2 py-1">평가손익</th>
-              <th class="border px-2 py-1">수익률</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="border px-2 py-1 text-right">${data.price.toLocaleString()}</td>
-              <td class="border px-2 py-1 text-right">${(data.totalInvest / data.totalQty).toFixed(1).toLocaleString()}</td>
-              <td class="border px-2 py-1 text-center">${data.totalQty.toFixed(2)}</td>
-              <td class="border px-2 py-1 text-right">${currentVal.toLocaleString()}</td>
-              <td class="border px-2 py-1 text-right ${profitColor}">${formattedProfit}</td>
-              <td class="border px-2 py-1 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `;
-  }).join('');
-
-  const updatedHeight = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
-}
-
-function deleteStockResult(name) {
-  delete multagiStockMap[name];
-  renderMultiStockResults();
-}
 
 
 
