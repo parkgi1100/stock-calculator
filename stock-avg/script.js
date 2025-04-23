@@ -210,6 +210,73 @@ function calculateCoinOnly() {
       totalQty: currentTotalQty,
       totalInvest: currentTotalInvest,
       price: price,
+      feeRate: feeRate
+    };
+  } else {
+    const prev = coinMap[name];
+    coinMap[name] = {
+      totalQty: prev.totalQty + addQty,
+      totalInvest: prev.totalInvest + addTotal,
+      price: price,
+      feeRate: feeRate
+    };
+  }
+
+  renderCoinResults();
+  const updatedHeight = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: updatedHeight }, '*');
+}
+
+function renderCoinResults() {
+  const resultArea = document.getElementById("coinResult");
+  resultArea.innerHTML = "";
+
+  resultArea.innerHTML = Object.entries(coinMap).map(([name, data]) => {
+    const currentVal = data.totalQty * data.price;
+    const fees = data.totalQty * data.price * data.feeRate;
+    const profit = currentVal - data.totalInvest - fees;
+    const profitRate = (profit / data.totalInvest) * 100;
+    const profitColor = profit >= 0 ? 'text-red-500' : 'text-blue-500';
+    const formattedProfit = (profit < 0 ? '-' : '') + Math.abs(Math.floor(profit)).toLocaleString();
+
+    return `
+      <div class="mt-4 border rounded shadow p-3 bg-white">
+        <div class="flex justify-between items-center">
+          <strong class="text-lg">${name}</strong>
+          <button onclick="deleteCoinResult('${name}')" class="text-sm text-red-500 font-semibold">❌ 삭제</button>
+        </div>
+        <table class="w-full text-sm mt-2">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-2 py-1">현재가</th>
+              <th class="border px-2 py-1">평단가</th>
+              <th class="border px-2 py-1">보유수량</th>
+              <th class="border px-2 py-1">평가금액</th>
+              <th class="border px-2 py-1">평가손익</th>
+              <th class="border px-2 py-1">수익률</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="border px-2 py-1 text-right">${data.price.toLocaleString()}</td>
+              <td class="border px-2 py-1 text-right">${(data.totalInvest / data.totalQty).toFixed(1).toLocaleString()}</td>
+              <td class="border px-2 py-1 text-center">${data.totalQty.toFixed(8)}</td>
+              <td class="border px-2 py-1 text-right">${currentVal.toLocaleString()}</td>
+              <td class="border px-2 py-1 text-right ${profitColor}">${formattedProfit}</td>
+              <td class="border px-2 py-1 text-right ${profitColor}">${profitRate.toFixed(2)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }).join('');
+}
+
+function deleteCoinResult(name) {
+  delete coinMap[name];
+  renderCoinResults();
+}
+
 
 
 
