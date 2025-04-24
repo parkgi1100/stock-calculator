@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D-Day 계산기</title>
+  <script>
+    function applyToday() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('baseDate').value = today;
+      calculateDday();
+    }
+
+    function calculateDday() {
+      const base = new Date(document.getElementById('baseDate').value);
+      const dateOffset = new Date(document.getElementById('targetDate').value);
+      const daysOffset = parseInt(document.getElementById('offsetDays').value);
+      const weeksOffset = parseInt(document.getElementById('offsetWeeks').value);
+      const monthsOffset = parseInt(document.getElementById('offsetMonths').value);
+
+      let target;
+      if (!isNaN(dateOffset.getTime())) {
+        target = dateOffset;
+      } else if (!isNaN(daysOffset)) {
+        target = new Date(base);
+        target.setDate(base.getDate() + daysOffset);
+      } else if (!isNaN(weeksOffset)) {
+        target = new Date(base);
+        target.setDate(base.getDate() + weeksOffset * 7);
+      } else if (!isNaN(monthsOffset)) {
+        target = new Date(base);
+        target.setMonth(base.getMonth() + monthsOffset);
+      } else {
+        document.getElementById('result').innerHTML = '';
+        return;
+      }
+
+      const diff = Math.floor((target - base) / (1000 * 60 * 60 * 24));
+      const elapsed = Math.abs(diff);
+      const result = diff === 0 ? 'D-DAY' : (diff > 0 ? `D-${diff}` : `D+${Math.abs(diff)}`);
+
+      const baseDay = base.toLocaleDateString('ko-KR', { weekday: 'long' });
+      const targetDay = target.toLocaleDateString('ko-KR', { weekday: 'long' });
+
+      const weeks = Math.floor(elapsed / 7);
+      const months = Math.floor(elapsed / 30);
+
+      const resultHTML = `
+        <div class="flex items-center justify-between text-green-600 text-2xl font-bold mb-4">
+          <span>${result}</span>
+          <span class="text-sm text-gray-700">총 ${elapsed}일 (${diff > 0 ? '남음' : '지남'})</span>
+        </div>
+        <div class="grid gap-2 text-sm text-gray-700 text-left">
+          <div><strong>📅 기준일 요일:</strong> ${baseDay}</div>
+          <div><strong>📅 대상일:</strong> ${target.getFullYear()}년 ${target.getMonth() + 1}월 ${target.getDate()}일 (${targetDay})</div>
+          <div><strong>🗓️ 차이 주:</strong> ${weeks}주</div>
+          <div><strong>🗓️ 차이 개월(대략):</strong> ${months}개월</div>
+        </div>
+        <div class="mt-4"><strong>🎉 주요 기념일:</strong></div>
+        <ul class="list-disc list-inside text-sm text-gray-600">
+          <li>100일: ${formatAnniversaryDays(base, 100)}</li>
+          <li>200일: ${formatAnniversaryDays(base, 200)}</li>
+          <li>1주년: ${formatAnniversaryDays(base, 365)}</li>
+          <li>2주년: ${formatAnniversaryDays(base, 730)}</li>
+        </ul>
+        <button onclick="copyResult()" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded text-sm">결과 복사</button>`;
+
+      document.getElementById('result').innerHTML = resultHTML;
+    }
+  
+    function formatAnniversaryDays(base, days) {
+  const anniv = new Date(base);
+  anniv.setDate(anniv.getDate() + days);
+  const day = anniv.toLocaleDateString('ko-KR', { weekday: 'short' });
+  return `${anniv.getFullYear()}년 ${anniv.getMonth() + 1}월 ${anniv.getDate()}일 (${day})`;
+}
+
+    function copyResult() {
+      const text = document.getElementById('result').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('결과가 복사되었습니다!');
+      });
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white shadow-lg rounded-xl p-6 w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4 text-center text-green-600">📆 D-Day 계산기</h1>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">기준일</label>
+        <div class="flex gap-2 items-center">
+          <input type="date" id="baseDate" class="w-full p-2 border rounded text-center" onchange="calculateDday()" />
+          <button onclick="applyToday()" class="bg-green-500 text-white px-3 py-2 rounded text-sm whitespace-nowrap">오늘</button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">대상일 (날짜 선택 또는 아래 중 택일)</label>
+        <input type="date" id="targetDate" class="w-full p-2 border rounded text-center" onchange="calculateDday()" />
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <input type="number" placeholder="며칠 전/후" id="offsetDays" class="p-2 border rounded text-center" oninput="calculateDday()">
+        <input type="number" placeholder="몇 주 전/후" id="offsetWeeks" class="p-2 border rounded text-center" oninput="calculateDday()">
+        <input type="number" placeholder="몇 달 전/후" id="offsetMonths" class="p-2 border rounded text-center" oninput="calculateDday()">
+      </div>
+      <div id="result" class="mt-6 p-4 bg-gray-50 rounded border text-base"></div>
+    </div>
+  </div>
+</body>
+</html>
