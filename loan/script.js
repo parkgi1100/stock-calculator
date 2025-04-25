@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const totalDiscount = document.getElementById('totalDiscount');
   const loanForm = document.getElementById("loanForm");
   const resultArea = document.getElementById("resultArea");
+  const summaryArea = document.getElementById("summaryArea");
 
   function updateDiscountDisplay() {
     let sum = 0;
@@ -25,6 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
     const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
     const repayType = document.getElementById('repayType').value;
+    const baseRateInput = parseFloat(document.getElementById('baseRate')?.value);
+    const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
 
     if (isNaN(loanAmountInput) || isNaN(loanTerm) || isNaN(gracePeriod)) {
       resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
@@ -33,8 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let remainingLoan = loanAmountInput;
     const discountSum = updateDiscountDisplay();
-    const baseRateInput = parseFloat(document.getElementById('baseRate')?.value);
-    const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
     const finalRate = Math.max(baseRate - discountSum, 1.2);
     const monthlyRate = finalRate / 100 / 12;
 
@@ -59,15 +60,16 @@ document.addEventListener("DOMContentLoaded", function () {
         schedule.push({ month: i, principal, interest, total: principal + interest });
       }
     }
-    onst totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
-    const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
 
- resultArea.innerHTML = `
-  <p class="mb-4 font-semibold text-sm text-gray-700">
-    총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원 / 
-    총 이자: ${Math.floor(totalInterest).toLocaleString()}원 / 
-    총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원
-  </p>
+    const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
+    const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
+    summaryArea.innerHTML = `
+      총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원 / 
+      총 이자: ${Math.floor(totalInterest).toLocaleString()}원 / 
+      총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원
+    `;
+
+    resultArea.innerHTML = `
       <h3 class="text-lg font-bold mb-2">📅 월별 상환 내역</h3>
       <table class="w-full text-sm border">
         <thead>
