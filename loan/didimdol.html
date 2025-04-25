@@ -30,7 +30,76 @@
       <div id="adsense-top" class="ad-container">[광고 자리 - 상단 배너]</div>
 
       <form id="loanForm" class="space-y-4 bg-gray-50 p-4 rounded-xl shadow">
-        <!-- 입력 필드들 생략 (기존 그대로 유지) -->
+        <div>
+          <label for="annualIncome" class="block font-semibold">연소득 (부부합산, 원)</label>
+          <input type="text" id="annualIncome" class="w-full border p-2 rounded" placeholder="예: 50000000">
+        </div>
+
+        <div>
+          <label for="loanAmount" class="block font-semibold">대출 신청 금액 (원)</label>
+          <input type="text" id="loanAmount" class="w-full border p-2 rounded" placeholder="예: 100000000">
+        </div>
+
+        <div>
+          <label for="loanTerm" class="block font-semibold">대출 만기</label>
+          <select id="loanTerm" class="w-full border p-2 rounded">
+            <option value="10">10년</option>
+            <option value="15">15년</option>
+            <option value="20">20년</option>
+            <option value="30">30년</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label for="gracePeriod" class="block font-semibold">거치기간</label>
+            <select id="gracePeriod" class="w-full border p-2 rounded">
+              <option value="0">없음</option>
+              <option value="1">1년</option>
+            </select>
+          </div>
+          <div>
+            <label for="repayType" class="block font-semibold">상환방식</label>
+            <select id="repayType" class="w-full border p-2 rounded">
+              <option value="equalPrincipalAndInterest">원리금 균등</option>
+              <option value="equalPrincipal">원금 균등</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <div>
+            <label for="baseRate" class="block font-semibold">기준금리 (%)</label>
+            <input type="number" id="baseRate" class="w-full border p-2 rounded" placeholder="예: 3.0" step="0.01">
+          </div>
+
+          <div class="flex flex-col justify-end">
+            <p class="text-xs text-gray-600 mb-1">
+              ※ 기준금리는 신청 시점과 실행 시점에 따라 달라질 수 있습니다.
+            </p>
+            <a href="https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=기준금리확인" target="_blank" class="text-blue-500 underline text-sm">
+              📎 네이버 기준금리 확인
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold">
+            우대금리 조건 (해당 시 체크)<br>
+            <span class="text-xs text-gray-500">※ 우대금리는 최대 0.7%까지만 적용됩니다.</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <label><input type="checkbox" class="mr-1" value="0.7" name="discount"> 다자녀(0.7%)</label>
+            <label><input type="checkbox" class="mr-1" value="0.5" name="discount"> 2자녀(0.5%)</label>
+            <label><input type="checkbox" class="mr-1" value="0.3" name="discount"> 1자녀(0.3%)</label>
+            <label><input type="checkbox" class="mr-1" value="0.2" name="discount"> 신혼가구(0.2%)</label>
+            <label><input type="checkbox" class="mr-1" value="0.2" name="discount"> 생애최초(0.2%)</label>
+            <label><input type="checkbox" class="mr-1" value="0.3" name="discount"> 청약저축(0.3~0.5%)</label>
+          </div>
+          <p class="mt-2 text-right text-sm text-gray-600">현재 적용 우대금리: <span id="totalDiscount">0.0%</span></p>
+        </div>
+
+        <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">계산하기</button>
       </form>
 
       <!-- 참고메모 토글 버튼 (모바일 전용) -->
