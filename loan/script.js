@@ -175,7 +175,7 @@
     let schedule = [];
 
     if (repayType === 'equalPrincipalAndInterest') {
-      const annuity = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
       for (let i = 1; i <= totalMonths; i++) {
         let interest = loanAmount * monthlyRate;
         let principal = gracePeriod && i <= graceMonths ? 0 : annuity - interest;
