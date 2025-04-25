@@ -160,6 +160,16 @@
     e.preventDefault();
 
     const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
+    const loanTerm = parseInt(document.getElementById('loanTerm').value);
+    const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+
+    if (isNaN(loanAmountInput) || isNaN(loanTerm) || isNaN(gracePeriod)) {
+      resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
+      return;
+    
+    e.preventDefault();
+
+    const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
     let remainingLoan = loanAmountInput;
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
     const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
