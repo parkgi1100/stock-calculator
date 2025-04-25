@@ -33,7 +33,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let remainingLoan = loanAmountInput;
     const discountSum = updateDiscountDisplay();
-    const baseRate = 3.0;
+    const baseRateInput = parseFloat(document.getElementById('baseRate')?.value);
+    const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
     const finalRate = Math.max(baseRate - discountSum, 1.2);
     const monthlyRate = finalRate / 100 / 12;
 
