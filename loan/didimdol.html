@@ -66,18 +66,18 @@
     </select>
   </div>
 </div>
-<!-- 기준금리 입력칸 위에 넣기 -->
-<p class="text-xs text-gray-600 mt-1">
-  ※ 기준금리는 신청 시점과 실행 시점에 따라 달라질 수 있습니다.
-</p>
-<!-- 기준금리 입력칸 + 확인 링크 -->
 <div class="grid grid-cols-2 gap-2 mt-2">
   <div>
     <label for="baseRate" class="block font-semibold">기준금리 (%)</label>
     <input type="number" id="baseRate" class="w-full border p-2 rounded" placeholder="예: 3.0" step="0.01">
   </div>
-  <div class="flex items-end">
-    <a href="https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=%EA%B8%B0%EC%A4%80%EA%B8%88%EB%A6%AC%ED%99%95%EC%9D%B8&ackey=xmal836x" target="_blank" class="text-blue-500 underline text-sm">
+
+  <div class="flex flex-col justify-end">
+    <!-- ✅ 추가된 안내 문구 -->
+    <p class="text-xs text-gray-600 mb-1">
+      ※ 기준금리는 신청 시점과 실행 시점에 따라 달라질 수 있습니다.
+    </p>
+    <a href="https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=기준금리확인" target="_blank" class="text-blue-500 underline text-sm">
       📎 네이버 기준금리 확인
     </a>
   </div>
