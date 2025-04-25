@@ -160,7 +160,7 @@
     e.preventDefault();
 
     const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
-    let loanAmount = loanAmountInput;
+    let remainingLoan = loanAmountInput;
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
     const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
     const repayType = document.getElementById('repayType').value;
@@ -177,17 +177,17 @@
     if (repayType === 'equalPrincipalAndInterest') {
       const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
       for (let i = 1; i <= totalMonths; i++) {
-        let interest = loanAmount * monthlyRate;
+        let interest = remainingLoan * monthlyRate;
         let principal = gracePeriod && i <= graceMonths ? 0 : annuity - interest;
-        if (!(gracePeriod && i <= graceMonths)) loanAmount -= principal;
+        if (!(gracePeriod && i <= graceMonths)) remainingLoan -= principal;
         schedule.push({ month: i, principal, interest, total: principal + interest });
       }
     } else if (repayType === 'equalPrincipal') {
-      const principalPerMonth = loanAmount / (totalMonths - graceMonths);
+      const principalPerMonth = remainingLoan / (totalMonths - graceMonths);
       for (let i = 1; i <= totalMonths; i++) {
-        let interest = loanAmount * monthlyRate;
+        let interest = remainingLoan * monthlyRate;
         let principal = gracePeriod && i <= graceMonths ? 0 : principalPerMonth;
-        if (!(gracePeriod && i <= graceMonths)) loanAmount -= principal;
+        if (!(gracePeriod && i <= graceMonths)) remainingLoan -= principal;
         schedule.push({ month: i, principal, interest, total: principal + interest });
       }
     }
