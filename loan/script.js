@@ -1,4 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
+  window.toggleMemo = function () {
+    const memo = document.getElementById("memoArea");
+    if (memo) memo.classList.toggle("hidden");
+  };
   const checkboxes = document.querySelectorAll('input[name="discount"]');
   const totalDiscount = document.getElementById('totalDiscount');
   const loanForm = document.getElementById("loanForm");
