@@ -49,21 +49,36 @@
           </select>
         </div>
 
-        <div>
-          <label for="gracePeriod" class="block font-semibold">거치기간</label>
-          <select id="gracePeriod" class="w-full border p-2 rounded">
-            <option value="0">없음</option>
-            <option value="1">1년</option>
-          </select>
-        </div>
+  <!-- 거치기간 + 상환방식 같은 줄에 묶기 -->
+<div class="grid grid-cols-2 gap-2">
+  <div>
+    <label for="gracePeriod" class="block font-semibold">거치기간</label>
+    <select id="gracePeriod" class="w-full border p-2 rounded">
+      <option value="0">없음</option>
+      <option value="1">1년</option>
+    </select>
+  </div>
+  <div>
+    <label for="repayType" class="block font-semibold">상환방식</label>
+    <select id="repayType" class="w-full border p-2 rounded">
+      <option value="equalPrincipalAndInterest">원리금 균등</option>
+      <option value="equalPrincipal">원금 균등</option>
+    </select>
+  </div>
+</div>
 
-        <div>
-          <label for="repayType" class="block font-semibold">상환방식</label>
-          <select id="repayType" class="w-full border p-2 rounded">
-            <option value="equalPrincipalAndInterest">원리금 균등</option>
-            <option value="equalPrincipal">원금 균등</option>
-          </select>
-        </div>
+<!-- 기준금리 입력칸 + 확인 링크 -->
+<div class="grid grid-cols-2 gap-2 mt-2">
+  <div>
+    <label for="baseRate" class="block font-semibold">기준금리 (%)</label>
+    <input type="number" id="baseRate" class="w-full border p-2 rounded" placeholder="예: 3.0" step="0.01">
+  </div>
+  <div class="flex items-end">
+    <a href="https://www.hf.go.kr/ehf/loan/loanApply01.do" target="_blank" class="text-blue-500 underline text-sm">
+      📎 기준금리 확인하기
+    </a>
+  </div>
+</div>
 
         <div>
        <label class="block font-semibold">
