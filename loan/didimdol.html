@@ -90,13 +90,13 @@
 
     <!-- 우측 메모영역 -->
     <aside class="bg-yellow-50 p-4 rounded-xl shadow text-sm leading-relaxed">
-      <h2 class="text-lg font-semibold mb-4">📌 참고 메모</h2>
+      <h2 class="text-lg font-semibold mb-4">📌 참고메모 (2025.04.11. 개정안 적용)</h2>
 
       <div class="mb-4">
         <h3 class="font-bold text-gray-700 mb-2">✅ 디딤돌 대출 대상자 요건</h3>
         <ul class="list-disc list-inside space-y-1">
           <li>부부합산 연소득 6천만 원 이하</li>
-          <li>신혼가구 8천5백만 원, 생애최초·다자녀가구 7천만 원 이하</li>
+          <li class="whitespace-nowrap">신혼가구 8천5백만 원, 생애최초·다자녀가구 7천만 원 이하</li>
           <li>세대원 전원이 무주택자여야 함</li>
           <li>신청자와 배우자는 대한민국 국적 소지자</li>
           <li>만 30세 이상 단독세대주 또는 일정 조건 만족 시 가능</li>
@@ -149,7 +149,80 @@
       });
     });
   </script>
-  <script src="script.js"></script>
+  <script>
+  // ✅ 폼 제출 방지 및 계산 로직 연결
+  const loanForm = document.getElementById("loanForm");
+  const resultArea = document.getElementById("resultArea");
+
+  loanForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
+    let loanAmount = loanAmountInput;
+    const loanTerm = parseInt(document.getElementById('loanTerm').value);
+    const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+    const repayType = document.getElementById('repayType').value;
+
+    let discountSum = 0;
+    checkboxes.forEach(box => {
+      if (box.checked) discountSum += parseFloat(box.value);
+    });
+    if (discountSum > 0.7) discountSum = 0.7;
+    totalDiscount.textContent = `${discountSum.toFixed(2)}%`;
+
+    const baseRate = 3.0;
+    const finalRate = Math.max(baseRate - discountSum, 1.2);
+    const monthlyRate = finalRate / 100 / 12;
+
+    const totalMonths = loanTerm * 12;
+    const graceMonths = gracePeriod * 12;
+    let schedule = [];
+
+    if (repayType === 'equalPrincipalAndInterest') {
+      const annuity = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      for (let i = 1; i <= totalMonths; i++) {
+        let interest = loanAmount * monthlyRate;
+        let principal = gracePeriod && i <= graceMonths ? 0 : annuity - interest;
+        if (!(gracePeriod && i <= graceMonths)) loanAmount -= principal;
+        schedule.push({ month: i, principal, interest, total: principal + interest });
+      }
+    } else if (repayType === 'equalPrincipal') {
+      const principalPerMonth = loanAmount / (totalMonths - graceMonths);
+      for (let i = 1; i <= totalMonths; i++) {
+        let interest = loanAmount * monthlyRate;
+        let principal = gracePeriod && i <= graceMonths ? 0 : principalPerMonth;
+        if (!(gracePeriod && i <= graceMonths)) loanAmount -= principal;
+        schedule.push({ month: i, principal, interest, total: principal + interest });
+      }
+    }
+
+    resultArea.innerHTML = `
+      <h3 class="text-lg font-bold mb-2">📅 월별 상환 내역</h3>
+      <table class="w-full text-sm border">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border p-1">월</th>
+            <th class="border p-1">원금</th>
+            <th class="border p-1">이자</th>
+            <th class="border p-1">합계</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${schedule.map(row => `
+            <tr>
+              <td class="border text-center">${row.month}</td>
+              <td class="border text-right">${Math.floor(row.principal).toLocaleString()}</td>
+              <td class="border text-right">${Math.floor(row.interest).toLocaleString()}</td>
+              <td class="border text-right">${Math.floor(row.total).toLocaleString()}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  });
+  });
+</script>
+<script src="script.js"></script>
 
 </body>
 </html>
