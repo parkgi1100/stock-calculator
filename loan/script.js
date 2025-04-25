@@ -135,24 +135,26 @@
     </div>
   </footer>
 
+  
   <script>
-    const checkboxes = document.querySelectorAll('input[name="discount"]');
-    const totalDiscount = document.getElementById('totalDiscount');
-
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', () => {
-        let sum = 0;
-        checkboxes.forEach(box => {
-          if (box.checked) sum += parseFloat(box.value);
-        });
-        totalDiscount.textContent = `${sum.toFixed(2)}%`;
-      });
-    });
-</script>
-  <script>
-  // ✅ 폼 제출 방지 및 계산 로직 연결
+  const checkboxes = document.querySelectorAll('input[name="discount"]');
+  const totalDiscount = document.getElementById('totalDiscount');
   const loanForm = document.getElementById("loanForm");
   const resultArea = document.getElementById("resultArea");
+
+  function updateDiscountDisplay() {
+    let sum = 0;
+    checkboxes.forEach(box => {
+      if (box.checked) sum += parseFloat(box.value);
+    });
+    if (sum > 0.7) sum = 0.7;
+    totalDiscount.textContent = `${sum.toFixed(2)}%`;
+    return sum;
+  }
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener("change", updateDiscountDisplay);
+  });
 
   loanForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -163,13 +165,7 @@
     const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
     const repayType = document.getElementById('repayType').value;
 
-    let discountSum = 0;
-    checkboxes.forEach(box => {
-      if (box.checked) discountSum += parseFloat(box.value);
-    });
-    if (discountSum > 0.7) discountSum = 0.7;
-    totalDiscount.textContent = `${discountSum.toFixed(2)}%`;
-
+    const discountSum = updateDiscountDisplay();
     const baseRate = 3.0;
     const finalRate = Math.max(baseRate - discountSum, 1.2);
     const monthlyRate = finalRate / 100 / 12;
