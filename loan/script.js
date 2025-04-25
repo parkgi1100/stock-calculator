@@ -1,53 +1,95 @@
+// ✅ 우대금리 합산 (기존 유지)
+const checkboxes = document.querySelectorAll('input[name="discount"]');
+const totalDiscount = document.getElementById('totalDiscount');
 
-function updateRateDisplay() {
-  const checked = document.querySelectorAll('.rate-check:checked');
-  let total = 0;
-  checked.forEach(cb => total += parseFloat(cb.value));
-  total = Math.min(total, 1.0);
-  const rateText = document.getElementById("rateTotal");
-  if (rateText) {
-    rateText.innerText = `✅ 현재 적용 중인 우대금리: ${total.toFixed(2)}%p`;
-  }
-}
-
-document.querySelectorAll('.rate-check').forEach(cb => {
-  cb.addEventListener('change', updateRateDisplay);
-});
-updateRateDisplay();
-
-document.querySelectorAll('input[type="number"]').forEach(input => {
-  input.addEventListener('input', () => {
-    const raw = input.value.replace(/[^\d]/g, '');
-    if (!raw) return;
-    const formatted = Number(raw).toLocaleString();
-    input.value = formatted;
-  });
-  input.addEventListener('blur', () => {
-    input.value = input.value.replace(/[^\d]/g, '');
+checkboxes.forEach(cb => {
+  cb.addEventListener('change', () => {
+    let sum = 0;
+    checkboxes.forEach(box => {
+      if (box.checked) sum += parseFloat(box.value);
+    });
+    totalDiscount.textContent = `${sum.toFixed(2)}%`;
   });
 });
 
-function showResultBox() {
-  const box = document.getElementById("resultBox");
-  if (box) {
-    box.style.display = "block";
-    box.classList.add("fade-in");
+// ✅ 디딤돌 대출 계산 로직 시작
+const loanForm = document.getElementById('loanForm');
+const resultArea = document.getElementById('resultArea');
+
+loanForm.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // 입력값 가져오기
+  const loanAmount = parseFloat(document.getElementById('loanAmount').value);
+  const loanTerm = parseInt(document.getElementById('loanTerm').value);
+  const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+  const repayType = document.getElementById('repayType').value;
+  const discountRate = parseFloat(totalDiscount.textContent);
+
+  // 기준금리 설정 (예시)
+  let baseRate = 3.0;
+  let finalRate = Math.max(baseRate - discountRate, 1.2); // 최저금리 제한 적용
+  const monthlyRate = finalRate / 100 / 12;
+
+  const totalMonths = loanTerm * 12;
+  const graceMonths = gracePeriod * 12;
+
+  let schedule = [];
+
+  if (repayType === 'equalPrincipalAndInterest') {
+    // 원리금 균등
+    const annuity = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+
+    for (let i = 1; i <= totalMonths; i++) {
+      let interest = loanAmount * monthlyRate;
+      let principal = annuity - interest;
+      loanAmount -= gracePeriod && i <= graceMonths ? 0 : principal;
+      schedule.push({
+        month: i,
+        principal: gracePeriod && i <= graceMonths ? 0 : principal,
+        interest: interest,
+        total: gracePeriod && i <= graceMonths ? interest : annuity
+      });
+    }
+  } else if (repayType === 'equalPrincipal') {
+    // 원금 균등
+    const principalPerMonth = loanAmount / (totalMonths - graceMonths);
+
+    for (let i = 1; i <= totalMonths; i++) {
+      let interest = loanAmount * monthlyRate;
+      let principal = gracePeriod && i <= graceMonths ? 0 : principalPerMonth;
+      loanAmount -= principal;
+      schedule.push({
+        month: i,
+        principal: principal,
+        interest: interest,
+        total: principal + interest
+      });
+    }
   }
-}
 
-function printResult() {
-  const resultContent = document.getElementById("resultBox").innerHTML;
-  const printWindow = window.open('', '', 'width=800,height=600');
-  printWindow.document.write('<html><head><title>대출 결과</title></head><body>' + resultContent + '</body></html>');
-  printWindow.document.close();
-  printWindow.print();
-}
-
-function downloadResultAsText() {
-  const content = document.getElementById("resultBox").innerText;
-  const blob = new Blob([content], { type: 'text/plain' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'didimdol_result.txt';
-  link.click();
-}
+  // 결과 출력
+  resultArea.innerHTML = `
+    <h3 class="text-lg font-bold mb-2">📅 월별 상환 내역</h3>
+    <table class="w-full text-sm border">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="border p-1">월</th>
+          <th class="border p-1">원금</th>
+          <th class="border p-1">이자</th>
+          <th class="border p-1">합계</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${schedule.map(row => `
+          <tr>
+            <td class="border text-center">${row.month}</td>
+            <td class="border text-right">${row.principal.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+            <td class="border text-right">${row.interest.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+            <td class="border text-right">${row.total.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+});
