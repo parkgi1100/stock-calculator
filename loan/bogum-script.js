@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (폼 ID 수정 + 결과 보기 좋게 개선)
+// 보금자리론 대출 계산기 스크립트 (체증식 추가 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -68,6 +68,24 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           let interest = remainingLoan * monthlyRate;
           let principal = principalPerMonth;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
+      }
+    } else if (repayType === 'graduatedPayment') {
+      let payment = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      const annualIncreaseRate = 0.02; // 2% 체증
+      for (let i = 1; i <= totalMonths; i++) {
+        if (i !== 1 && (i - 1) % 12 === 0) {
+          payment *= (1 + annualIncreaseRate);
+        }
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = payment - interest;
+          if (remainingLoan < principal) principal = remainingLoan;
           remainingLoan -= principal;
           schedule.push({ month: i, principal, interest, total: principal + interest });
         }
