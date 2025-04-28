@@ -1,20 +1,16 @@
 document.addEventListener("DOMContentLoaded", function () {
-  window.toggleMemo = function () {
-    const memo = document.getElementById("memoArea");
-    if (memo) memo.classList.toggle("hidden");
-  };
-  const checkboxes = document.querySelectorAll('input[name="discount"]');
-  const totalDiscount = document.getElementById('totalDiscount');
-  const loanForm = document.getElementById("loanForm");
+  const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
   const summaryArea = document.getElementById("summaryArea");
+  const checkboxes = document.querySelectorAll('input[name="discount"]');
+  const totalDiscount = document.getElementById('totalDiscount');
 
   function updateDiscountDisplay() {
     let sum = 0;
     checkboxes.forEach(box => {
       if (box.checked) sum += parseFloat(box.value);
     });
-    if (sum > 0.7) sum = 0.7;
+    if (sum > 1.0) sum = 1.0;
     totalDiscount.textContent = `${sum.toFixed(2)}%`;
     return sum;
   }
@@ -26,47 +22,60 @@ document.addEventListener("DOMContentLoaded", function () {
   loanForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
     const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
     const repayType = document.getElementById('repayType').value;
-    const baseRateInput = parseFloat(document.getElementById('baseRate')?.value);
+    const baseRateInput = parseFloat(document.getElementById('baseRate').value);
     const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
 
-    if (isNaN(loanAmountInput) || isNaN(loanTerm) || isNaN(gracePeriod)) {
+    if (isNaN(loanAmount) || isNaN(loanTerm)) {
       resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
       return;
     }
 
-    let remainingLoan = loanAmountInput;
     const discountSum = updateDiscountDisplay();
     const finalRate = Math.max(baseRate - discountSum, 1.2);
     const monthlyRate = finalRate / 100 / 12;
 
     const totalMonths = loanTerm * 12;
     const graceMonths = gracePeriod * 12;
+    let remainingLoan = loanAmount;
     let schedule = [];
 
-    if (repayType === 'equalPrincipalAndInterest') {
+    if (repayType === 'equalPrincipalAndInterest' || repayType === 'graduatedPayment') {
       const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+
       for (let i = 1; i <= totalMonths; i++) {
-        let interest = remainingLoan * monthlyRate;
-        let principal = gracePeriod && i <= graceMonths ? 0 : annuity - interest;
-        if (!(gracePeriod && i <= graceMonths)) remainingLoan -= principal;
-        schedule.push({ month: i, principal, interest, total: principal + interest });
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = annuity - interest;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
       }
     } else if (repayType === 'equalPrincipal') {
       const principalPerMonth = remainingLoan / (totalMonths - graceMonths);
+
       for (let i = 1; i <= totalMonths; i++) {
-        let interest = remainingLoan * monthlyRate;
-        let principal = gracePeriod && i <= graceMonths ? 0 : principalPerMonth;
-        if (!(gracePeriod && i <= graceMonths)) remainingLoan -= principal;
-        schedule.push({ month: i, principal, interest, total: principal + interest });
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = principalPerMonth;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
       }
     }
 
     const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
     const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
+
     summaryArea.innerHTML = `
       총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원 / 
       총 이자: ${Math.floor(totalInterest).toLocaleString()}원 / 
