@@ -1,10 +1,12 @@
-// bogum-script.js (체증식 2% 적용 버전)
+// 보금자리론 대출 계산기 스크립트 (폼 ID 수정 + 결과 보기 좋게 개선)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
   const summaryArea = document.getElementById("summaryArea");
   const checkboxes = document.querySelectorAll('input[name="discount"]');
   const totalDiscount = document.getElementById('totalDiscount');
+
+  if (!loanForm) return;
 
   function updateDiscountDisplay() {
     let sum = 0;
@@ -25,13 +27,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
-    const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+    const gracePeriod = parseInt(document.getElementById('gracePeriod')?.value || 0);
     const repayType = document.getElementById('repayType').value;
     const baseRateInput = parseFloat(document.getElementById('baseRate').value);
     const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
 
     if (isNaN(loanAmount) || isNaN(loanTerm)) {
-      resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
+      resultArea.innerHTML = "<p class='text-red-500 text-center'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
       return;
     }
 
@@ -44,29 +46,21 @@ document.addEventListener("DOMContentLoaded", function () {
     let remainingLoan = loanAmount;
     let schedule = [];
 
-    if (repayType === 'equalPrincipalAndInterest' || repayType === 'graduatedPayment') {
+    if (repayType === 'equalPrincipalAndInterest') {
       const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
-      let currentPayment = annuity;
-
       for (let i = 1; i <= totalMonths; i++) {
         if (i <= graceMonths) {
           let interest = remainingLoan * monthlyRate;
           schedule.push({ month: i, principal: 0, interest, total: interest });
         } else {
-          if (repayType === 'graduatedPayment' && (i - graceMonths - 1) % 12 === 0 && i !== graceMonths + 1) {
-            currentPayment *= 1.02; // 매년 2% 상승
-          }
           let interest = remainingLoan * monthlyRate;
-          let principal = currentPayment - interest;
+          let principal = annuity - interest;
           remainingLoan -= principal;
-          if (remainingLoan < 0) remainingLoan = 0;
           schedule.push({ month: i, principal, interest, total: principal + interest });
         }
       }
-
     } else if (repayType === 'equalPrincipal') {
       const principalPerMonth = remainingLoan / (totalMonths - graceMonths);
-
       for (let i = 1; i <= totalMonths; i++) {
         if (i <= graceMonths) {
           let interest = remainingLoan * monthlyRate;
@@ -84,33 +78,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
 
     summaryArea.innerHTML = `
-      총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원 / 
-      총 이자: ${Math.floor(totalInterest).toLocaleString()}원 / 
-      총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원
+      <div class="bg-blue-100 p-4 rounded-lg shadow mb-6 text-center">
+        <p class="text-lg font-bold text-gray-900 mb-2">📋 대출 요약</p>
+        <p class="text-base text-gray-700">총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원</p>
+        <p class="text-base text-gray-700">총 이자: ${Math.floor(totalInterest).toLocaleString()}원</p>
+        <p class="text-base text-gray-700">총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원</p>
+      </div>
     `;
 
     resultArea.innerHTML = `
-      <h3 class="text-lg font-bold mb-2">📅 월별 상환 내역</h3>
-      <table class="w-full text-sm border">
-        <thead>
-          <tr class="bg-gray-100">
-            <th class="border p-1">월</th>
-            <th class="border p-1">원금</th>
-            <th class="border p-1">이자</th>
-            <th class="border p-1">합계</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${schedule.map(row => `
-            <tr>
-              <td class="border text-center">${row.month}</td>
-              <td class="border text-right">${Math.floor(row.principal).toLocaleString()}</td>
-              <td class="border text-right">${Math.floor(row.interest).toLocaleString()}</td>
-              <td class="border text-right">${Math.floor(row.total).toLocaleString()}</td>
+      <h3 class="text-lg font-bold mb-4 text-center">📅 월별 상환 내역</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="border p-2">월</th>
+              <th class="border p-2">원금</th>
+              <th class="border p-2">이자</th>
+              <th class="border p-2">합계</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${schedule.map(row => `
+              <tr>
+                <td class="border text-center">${row.month}</td>
+                <td class="border text-right">${Math.floor(row.principal).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.interest).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.total).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   });
 });
