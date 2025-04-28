@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식 추가 버전)
+// 보금자리론 대출 계산기 스크립트 (체증식 수정 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      let payment = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      let payment = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
       const annualIncreaseRate = 0.02; // 2% 체증
       for (let i = 1; i <= totalMonths; i++) {
         if (i !== 1 && (i - 1) % 12 === 0) {
@@ -85,15 +85,21 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           let interest = remainingLoan * monthlyRate;
           let principal = payment - interest;
-          if (remainingLoan < principal) principal = remainingLoan;
+          if (principal > remainingLoan) principal = remainingLoan;
           remainingLoan -= principal;
-          schedule.push({ month: i, principal, interest, total: principal + interest });
+          if (remainingLoan < 0) remainingLoan = 0;
+          schedule.push({
+            month: i,
+            principal: Math.max(0, principal),
+            interest: Math.max(0, interest),
+            total: Math.max(0, principal + interest)
+          });
         }
       }
     }
 
-    const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
-    const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
+    const totalPrincipal = schedule.reduce((sum, r) => sum + (r.principal || 0), 0);
+    const totalInterest = schedule.reduce((sum, r) => sum + (r.interest || 0), 0);
 
     summaryArea.innerHTML = `
       <div class="bg-blue-100 p-4 rounded-lg shadow mb-6 text-center">
@@ -120,9 +126,9 @@ document.addEventListener("DOMContentLoaded", function () {
             ${schedule.map(row => `
               <tr>
                 <td class="border text-center">${row.month}</td>
-                <td class="border text-right">${Math.floor(row.principal).toLocaleString()}</td>
-                <td class="border text-right">${Math.floor(row.interest).toLocaleString()}</td>
-                <td class="border text-right">${Math.floor(row.total).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.principal || 0).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.interest || 0).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.total || 0).toLocaleString()}</td>
               </tr>
             `).join('')}
           </tbody>
