@@ -1,4 +1,4 @@
-// 디딤돌 대출 계산기 스크립트 (수정 버전)
+// 디딤돌 대출 계산기 스크립트 (원리금균등/원금균등 분기 추가 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("loanForm");
   const resultArea = document.getElementById("resultArea");
@@ -46,17 +46,31 @@ document.addEventListener("DOMContentLoaded", function () {
     let remainingLoan = loanAmount;
     let schedule = [];
 
-    const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
-
-    for (let i = 1; i <= totalMonths; i++) {
-      if (i <= graceMonths) {
-        let interest = remainingLoan * monthlyRate;
-        schedule.push({ month: i, principal: 0, interest, total: interest });
-      } else {
-        let interest = remainingLoan * monthlyRate;
-        let principal = annuity - interest;
-        remainingLoan -= principal;
-        schedule.push({ month: i, principal, interest, total: principal + interest });
+    if (repayType === 'equalPrincipalAndInterest') {
+      const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      for (let i = 1; i <= totalMonths; i++) {
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = annuity - interest;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
+      }
+    } else if (repayType === 'equalPrincipal') {
+      const principalPerMonth = remainingLoan / (totalMonths - graceMonths);
+      for (let i = 1; i <= totalMonths; i++) {
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = principalPerMonth;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
       }
     }
 
