@@ -1,3 +1,4 @@
+// bogum-script.js (체증식 2% 적용 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -22,12 +23,14 @@ document.addEventListener("DOMContentLoaded", function () {
   loanForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const loanAmountInput = parseFloat(document.getElementById('loanAmount').value);
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
-    const baseRateInput = parseFloat(document.getElementById('baseRate')?.value);
+    const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
+    const repayType = document.getElementById('repayType').value;
+    const baseRateInput = parseFloat(document.getElementById('baseRate').value);
     const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
 
-    if (isNaN(loanAmountInput) || isNaN(loanTerm)) {
+    if (isNaN(loanAmount) || isNaN(loanTerm)) {
       resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
       return;
     }
@@ -37,16 +40,44 @@ document.addEventListener("DOMContentLoaded", function () {
     const monthlyRate = finalRate / 100 / 12;
 
     const totalMonths = loanTerm * 12;
-    let remainingLoan = loanAmountInput;
+    const graceMonths = gracePeriod * 12;
+    let remainingLoan = loanAmount;
     let schedule = [];
 
-    const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -totalMonths));
+    if (repayType === 'equalPrincipalAndInterest' || repayType === 'graduatedPayment') {
+      const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      let currentPayment = annuity;
 
-    for (let i = 1; i <= totalMonths; i++) {
-      let interest = remainingLoan * monthlyRate;
-      let principal = annuity - interest;
-      remainingLoan -= principal;
-      schedule.push({ month: i, principal, interest, total: principal + interest });
+      for (let i = 1; i <= totalMonths; i++) {
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          if (repayType === 'graduatedPayment' && (i - graceMonths - 1) % 12 === 0 && i !== graceMonths + 1) {
+            currentPayment *= 1.02; // 매년 2% 상승
+          }
+          let interest = remainingLoan * monthlyRate;
+          let principal = currentPayment - interest;
+          remainingLoan -= principal;
+          if (remainingLoan < 0) remainingLoan = 0;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
+      }
+
+    } else if (repayType === 'equalPrincipal') {
+      const principalPerMonth = remainingLoan / (totalMonths - graceMonths);
+
+      for (let i = 1; i <= totalMonths; i++) {
+        if (i <= graceMonths) {
+          let interest = remainingLoan * monthlyRate;
+          schedule.push({ month: i, principal: 0, interest, total: interest });
+        } else {
+          let interest = remainingLoan * monthlyRate;
+          let principal = principalPerMonth;
+          remainingLoan -= principal;
+          schedule.push({ month: i, principal, interest, total: principal + interest });
+        }
+      }
     }
 
     const totalPrincipal = schedule.reduce((sum, r) => sum + r.principal, 0);
