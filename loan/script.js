@@ -1,6 +1,6 @@
-// 보금자리론 대출 계산기 스크립트 (폼 ID 수정 + 결과 보기 좋게 개선)
+// 디딤돌 대출 계산기 스크립트 (원리금균등/원금균등 분기 추가 버전)
 document.addEventListener("DOMContentLoaded", function () {
-  const loanForm = document.getElementById("bogumForm");
+  const loanForm = document.getElementById("loanForm");
   const resultArea = document.getElementById("resultArea");
   const summaryArea = document.getElementById("summaryArea");
   const checkboxes = document.querySelectorAll('input[name="discount"]');
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     checkboxes.forEach(box => {
       if (box.checked) sum += parseFloat(box.value);
     });
-    if (sum > 1.0) sum = 1.0;
+    if (sum > 0.7) sum = 0.7;
     totalDiscount.textContent = `${sum.toFixed(2)}%`;
     return sum;
   }
@@ -27,13 +27,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
-    const gracePeriod = parseInt(document.getElementById('gracePeriod')?.value || 0);
+    const gracePeriod = parseInt(document.getElementById('gracePeriod').value);
     const repayType = document.getElementById('repayType').value;
     const baseRateInput = parseFloat(document.getElementById('baseRate').value);
     const baseRate = isNaN(baseRateInput) ? 3.0 : baseRateInput;
 
     if (isNaN(loanAmount) || isNaN(loanTerm)) {
-      resultArea.innerHTML = "<p class='text-red-500 text-center'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
+      resultArea.innerHTML = "<p class='text-red-500'>❗ 모든 항목을 올바르게 입력해 주세요.</p>";
       return;
     }
 
@@ -78,8 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const totalInterest = schedule.reduce((sum, r) => sum + r.interest, 0);
 
     summaryArea.innerHTML = `
-      <div class="bg-blue-100 p-4 rounded-lg shadow mb-6 text-center">
-        <p class="text-lg font-bold text-gray-900 mb-2">📋 대출 요약</p>
+      <div class="bg-blue-50 p-4 rounded-lg shadow mb-6 text-center">
+        <p class="text-lg font-bold text-gray-800 mb-2">📋 대출 요약</p>
         <p class="text-base text-gray-700">총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원</p>
         <p class="text-base text-gray-700">총 이자: ${Math.floor(totalInterest).toLocaleString()}원</p>
         <p class="text-base text-gray-700">총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원</p>
@@ -87,15 +87,15 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
     resultArea.innerHTML = `
-      <h3 class="text-lg font-bold mb-4 text-center">📅 월별 상환 내역</h3>
+      <h3 class="text-lg font-bold mb-2">📅 월별 상환 내역</h3>
       <div class="overflow-x-auto">
         <table class="w-full text-sm border">
           <thead>
-            <tr class="bg-gray-200">
-              <th class="border p-2">월</th>
-              <th class="border p-2">원금</th>
-              <th class="border p-2">이자</th>
-              <th class="border p-2">합계</th>
+            <tr class="bg-gray-100">
+              <th class="border p-1">월</th>
+              <th class="border p-1">원금</th>
+              <th class="border p-1">이자</th>
+              <th class="border p-1">합계</th>
             </tr>
           </thead>
           <tbody>
