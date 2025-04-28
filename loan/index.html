@@ -15,20 +15,27 @@
 </head>
 <body class="bg-white text-gray-800">
   <!-- 햄버거 메뉴 버튼 (모바일 전용) -->
-<button id="menu-toggle" class="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded md:hidden">
-  ☰
-</button>
+  <button id="menu-toggle" class="fixed top-4 left-4 z-50 p-2 bg-gray-800 text-white rounded md:hidden">
+    ☰
+  </button>
 
   <div class="flex min-h-screen">
     <!-- 왼쪽 카테고리 영역 -->
-    <!-- 모바일에서는 숨기고, 햄버거 버튼으로 열 수 있도록 -->
- <aside id="sidebar" class="w-64 bg-gray-50 border-r p-4 text-sm hidden md:block">
-
+    <aside id="sidebar" class="w-64 bg-gray-50 border-r p-4 text-sm hidden md:block">
       <h2 class="text-lg font-bold mb-4">📂 대출 계산기</h2>
+
+      <!-- ✅ 여기 nav 부분 수정 -->
       <nav class="space-y-2">
+        <!-- 메인으로 돌아가기 버튼 -->
+        <a href="https://calcly.kr/" class="block bg-blue-500 text-white text-center py-2 px-4 rounded mb-4 hover:bg-blue-600">
+          🏡 메인으로 돌아가기
+        </a>
+
+        <!-- 계산기 링크들 -->
         <a href="didimdol.html" target="calcFrame" class="block hover:text-blue-600">🏠 디딤돌 대출 계산기</a>
-        <span class="block text-gray-400">🔒 보금자리론 (준비 중)</span>
+        <a href="bogum.html" target="calcFrame" class="block hover:text-blue-600">🏡 보금자리론 대출 계산기</a>
       </nav>
+
       <footer class="mt-8 text-xs text-gray-500">
         <p class="mb-1">※ 본 계산기는 참고용입니다.</p>
         <p class="mb-1">※ 문의: <a href="mailto:pb8911@naver.com" class="text-blue-500">pb8911@naver.com</a></p>
@@ -40,13 +47,16 @@
       <iframe name="calcFrame" src="didimdol.html"></iframe>
     </main>
   </div>
-</body>
-  <script>
-  const toggleBtn = document.getElementById('menu-toggle');
-  const sidebar = document.getElementById('sidebar');
 
-  toggleBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-  });
-</script>
+  <!-- 사이드바 열기/닫기 스크립트 -->
+  <script>
+    const toggleBtn = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+    });
+  </script>
+</body>
 </html>
+
