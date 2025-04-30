@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식 정밀 반영 + 종료 조건 개선)
+// 보금자리론 대출 계산기 스크립트 (체증식 정밀 반영 + 종료 조건 개선 + 최소 상환 보장)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -80,11 +80,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       while (remainingLoan > 0 && month < totalMonths) {
         year = Math.floor((month - graceMonths) / 12);
-        const increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
-
         let interest = remainingLoan * monthlyRate;
-        let principal = month < graceMonths ? 0 : increasedPayment - interest;
 
+        // 최소한 이자 이상은 갚도록 보장
+        const increasedPayment = Math.max(
+          payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year)),
+          interest + 1000
+        );
+
+        let principal = month < graceMonths ? 0 : increasedPayment - interest;
         if (principal > remainingLoan) principal = remainingLoan;
         if (month >= graceMonths) remainingLoan -= principal;
 
@@ -97,7 +101,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         month++;
 
-        // 강제 종료 방지
         if (remainingLoan < 1) break;
       }
     }
