@@ -22,10 +22,11 @@ document.addEventListener("DOMContentLoaded", function () {
     cb.addEventListener("change", updateDiscountDisplay);
   });
 
-  loanForm.addEventListener("submit", function (e) {
+ loanForm.addEventListener("submit", function (e) {
   e.preventDefault();
+  resultArea.innerHTML = "";
+  summaryArea.innerHTML = "";
 
-  // 나머지 계산 로직은 그대로 두시면 됩니다.
 
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
