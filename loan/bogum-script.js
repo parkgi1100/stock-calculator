@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (month >= graceMonths) {
           basePayment *= (1 + annualIncreaseRate);
         }
-        const principal = month < graceMonths ? 0 : basePayment;
+        let principal = month < graceMonths ? 0 : basePayment;
 
         let interest = remainingLoan * monthlyRate;
         // removed for revised basePayment logic
