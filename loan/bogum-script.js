@@ -23,9 +23,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   loanForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    e.preventDefault();
+  e.preventDefault();
+
+  // 나머지 계산 로직은 그대로 두시면 됩니다.
+
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
