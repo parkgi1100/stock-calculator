@@ -75,18 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let payment = baseMonthlyPrincipal * 0.5; // 첫 달은 매우 낮은 원금으로 시작
+      let basePayment = baseMonthlyPrincipal * 0.3; // 첫 달은 매우 낮은 원금으로 시작
       let month = 0;
       let year = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
         year = Math.floor((month - graceMonths) / 12);
         if (month >= graceMonths) {
-          payment = baseMonthlyPrincipal * Math.pow(1 + annualIncreaseRate, year);
+          basePayment *= (1 + annualIncreaseRate);
         }
+        const principal = month < graceMonths ? 0 : basePayment;
 
         let interest = remainingLoan * monthlyRate;
-        let principal = month < graceMonths ? 0 : payment;
+        // removed for revised basePayment logic
         if (principal > remainingLoan || month === totalMonths - 1) {
           principal = remainingLoan;
         }
