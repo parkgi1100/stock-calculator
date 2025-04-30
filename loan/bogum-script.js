@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
       for (let i = 1; i <= totalMonths; i++) {
         if (i <= graceMonths) {
-          let interest = remainingLoan * monthlyRate;
+          let interest = (loanAmount - remainingLoan) * monthlyRate;
           schedule.push({ month: i, principal: 0, interest, total: interest });
         } else {
           let interest = remainingLoan * monthlyRate;
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = baseMonthlyPrincipal * 0.3; // 첫 달은 매우 낮은 원금으로 시작
+      let basePayment = baseMonthlyPrincipal * 0.5; // 첫 달은 매우 낮은 원금으로 시작
       let month = 0;
       let year = 0;
 
@@ -84,6 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (month >= graceMonths) {
           basePayment *= (1 + annualIncreaseRate);
         }
+        basePayment = Math.min(basePayment, remainingLoan);
         let principal = month < graceMonths ? 0 : basePayment;
         principal = Math.min(principal, remainingLoan);
 
