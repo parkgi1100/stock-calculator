@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식: 전체 원금 상환 보장 + 반복 상환 보강)
+// 보금자리론 대출 계산기 스크립트 (체증식: 마지막 회차 분할 방지 개선)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -78,14 +78,14 @@ document.addEventListener("DOMContentLoaded", function () {
       let month = 0;
       let year = 0;
 
-      while (month < totalMonths || remainingLoan > 0.01) {
+      while (month < totalMonths && remainingLoan > 0.01) {
         year = Math.floor((month - graceMonths) / 12);
         let interest = remainingLoan * monthlyRate;
         let increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
         increasedPayment = Math.max(increasedPayment, interest + 1000);
 
         let principal = month < graceMonths ? 0 : increasedPayment - interest;
-        if (month === totalMonths - 1 || remainingLoan - principal < 0.01) {
+        if (principal > remainingLoan || month === totalMonths - 1) {
           principal = remainingLoan;
         }
         if (month >= graceMonths) remainingLoan -= principal;
@@ -98,8 +98,19 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         month++;
+      }
 
-        if (remainingLoan <= 0.01) break;
+      // 원금 잔액이 남았을 경우 추가 회차로 상환
+      while (remainingLoan > 0.01) {
+        let interest = remainingLoan * monthlyRate;
+        let principal = remainingLoan;
+        schedule.push({
+          month: ++month,
+          principal: principal,
+          interest: interest,
+          total: principal + interest
+        });
+        remainingLoan = 0;
       }
     }
 
