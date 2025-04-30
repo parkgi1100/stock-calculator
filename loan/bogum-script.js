@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식 정밀 반영 버전)
+// 보금자리론 대출 계산기 스크립트 (체증식 정밀 반영 + 종료 조건 개선)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -73,32 +73,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      let payment = loanAmount * monthlyRate * 0.6; // 초기 상환액 낮게 시작 (이자 수준)
-      const annualIncreaseRate = 0.02; // 매년 2% 증가
-      let year = 0;
+      let payment = loanAmount * monthlyRate * 0.6;
+      const annualIncreaseRate = 0.02;
       let month = 0;
+      let year = 0;
 
       while (remainingLoan > 0 && month < totalMonths) {
-        year = Math.floor(month / 12);
-        const increasedPayment = payment * Math.pow(1 + annualIncreaseRate, year);
+        year = Math.floor((month - graceMonths) / 12);
+        const increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
 
         let interest = remainingLoan * monthlyRate;
-        let principal = increasedPayment - interest;
-        if (principal > remainingLoan) principal = remainingLoan;
+        let principal = month < graceMonths ? 0 : increasedPayment - interest;
 
-        if (month < graceMonths) {
-          schedule.push({ month: month + 1, principal: 0, interest, total: interest });
-        } else {
-          remainingLoan -= principal;
-          schedule.push({
-            month: month + 1,
-            principal: Math.max(0, principal),
-            interest: Math.max(0, interest),
-            total: Math.max(0, principal + interest)
-          });
-        }
+        if (principal > remainingLoan) principal = remainingLoan;
+        if (month >= graceMonths) remainingLoan -= principal;
+
+        schedule.push({
+          month: month + 1,
+          principal: Math.max(0, principal),
+          interest: Math.max(0, interest),
+          total: Math.max(0, principal + interest)
+        });
 
         month++;
+
+        // 강제 종료 방지
+        if (remainingLoan < 1) break;
       }
     }
 
