@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
           basePayment *= (1 + annualIncreaseRate);
         }
         let principal = month < graceMonths ? 0 : basePayment;
+        principal = Math.min(principal, remainingLoan);
 
         let interest = remainingLoan * monthlyRate;
         // removed for revised basePayment logic
@@ -101,6 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         month++;
+        if (remainingLoan <= 0.01) break;
       }
     }
 
