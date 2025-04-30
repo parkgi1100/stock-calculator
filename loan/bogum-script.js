@@ -81,8 +81,8 @@ document.addEventListener("DOMContentLoaded", function () {
       while (month < totalMonths && remainingLoan > 0.01) {
         year = Math.floor((month - graceMonths) / 12);
         let interest = remainingLoan * monthlyRate;
-        let increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
-        increasedPayment = Math.max(increasedPayment, interest + (loanAmount / totalMonths));
+        const baseMinPayment = interest + (loanAmount / totalMonths);
+let increasedPayment = Math.max(baseMinPayment, payment) * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
 
         let principal = month < graceMonths ? 0 : increasedPayment - interest;
         if (principal > remainingLoan || month === totalMonths - 1) {
