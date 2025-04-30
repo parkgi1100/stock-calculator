@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식 개선 버전)
+// 보금자리론 대출 계산기 스크립트 (체증식 정밀 반영 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -73,32 +73,32 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      const basePayment = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
-      const annualIncreaseRate = 0.02;
+      let payment = loanAmount * monthlyRate * 0.6; // 초기 상환액 낮게 시작 (이자 수준)
+      const annualIncreaseRate = 0.02; // 매년 2% 증가
       let year = 0;
+      let month = 0;
 
-      for (let i = 1; i <= totalMonths; i++) {
-        if (i > graceMonths && (i - graceMonths - 1) % 12 === 0) {
-          year += 1;
-        }
+      while (remainingLoan > 0 && month < totalMonths) {
+        year = Math.floor(month / 12);
+        const increasedPayment = payment * Math.pow(1 + annualIncreaseRate, year);
 
-        const increasedPayment = basePayment * Math.pow(1 + annualIncreaseRate, year);
+        let interest = remainingLoan * monthlyRate;
+        let principal = increasedPayment - interest;
+        if (principal > remainingLoan) principal = remainingLoan;
 
-        if (i <= graceMonths) {
-          let interest = remainingLoan * monthlyRate;
-          schedule.push({ month: i, principal: 0, interest, total: interest });
+        if (month < graceMonths) {
+          schedule.push({ month: month + 1, principal: 0, interest, total: interest });
         } else {
-          let interest = remainingLoan * monthlyRate;
-          let principal = increasedPayment - interest;
-          if (principal > remainingLoan) principal = remainingLoan;
           remainingLoan -= principal;
           schedule.push({
-            month: i,
+            month: month + 1,
             principal: Math.max(0, principal),
             interest: Math.max(0, interest),
             total: Math.max(0, principal + interest)
           });
         }
+
+        month++;
       }
     }
 
