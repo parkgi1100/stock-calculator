@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const annuity = remainingLoan * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
       for (let i = 1; i <= totalMonths; i++) {
         if (i <= graceMonths) {
-          let interest = (loanAmount - remainingLoan) * monthlyRate;
+          let interest = remainingLoan * monthlyRate * 1.05;
           schedule.push({ month: i, principal: 0, interest, total: interest });
         } else {
           let interest = remainingLoan * monthlyRate;
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = baseMonthlyPrincipal * 0.5; // 첫 달은 매우 낮은 원금으로 시작
+      let basePayment = baseMonthlyPrincipal / Math.pow(1 + annualIncreaseRate, totalMonths / 24); // 체증 누적 보정 적용
       let month = 0;
       let year = 0;
 
