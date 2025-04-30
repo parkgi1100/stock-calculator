@@ -24,6 +24,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   loanForm.addEventListener("submit", function (e) {
     e.preventDefault();
+    e.stopPropagation();
+    e.preventDefault();
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
