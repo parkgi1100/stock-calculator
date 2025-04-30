@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      let payment = loanAmount * monthlyRate * 0.3;
+      let payment = loanAmount * monthlyRate * 0.6;
       const annualIncreaseRate = 0.02;
       let month = 0;
       let year = 0;
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let interest = remainingLoan * monthlyRate;
         let increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
 if (month >= graceMonths) {
-  const minimumRequired = interest + (loanAmount / totalMonths * 0.3);
+  const minimumRequired = interest + (remainingLoan / (totalMonths - month + 1));
   if (increasedPayment < minimumRequired) increasedPayment = minimumRequired;
 }
 
