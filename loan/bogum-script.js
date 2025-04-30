@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = baseMonthlyPrincipal / Math.pow(1 + annualIncreaseRate, totalMonths / 24); // 체증 누적 보정 적용
+      let basePayment = baseMonthlyPrincipal * 0.3; // 현실적으로 초반 원금 상환 낮추기 // 체증 누적 보정 적용
       let month = 0;
       let year = 0;
 
