@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식: 마지막 회차 분할 방지 개선)
+// 보금자리론 대출 계산기 스크립트 (체증식: 원금 점진 증가 방식 적용)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -73,21 +73,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      let payment = loanAmount * monthlyRate * 0.6;
       const annualIncreaseRate = 0.02;
+      const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
+      let payment = baseMonthlyPrincipal * 0.5; // 첫 달은 매우 낮은 원금으로 시작
       let month = 0;
       let year = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
         year = Math.floor((month - graceMonths) / 12);
-        let interest = remainingLoan * monthlyRate;
-        let increasedPayment = payment * Math.pow(1 + annualIncreaseRate, Math.max(0, year));
-if (month >= graceMonths) {
-  const minimumRequired = interest + (remainingLoan / (totalMonths - month + 1));
-  if (increasedPayment < minimumRequired) increasedPayment = minimumRequired;
-}
+        if (month >= graceMonths) {
+          payment = baseMonthlyPrincipal * Math.pow(1 + annualIncreaseRate, year);
+        }
 
-        let principal = month < graceMonths ? 0 : increasedPayment - interest;
+        let interest = remainingLoan * monthlyRate;
+        let principal = month < graceMonths ? 0 : payment;
         if (principal > remainingLoan || month === totalMonths - 1) {
           principal = remainingLoan;
         }
@@ -101,19 +100,6 @@ if (month >= graceMonths) {
         });
 
         month++;
-      }
-
-      // 원금 잔액이 남았을 경우 추가 회차로 상환
-      while (remainingLoan > 0.01) {
-        let interest = remainingLoan * monthlyRate;
-        let principal = remainingLoan;
-        schedule.push({
-          month: ++month,
-          principal: principal,
-          interest: interest,
-          total: principal + interest
-        });
-        remainingLoan = 0;
       }
     }
 
