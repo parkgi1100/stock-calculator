@@ -1,4 +1,4 @@
-// 보금자리론 대출 계산기 스크립트 (체증식 수정 버전)
+// 보금자리론 대출 계산기 스크립트 (체증식 개선 버전)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -73,21 +73,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
     } else if (repayType === 'graduatedPayment') {
-      let payment = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
-      const annualIncreaseRate = 0.02; // 2% 체증
+      const basePayment = loanAmount * monthlyRate / (1 - Math.pow(1 + monthlyRate, -(totalMonths - graceMonths)));
+      const annualIncreaseRate = 0.02;
+      let year = 0;
+
       for (let i = 1; i <= totalMonths; i++) {
-        if (i !== 1 && (i - 1) % 12 === 0) {
-          payment *= (1 + annualIncreaseRate);
+        if (i > graceMonths && (i - graceMonths - 1) % 12 === 0) {
+          year += 1;
         }
+
+        const increasedPayment = basePayment * Math.pow(1 + annualIncreaseRate, year);
+
         if (i <= graceMonths) {
           let interest = remainingLoan * monthlyRate;
           schedule.push({ month: i, principal: 0, interest, total: interest });
         } else {
           let interest = remainingLoan * monthlyRate;
-          let principal = payment - interest;
+          let principal = increasedPayment - interest;
           if (principal > remainingLoan) principal = remainingLoan;
           remainingLoan -= principal;
-          if (remainingLoan < 0) remainingLoan = 0;
           schedule.push({
             month: i,
             principal: Math.max(0, principal),
