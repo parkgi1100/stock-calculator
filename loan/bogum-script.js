@@ -22,12 +22,10 @@ document.addEventListener("DOMContentLoaded", function () {
     cb.addEventListener("change", updateDiscountDisplay);
   });
 
- loanForm.addEventListener("submit", function (e) {
-  e.preventDefault();
-  resultArea.innerHTML = "";
-  summaryArea.innerHTML = "";
-
-
+  loanForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    resultArea.innerHTML = "";
+    summaryArea.innerHTML = "";
 
     const loanAmount = parseFloat(document.getElementById('loanAmount').value);
     const loanTerm = parseInt(document.getElementById('loanTerm').value);
@@ -103,44 +101,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
         month++;
       }
+    }
 
-      
+    const totalPrincipal = schedule.reduce((sum, r) => sum + (r.principal || 0), 0);
+    const totalInterest = schedule.reduce((sum, r) => sum + (r.interest || 0), 0);
 
-      const totalPrincipal = schedule.reduce((sum, r) => sum + (r.principal || 0), 0);
-      const totalInterest = schedule.reduce((sum, r) => sum + (r.interest || 0), 0);
+    summaryArea.innerHTML = `
+      <div class="bg-blue-100 p-4 rounded-lg shadow mb-6 text-center">
+        <p class="text-lg font-bold text-gray-900 mb-2">📋 대출 요약</p>
+        <p class="text-base text-gray-700">총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원</p>
+        <p class="text-base text-gray-700">총 이자: ${Math.floor(totalInterest).toLocaleString()}원</p>
+        <p class="text-base text-gray-700">총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원</p>
+      </div>
+    `;
 
-      summaryArea.innerHTML = `
-        <div class="bg-blue-100 p-4 rounded-lg shadow mb-6 text-center">
-          <p class="text-lg font-bold text-gray-900 mb-2">📋 대출 요약</p>
-          <p class="text-base text-gray-700">총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원</p>
-          <p class="text-base text-gray-700">총 이자: ${Math.floor(totalInterest).toLocaleString()}원</p>
-          <p class="text-base text-gray-700">총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원</p>
-        </div>
-      `;
-
-      resultArea.innerHTML = `
-        <h3 class="text-lg font-bold mb-4 text-center">📅 월별 상환 내역</h3>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm border">
-            <thead>
-              <tr class="bg-gray-200">
-                <th class="border p-2">월</th>
-                <th class="border p-2">원금</th>
-                <th class="border p-2">이자</th>
-                <th class="border p-2">합계</th>
+    resultArea.innerHTML = `
+      <h3 class="text-lg font-bold mb-4 text-center">📅 월별 상환 내역</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border">
+          <thead>
+            <tr class="bg-gray-200">
+              <th class="border p-2">월</th>
+              <th class="border p-2">원금</th>
+              <th class="border p-2">이자</th>
+              <th class="border p-2">합계</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${schedule.map(row => `
+              <tr>
+                <td class="border text-center">${row.month}</td>
+                <td class="border text-right">${Math.floor(row.principal || 0).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.interest || 0).toLocaleString()}</td>
+                <td class="border text-right">${Math.floor(row.total || 0).toLocaleString()}</td>
               </tr>
-            </thead>
-            <tbody>
-              ${schedule.map(row => `
-                <tr>
-                  <td class="border text-center">${row.month}</td>
-                  <td class="border text-right">${Math.floor(row.principal || 0).toLocaleString()}</td>
-                  <td class="border text-right">${Math.floor(row.interest || 0).toLocaleString()}</td>
-                  <td class="border text-right">${Math.floor(row.total || 0).toLocaleString()}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-      }
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  });
+});
