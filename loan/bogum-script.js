@@ -76,17 +76,31 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
+      const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      const totalIncreaseFactor = Math.pow(1 + annualIncreaseRate, (totalMonths - graceMonths) / 12);
-      let basePayment = baseMonthlyPrincipal / totalIncreaseFactor;
+      let basePayment = baseMonthlyPrincipal * 0.3; // 낮은 초기값 설정
       let month = 0;
       let year = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
-        year = Math.floor((month - graceMonths) / 12);
         if (month >= graceMonths) {
-          basePayment *= (1 + annualIncreaseRate);
+          basePayment *= (1 + monthlyIncreaseRate);
         }
+
+        let interest = remainingLoan * monthlyRate;
+        let principal = month < graceMonths ? 0 : Math.min(basePayment, remainingLoan);
+        if (month >= graceMonths) remainingLoan -= principal;
+
+        schedule.push({
+          month: month + 1,
+          principal: Math.max(0, principal),
+          interest: Math.max(0, interest),
+          total: Math.max(0, principal + interest)
+        });
+
+        month++;
+      }
+    }
 
         let interest = remainingLoan * monthlyRate;
         let principal = month < graceMonths ? 0 : Math.min(basePayment, remainingLoan);
