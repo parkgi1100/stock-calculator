@@ -78,12 +78,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const annualIncreaseRate = 0.02;
       const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = baseMonthlyPrincipal * 0.3; // 낮은 초기값 설정
+      let basePayment = baseMonthlyPrincipal * 0.05; // 매우 낮은 초기값으로 설정
       let month = 0;
-      let year = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
-        if (month >= graceMonths) {
+        if (month >= graceMonths && month > 0) {
           basePayment *= (1 + monthlyIncreaseRate);
         }
 
