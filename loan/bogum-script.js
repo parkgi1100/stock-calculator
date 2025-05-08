@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (box.checked) sum += parseFloat(box.value);
     });
     if (sum > 1.0) sum = 1.0;
-    totalDiscount.textContent = `${(sum * 100).toFixed(2)}%`;
+    totalDiscount.textContent = `${sum.toFixed(2)}%`;
     return sum;
   }
 
@@ -76,8 +76,10 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repayType === 'graduatedPayment') {
       const annualIncreaseRate = 0.02;
       const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
-      const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = loanAmount * 0.005; // 초기 상환금 설정
+      const repayMonths = totalMonths - graceMonths;
+
+      // 적절한 초기 상환금 설정
+      let basePayment = (loanAmount / repayMonths) * 1.2;
       let month = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
