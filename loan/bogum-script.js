@@ -78,8 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
       const repayMonths = totalMonths - graceMonths;
 
-      // 적절한 초기 상환금 설정
-      let basePayment = (loanAmount / repayMonths) * 1.2;
+      // ✅ 초기 상환금액을 충분히 커지도록 조정 (80% 수준부터 시작)
+      let basePayment = (loanAmount / repayMonths) * 0.8;
       let month = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
