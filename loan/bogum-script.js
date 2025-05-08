@@ -1,4 +1,3 @@
-// 보금자리론 대출 계산기 스크립트 (체증식: 원금 점진 증가 방식 적용)
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (box.checked) sum += parseFloat(box.value);
     });
     if (sum > 1.0) sum = 1.0;
-    totalDiscount.textContent = `${sum.toFixed(2)}%`;
+    totalDiscount.textContent = `${(sum * 100).toFixed(2)}%`;
     return sum;
   }
 
@@ -78,32 +77,18 @@ document.addEventListener("DOMContentLoaded", function () {
       const annualIncreaseRate = 0.02;
       const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
       const baseMonthlyPrincipal = loanAmount / (totalMonths - graceMonths);
-      let basePayment = baseMonthlyPrincipal * 0.05; // 매우 낮은 초기값으로 설정
+      let basePayment = loanAmount * 0.005; // 초기 상환금 설정
       let month = 0;
 
       while (month < totalMonths && remainingLoan > 0.01) {
-        if (month >= graceMonths && month > 0) {
-          basePayment *= (1 + monthlyIncreaseRate);
+        let interest = remainingLoan * monthlyRate;
+        let principal = 0;
+
+        if (month >= graceMonths) {
+          if (month > graceMonths) basePayment *= (1 + monthlyIncreaseRate);
+          principal = Math.min(basePayment, remainingLoan);
+          remainingLoan -= principal;
         }
-
-        let interest = remainingLoan * monthlyRate;
-        let principal = month < graceMonths ? 0 : Math.min(basePayment, remainingLoan);
-        if (month >= graceMonths) remainingLoan -= principal;
-
-        schedule.push({
-          month: month + 1,
-          principal: Math.max(0, principal),
-          interest: Math.max(0, interest),
-          total: Math.max(0, principal + interest)
-        });
-
-        month++;
-      }
-    }
-
-        let interest = remainingLoan * monthlyRate;
-        let principal = month < graceMonths ? 0 : Math.min(basePayment, remainingLoan);
-        if (month >= graceMonths) remainingLoan -= principal;
 
         schedule.push({
           month: month + 1,
