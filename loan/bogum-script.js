@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", function () {
   const loanForm = document.getElementById("bogumForm");
   const resultArea = document.getElementById("resultArea");
@@ -78,17 +79,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const monthlyIncreaseRate = Math.pow(1 + annualIncreaseRate, 1 / 12) - 1;
       const repayMonths = totalMonths - graceMonths;
 
-      // ✅ 초기 상환금액을 충분히 커지도록 조정 (80% 수준부터 시작)
-      let basePayment = (loanAmount / repayMonths) * 0.8;
-      let month = 0;
+      // 체증률 누적 계수로 basePayment 역산
+      let cumulativeFactor = 0;
+      for (let i = 0; i < repayMonths; i++) {
+        cumulativeFactor += Math.pow(1 + monthlyIncreaseRate, i);
+      }
+      let basePayment = loanAmount / cumulativeFactor;
 
+      let month = 0;
       while (month < totalMonths && remainingLoan > 0.01) {
         let interest = remainingLoan * monthlyRate;
         let principal = 0;
 
         if (month >= graceMonths) {
-          if (month > graceMonths) basePayment *= (1 + monthlyIncreaseRate);
-          principal = Math.min(basePayment, remainingLoan);
+          let factor = Math.pow(1 + monthlyIncreaseRate, month - graceMonths);
+          principal = Math.min(basePayment * factor, remainingLoan);
           remainingLoan -= principal;
         }
 
