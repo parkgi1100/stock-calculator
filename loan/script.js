@@ -83,6 +83,10 @@ document.addEventListener("DOMContentLoaded", function () {
         <p class="text-base text-gray-700">총 원금: ${Math.floor(totalPrincipal).toLocaleString()}원</p>
         <p class="text-base text-gray-700">총 이자: ${Math.floor(totalInterest).toLocaleString()}원</p>
         <p class="text-base text-gray-700">총 납입금: ${(Math.floor(totalPrincipal + totalInterest)).toLocaleString()}원</p>
+
+         <p class="text-sm text-gray-600 mt-4">
+    보다 정확한 계산을 위해서는 해당 금융기관의 공식 계산기를 이용하시거나, 금융 상담을 받으시는 것을 권장드립니다.
+  </p>
       </div>
     `;
 
