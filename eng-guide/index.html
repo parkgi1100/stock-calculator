@@ -81,14 +81,28 @@
 
   <script>
     const ul = document.getElementById("daily-list");
-    for (let i = 1; i <= 100; i++) {
-      const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = `day${i}.html`;
-      a.textContent = `Day ${i} - 영어 회화 연습`;
-      li.appendChild(a);
-      ul.appendChild(li);
-    }
+    const titles = [
+  "Ordering Coffee",
+  "Airport Taxi Ride",
+  "Hotel Check-In",
+  "Asking for Directions",
+  "Shopping for Clothes",
+  "At the Restaurant",
+  "Small Talk at a Party",
+  "Phone Conversation",
+  "Making a Reservation",
+  "Visiting a Doctor"
+];
+
+for (let i = 1; i <= 100; i++) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  a.href = `day${i}.html`;
+  const title = titles[i - 1] || "영어 회화 연습";
+  a.textContent = `Day ${i} - ${title}`;
+  li.appendChild(a);
+  ul.appendChild(li);
+}
       const select = document.getElementById("daySelect");
     for (let i = 1; i <= 100; i++) {
       const option = document.createElement("option");
@@ -105,6 +119,7 @@
   <footer style="text-align: center; max-width: 600px; margin: 2rem auto 0; font-size: 0.9rem; color: #777; line-height: 1.5;">
     <p>본 사이트의 영어 콘텐츠는 학습 목적으로 제작되었으며, 상업적 용도가 아닌 개인 학습을 위한 자료입니다.</p>
     <p>표현 및 음성 자료는 AI 기술을 활용해 생성되었으며, 실제 원어민의 의견이나 의도와는 다를 수 있습니다.</p>
+    <p>문의: <a href="mailto:contact@calcly.kr" style="color: #007bff; text-decoration: none;">contact@calcly.kr</a></p>
     <p>&copy; 2025 Calcu.kr. All rights reserved.</p>
   </footer>
 </body>
