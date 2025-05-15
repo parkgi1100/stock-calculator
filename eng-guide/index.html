@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="기초 영어 회화, 여행영어, 원어민 표현, 영어 대화 연습까지! Calcu.kr 영어 스피킹 연습실은 일상회화부터 실전 영어까지 매일매일 훈련할 수 있는 콘텐츠입니다.">
+  <meta name="keywords" content="영어회화, 영어 스피킹, 기초 영어, 여행 영어, 미국 영어, 영어 대화, 영어 훈련, 영어 쉐도잉, 원어민 표현">
+  <meta name="theme-color" content="#ffffff">
+  <title>매일 실전 영어 스피킹 연습실 - Calcu.kr</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      padding: 1.5rem;
+      background: #f9f9f9;
+      color: #333;
+      margin: 0;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #222;
+    }
+    p {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    li {
+      margin: 12px 0;
+      padding: 0.75rem 1rem;
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease-in-out;
+    }
+    li:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    a {
+      text-decoration: none;
+      font-size: 1.05rem;
+      color: #007bff;
+      display: block;
+    }
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      a {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🗣️ 매일 실전 영어 스피킹 연습실</h1>
+  <p>여행, 일상, 비즈니스 상황까지! 원어민처럼 자연스럽게 말하는 영어 회화 훈련을 매일매일 업데이트합니다. Day 1부터 순서대로 따라오세요!</p>
+  <ul id="daily-list">
+    <!-- Day 1~100 링크 자동 생성 -->
+  </ul>
+
+  <script>
+    const ul = document.getElementById("daily-list");
+    for (let i = 1; i <= 100; i++) {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = `day${i}.html`;
+      a.textContent = `Day ${i} - 영어 회화 연습`;
+      li.appendChild(a);
+      ul.appendChild(li);
+    }
+  </script>
+<hr style="margin: 2rem auto; max-width: 600px;">
+  <footer style="text-align: center; max-width: 600px; margin: 2rem auto 0; font-size: 0.9rem; color: #777; line-height: 1.5;">
+    <p>본 사이트의 영어 콘텐츠는 학습 목적으로 제작되었으며, 상업적 용도가 아닌 개인 학습을 위한 자료입니다.</p>
+    <p>표현 및 음성 자료는 AI 기술을 활용해 생성되었으며, 실제 원어민의 의견이나 의도와는 다를 수 있습니다.</p>
+    <p>문의: <a href="mailto:contact@calcly.kr" style="color: #007bff; text-decoration: none;">contact@calcly.kr</a></p>
+    <p>&copy; 2025 Calcu.kr. All rights reserved.</p>
+  </footer>
+</body>
+</html>
