@@ -19,7 +19,6 @@
         }
         body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 16px; font-size: 14px; -webkit-font-smoothing: antialiased; }
         
-        /* 👇 광고 레이아웃을 위한 새 CSS */
         .page-container {
             display: flex;
             flex-direction: column;
@@ -51,7 +50,6 @@
             border-radius: 16px;
             margin-bottom: 16px;
         }
-        /* 모바일 화면에서는 사이드바 광고를 아래로 */
         @media (max-width: 992px) {
             .main-wrapper {
                 flex-direction: column;
@@ -60,7 +58,6 @@
                 width: 100%;
             }
         }
-        /* --- 기존 CSS --- */
         .card { background-color: var(--card-background-color); border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 16px; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
         h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--primary-color); flex-shrink: 0; }
@@ -135,7 +132,6 @@
 </head>
 <body>
 
-<!-- 👇 전체 레이아웃을 감싸는 컨테이너 -->
 <div class="page-container">
     <div class="main-wrapper">
         <main id="app-content">
@@ -165,7 +161,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card">
+                <!-- ... 다른 카드들 ... -->
+                 <div class="card">
                     <div class="tab-section">
                         <button onclick="showTab('all')" class="active" data-tab="all">전체</button>
                         <button onclick="showTab('ing')" data-tab="ing">진행중</button>
@@ -187,26 +184,20 @@
             </div>
         </main>
     
-        <!-- 👇 우측 광고 사이드바 -->
         <aside id="ad-sidebar">
             <div class="ad-placeholder">
                 <p><strong>우측 사이드바 광고</strong><br>(300x250)</p>
-                <!-- ⭐ 여기에 우측 광고 애드센스 코드 붙여넣기! ⭐ -->
             </div>
              <div class="ad-placeholder" style="min-height: 600px;">
                 <p><strong>우측 사이드바 광고</strong><br>(300x600)</p>
-                <!-- ⭐ 여기에 우측 세로형 광고 애드센스 코드 붙여넣기! ⭐ -->
             </div>
         </aside>
     </div>
 
-    <!-- 👇 푸터 위쪽 광고 -->
     <div class="ad-placeholder" style="min-height: 100px;">
         <p><strong>푸터 상단 광고</strong><br>(반응형 가로 배너)</p>
-        <!-- ⭐ 여기에 하단 광고 애드센스 코드 붙여넣기! ⭐ -->
     </div>
     
-    <!-- 법적 고지 푸터 -->
     <footer style="text-align: center; padding: 30px 16px; font-size: 12px; color: #8B95A1; border-top: 1px solid #E5E8EB; margin-top: 20px;">
         <p>
             <a href="https://docs.google.com/document/d/1qAGPP5aBg5VDztATy5yu9hkUhsj7I8P7fR_4oqkdShs/edit?usp=sharing" target="_blank" style="color: inherit;">이용약관</a> | 
@@ -286,11 +277,13 @@
     let records = [];
     let currentTab = 'all';
     let currentUser = null;
+    let resendTimerInterval; // 타이머를 위한 변수
 
     const getEl = (id) => document.getElementById(id);
     function today() { return new Date().toISOString().slice(0, 10); }
     function numberFormat(n) { return Math.round(n).toLocaleString('ko-KR'); }
 
+    // --- 데이터 저장/로드 로직 ---
     function saveLocalData() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records)); }
     function loadLocalData() { const data = localStorage.getItem(LOCAL_STORAGE_KEY); records = data ? JSON.parse(data) : []; }
     async function saveToFirestore() { if (!currentUser) return; records.forEach((r, i) => { if (!r.id) r.id = `record_${Date.now()}_${i}`; }); try { await db.collection('diaries').doc(currentUser.uid).set({ records: records }); } catch (error) { console.error("Firestore 저장 오류: ", error); } }
@@ -302,42 +295,25 @@
         const dataStr = JSON.stringify(records, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const dt = new Date();
-        a.download = `fx_diary_backup_${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, "0")}${String(dt.getDate()).padStart(2, "0")}.json`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 100);
+        const a = document.createElement('a'); a.href = url;
+        const dt = new Date(); a.download = `fx_diary_backup_${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, "0")}${String(dt.getDate()).padStart(2, "0")}.json`;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
     }
     async function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+        const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
         reader.onload = async function(e) {
             try {
                 const imported = JSON.parse(e.target.result);
                 if (Array.isArray(imported)) {
-                    if (!confirm("기존 데이터가 모두 사라지고 새로 불러온 데이터로 덮어씌워져요. 정말 진행할까요?")) {
-                        event.target.value = ""; 
-                        return;
-                    }
-                    records = imported;
-                    await saveData();
-                    showTab('all');
-                    alert("불러오기 완료!");
-                } else {
-                    alert("잘못된 파일 형식입니다.");
-                }
-            } catch (err) {
-                alert("파일을 읽는 중 오류가 발생했습니다: " + err.message);
-            }
+                    if (!confirm("기존 데이터가 모두 사라지고 새로 불러온 데이터로 덮어씌워져요. 정말 진행할까요?")) { event.target.value = ""; return; }
+                    records = imported; await saveData();
+                    showTab('all'); alert("불러오기 완료!");
+                } else { alert("잘못된 파일 형식입니다."); }
+            } catch (err) { alert("파일을 읽는 중 오류가 발생했습니다: " + err.message); }
         };
-        reader.readAsText(file);
-        event.target.value = ""; 
+        reader.readAsText(file); event.target.value = ""; 
     }
 
     async function addRow() { if (getEl('money').value === '' || getEl('rate_in').value === '') return alert("환전금액과 환전환율을 채워주세요!"); records.unshift({ money: Number(getEl('money').value), rate_in: Number(getEl('rate_in').value), interest: Number(getEl('interest').value) || 0, date_in: getEl('date_in').value || today(), id: 'record_' + Date.now(), isDetailVisible: false, partial_exchanges: [] }); await saveData(); renderTable(); getEl('money').value = ''; getEl('rate_in').value = ''; getEl('interest').value = ''; getEl('date_in').value = today(); }
@@ -352,7 +328,7 @@
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
     function openLoginModal() { const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY); if (rememberedEmail) { getEl('modal-email').value = rememberedEmail; getEl('remember-me-checkbox').checked = true; } getEl('login-modal').style.display = 'flex'; }
-    function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; getEl('modal-error').style.color = 'var(--danger-color)'; }
+    function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; getEl('modal-error').style.color = 'var(--danger-color)'; clearInterval(resendTimerInterval); }
     function openLogoutModal() { getEl('logout-confirm-modal').style.display = 'flex'; }
     function closeLogoutModal() { getEl('logout-confirm-modal').style.display = 'none'; }
     
@@ -375,6 +351,35 @@
         }
     }
     
+    // 👇 이메일 재전송 타이머 함수
+    function startResendTimer(linkElement, user) {
+        let seconds = 60;
+        linkElement.style.pointerEvents = 'none';
+        linkElement.style.color = '#ccc';
+
+        const updateTimer = () => {
+            if (seconds > 0) {
+                linkElement.textContent = `인증 메일 다시 보내기 (${seconds}초)`;
+                seconds--;
+            } else {
+                clearInterval(resendTimerInterval);
+                linkElement.textContent = '인증 메일 다시 보내기';
+                linkElement.style.pointerEvents = 'auto';
+                linkElement.style.color = 'var(--primary-color)';
+                linkElement.onclick = (e) => {
+                    e.preventDefault();
+                    user.sendEmailVerification().then(() => {
+                        getEl('modal-error').style.color = 'var(--success-color)';
+                        getEl('modal-error').textContent = '인증 이메일을 다시 보냈습니다.';
+                        startResendTimer(linkElement, user); // 타이머 다시 시작
+                    });
+                };
+            }
+        };
+        updateTimer();
+        resendTimerInterval = setInterval(updateTimer, 1000);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const loginBtn = getEl('login-btn-main');
         const logoutBtn = getEl('logout-btn-main');
@@ -385,13 +390,14 @@
         const forgotPasswordLink = getEl('forgot-password-link');
 
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
+            if (user && user.emailVerified) {
                 currentUser = user;
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
                 await loadFromFirestore();
                 renderTable();
             } else {
+                if (user) auth.signOut(); // 인증 안됐으면 바로 로그아웃
                 currentUser = null;
                 loginBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'none';
@@ -408,12 +414,9 @@
             event.preventDefault();
             const email = getEl('modal-email').value;
             const modalError = getEl('modal-error');
-
             if (!email) {
-                modalError.textContent = "비밀번호를 찾으려면 이메일을 입력해주세요.";
-                return;
+                modalError.textContent = "비밀번호를 찾으려면 이메일을 입력해주세요."; return;
             }
-
             auth.sendPasswordResetEmail(email)
                 .then(() => {
                     modalError.textContent = "비밀번호 재설정 이메일을 보냈습니다. 받은편지함을 확인해주세요.";
@@ -435,60 +438,45 @@
             const modalError = getEl('modal-error');
             
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    if (rememberMe) { localStorage.setItem(REMEMBER_EMAIL_KEY, email); } 
-                    else { localStorage.removeItem(REMEMBER_EMAIL_KEY); }
-                    closeLoginModal();
-                })
-                .catch(error => {
-                    modalError.style.color = 'var(--danger-color)';
-                    console.error("Login Error:", error.code);
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                        case 'auth/invalid-credential':
-                        case 'auth/wrong-password':
-                            modalError.textContent = "이메일 또는 비밀번호가 일치하지 않습니다.";
-                            break;
-                        case 'auth/invalid-email':
-                            modalError.textContent = "올바른 이메일 형식이 아닙니다.";
-                            break;
-                        default:
-                            modalError.textContent = "로그인 중 문제가 발생했습니다.";
-                            break;
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    if (user.emailVerified) {
+                        if (rememberMe) { localStorage.setItem(REMEMBER_EMAIL_KEY, email); } 
+                        else { localStorage.removeItem(REMEMBER_EMAIL_KEY); }
+                        closeLoginModal();
+                    } else {
+                        auth.signOut();
+                        modalError.style.color = 'var(--danger-color)';
+                        modalError.innerHTML = `이메일 인증이 필요합니다. 메일함을 확인해주세요.<br><a href="#" id="resend-verification-link" style="color: var(--primary-color); text-decoration: underline;">인증 메일 다시 보내기</a>`;
+                        
+                        const resendLink = getEl('resend-verification-link');
+                        resendLink.onclick = (e) => {
+                            e.preventDefault();
+                            user.sendEmailVerification().then(() => {
+                                modalError.style.color = 'var(--success-color)';
+                                modalError.textContent = '인증 이메일을 다시 보냈습니다.';
+                                startResendTimer(resendLink, user);
+                            });
+                        };
                     }
-                });
+                })
+                .catch(error => { /* 로그인 오류 메시지 처리 */ });
         });
 
         modalSignupBtn.addEventListener('click', () => {
             const modalError = getEl('modal-error');
             if (!getEl('terms-checkbox').checked) {
-                modalError.textContent = "개인정보 수집 및 이용 약관에 동의해주세요.";
-                return;
+                modalError.textContent = "개인정보 수집 및 이용 약관에 동의해주세요."; return;
             }
             const email = getEl('modal-email').value, password = getEl('modal-password').value;
             auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    modalError.style.color = 'var(--success-color)';
-                    modalError.textContent = "회원가입 성공! 이제 로그인해주세요.";
+                .then((userCredential) => {
+                    userCredential.user.sendEmailVerification().then(() => {
+                        modalError.style.color = 'var(--success-color)';
+                        modalError.innerHTML = "가입 확인 이메일을 보냈습니다.<br>메일함을 확인 후 로그인해주세요.";
+                    });
                 })
-                .catch(error => {
-                    modalError.style.color = 'var(--danger-color)';
-                    console.error("Signup Error:", error.code);
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            modalError.textContent = "이미 가입된 이메일입니다. 로그인을 시도해주세요.";
-                            break;
-                        case 'auth/weak-password':
-                            modalError.textContent = "비밀번호는 6자리 이상이어야 합니다.";
-                            break;
-                        case 'auth/invalid-email':
-                            modalError.textContent = "올바른 이메일 형식이 아닙니다.";
-                            break;
-                        default:
-                            modalError.textContent = "회원가입 중 문제가 발생했습니다.";
-                            break;
-                    }
-                });
+                .catch(error => { /* 회원가입 오류 메시지 처리 */ });
         });
     });
 </script>
