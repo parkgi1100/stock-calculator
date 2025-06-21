@@ -5,7 +5,6 @@
     <title>환차익 다이어리</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
-        /* --- 기존 CSS는 거의 그대로 --- */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         :root {
           --primary-color: #3182F6;
@@ -17,22 +16,15 @@
           --success-color: #2E8B57;
           --danger-color: #D94242;
         }
-        body {
-          font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-          background-color: var(--background-color);
-          color: var(--text-color);
-          margin: 0;
-          padding: 16px;
-          font-size: 14px;
-          -webkit-font-smoothing: antialiased;
-        }
+        body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 16px; font-size: 14px; -webkit-font-smoothing: antialiased; }
         .card { background-color: var(--card-background-color); border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 16px; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
         h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--primary-color); flex-shrink: 0; }
-        .tools { display: flex; gap: 8px; flex-shrink: 0; align-items: center; } /* align-items 추가 */
-        .tools button, .tools label { font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #F9FAFB; color: #4E5968; padding: 8px 12px; cursor: pointer; font-weight: 500; text-align: center; white-space: nowrap; }
+        .tools { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+        .tools button, .tools label, .tools a { font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #F9FAFB; color: #4E5968; padding: 8px 12px; cursor: pointer; font-weight: 500; text-align: center; white-space: nowrap; text-decoration: none; }
         .tools input[type="file"] { display: none; }
-        .tools #login-btn-main { border-color: var(--primary-color); background-color: var(--primary-color); color: white; } /* 로그인 버튼 스타일 */
+        .tools #login-btn-main { border-color: var(--primary-color); background-color: var(--primary-color); color: white; }
+        .app-download-btn { background-color: var(--success-color) !important; border-color: var(--success-color) !important; color: white !important; font-weight: 700 !important; }
         .input-section { display: flex; flex-direction: column; gap: 8px; }
         .input-row { display: flex; gap: 8px; }
         .input-section input { flex: 1 1 auto; font-size: 14px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #F9FAFB; min-width: 0; }
@@ -75,7 +67,6 @@
         .del-partial-btn { background: none; border: none; cursor: pointer; font-size: 16px; }
         .add-partial-btn { width: 100%; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 6px; padding: 6px; cursor: pointer; font-weight: 500; }
 
-        /* --- 로그인 모달 & 약관동의 CSS --- */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .modal-content h3 { margin-top: 0; margin-bottom: 16px; text-align: center; font-size: 18px; }
@@ -86,41 +77,24 @@
         #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         #modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtext-color); }
         #modal-error { color: var(--danger-color); font-size: 12px; text-align: center; margin-top: 16px; min-height: 18px; }
-
-        .terms-agreement {
-          margin-top: 16px;
-          padding: 10px;
-          background-color: #F9FAFB;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          font-size: 12px;
-          color: var(--subtext-color);
-        }
-        .terms-agreement label {
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-        }
-        .terms-agreement input[type="checkbox"] {
-          margin-top: 2px;
-          flex-shrink: 0;
-        }
-        .terms-agreement strong {
-          color: var(--text-color);
-          font-weight: 500;
-          display: block;
-          margin-bottom: 4px;
-        }
+        
+        .remember-me { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--subtext-color); margin-bottom: 12px; }
+        .remember-me label { cursor: pointer; }
+        
+        .terms-agreement { margin-top: 16px; padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); }
+        .terms-agreement label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+        .terms-agreement input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
+        .terms-agreement strong { color: var(--text-color); font-weight: 500; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
-
 <main id="app-content">
     <div class="wrap">
         <div class="card">
             <div class="header-row">
                 <h2>환차익 다이어리 💸</h2>
                 <div class="tools">
+                    <a href="./fx_diary_app.apk" download class="app-download-btn">앱 다운로드</a>
                     <button onclick="exportCSV()">엑셀</button>
                     <button onclick="exportData()">백업</button>
                     <label>불러오기<input type="file" id="importFile" accept=".json" onchange="importData(event)"></label>
@@ -155,9 +129,7 @@
         </div>
         <div class="table-container">
             <table class="result-table">
-                <thead>
-                    <tr><th>상태</th><th>환전금액</th><th>환전날짜</th><th>순이익</th><th>상세</th></tr>
-                </thead>
+                <thead><tr><th>상태</th><th>환전금액</th><th>환전날짜</th><th>순이익</th><th>상세</th></tr></thead>
                 <tbody id="record-list"></tbody>
             </table>
         </div>
@@ -171,6 +143,11 @@
         <input class="modal-input" type="email" id="modal-email" placeholder="이메일">
         <input class="modal-input" type="password" id="modal-password" placeholder="비밀번호 (6자리 이상)">
         
+        <div class="remember-me">
+            <input type="checkbox" id="remember-me-checkbox">
+            <label for="remember-me-checkbox">이메일 기억하기</label>
+        </div>
+
         <div class="terms-agreement">
             <label for="terms-checkbox">
                 <input type="checkbox" id="terms-checkbox">
@@ -194,7 +171,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-    // 👇👇 여기에 당신의 Firebase 프로젝트 설정 값을 복사-붙여넣기 하세요! 👇👇
 const firebaseConfig = {
   apiKey: "AIzaSyBw7_3CquES3aoDpgrIAo8iJWouO68xm3o",
   authDomain: "fxdiarynew.firebaseapp.com",
@@ -210,6 +186,7 @@ const firebaseConfig = {
     const db = firebase.firestore();
 
     const LOCAL_STORAGE_KEY = 'fx_records_guest';
+    const REMEMBER_EMAIL_KEY = 'fx_diary_remembered_email';
     let records = [];
     let currentTab = 'all';
     let currentUser = null;
@@ -218,145 +195,76 @@ const firebaseConfig = {
     function today() { return new Date().toISOString().slice(0, 10); }
     function numberFormat(n) { return Math.round(n).toLocaleString('ko-KR'); }
 
-    // --- 👇 데이터 처리 로직 재구성 (로그인 / 비로그인 상태 분리) ---
-    function saveLocalData() {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records));
-    }
-    function loadLocalData() {
-        const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-        records = data ? JSON.parse(data) : [];
-    }
+    function saveLocalData() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records)); }
+    function loadLocalData() { const data = localStorage.getItem(LOCAL_STORAGE_KEY); records = data ? JSON.parse(data) : []; }
+    async function saveToFirestore() { if (!currentUser) return; records.forEach((r, i) => { if (!r.id) r.id = `record_${Date.now()}_${i}`; }); try { await db.collection('diaries').doc(currentUser.uid).set({ records: records }); } catch (error) { console.error("Firestore 저장 오류: ", error); } }
+    async function loadFromFirestore() { if (!currentUser) return; try { const doc = await db.collection('diaries').doc(currentUser.uid).get(); records = (doc.exists && doc.data().records) ? doc.data().records : []; } catch (error) { console.error("Firestore 불러오기 오류: ", error); records = []; } }
+    async function saveData() { if (currentUser) { await saveToFirestore(); } else { saveLocalData(); } }
 
-    async function saveToFirestore() {
-      if (!currentUser) return;
-      records.forEach((r, i) => { if (!r.id) r.id = `record_${Date.now()}_${i}`; });
-      try {
-        await db.collection('diaries').doc(currentUser.uid).set({ records: records });
-      } catch (error) { console.error("Firestore 저장 오류: ", error); }
-    }
-
-    async function loadFromFirestore() {
-      if (!currentUser) return;
-      try {
-        const doc = await db.collection('diaries').doc(currentUser.uid).get();
-        records = (doc.exists && doc.data().records) ? doc.data().records : [];
-      } catch (error) {
-        console.error("Firestore 불러오기 오류: ", error);
-        records = [];
-      }
-    }
+    async function addRow() { if (getEl('money').value === '' || getEl('rate_in').value === '') return alert("환전금액과 환전환율을 채워주세요!"); records.unshift({ money: Number(getEl('money').value), rate_in: Number(getEl('rate_in').value), interest: Number(getEl('interest').value) || 0, date_in: getEl('date_in').value || today(), id: 'record_' + Date.now(), isDetailVisible: false, partial_exchanges: [] }); await saveData(); renderTable(); getEl('money').value = ''; getEl('rate_in').value = ''; getEl('interest').value = ''; getEl('date_in').value = today(); }
+    async function delRow(recordId) { if (confirm("정말 이 항목을 삭제하시겠어요?")) { records = records.filter(r => r.id !== recordId); await saveData(); renderTable(); } }
+    async function addPartialExchange(recordId) { const rec = records.find(r => r.id === recordId); if (!rec) return; const amount = Number(getEl(`partial_amount_${rec.id}`).value), rate_out = Number(getEl(`partial_rate_out_${rec.id}`).value); if (!amount || !rate_out) return alert("금액/환율 입력하세요!"); if (rec.partial_exchanges.reduce((s, p) => s + p.amount, 0) + amount > rec.money + 1) return alert("전체 환전금액 초과!"); rec.partial_exchanges.push({ amount, rate_out, date_out: getEl(`partial_date_out_${rec.id}`).value || today(), fee: Number(getEl(`partial_fee_${rec.id}`).value) || 0, id: 'p_' + Date.now() }); rec.partial_exchanges.sort((a, b) => new Date(a.date_out) - new Date(b.date_out)); await saveData(); renderTable(); }
+    async function delPartial(recordId, partialId) { const rec = records.find(r => r.id === recordId); if (rec) { rec.partial_exchanges = rec.partial_exchanges.filter(p => p.id !== partialId); await saveData(); renderTable(); } }
+    async function updatePartialFee(recordId, partialId, newFee) { const rec = records.find(r => r.id === recordId); if (rec) { const p = rec.partial_exchanges.find(p => p.id === partialId); if (p) p.fee = Number(newFee); await saveData(); renderTable(); } }
     
-    // 현재 상태에 따라 적절한 저장 함수를 호출하는 마스터 함수
-    async function saveData() {
-        if (currentUser) {
-            await saveToFirestore();
-        } else {
-            saveLocalData();
-        }
-    }
-
-    // --- 👇 기존 함수들에서 저장 로직을 saveData()로 통일 ---
-    async function addRow() {
-      if (getEl('money').value === '' || getEl('rate_in').value === '') return alert("환전금액과 환전환율을 채워주세요!");
-      records.unshift({
-        money: Number(getEl('money').value), rate_in: Number(getEl('rate_in').value), interest: Number(getEl('interest').value) || 0,
-        date_in: getEl('date_in').value || today(), id: 'record_' + Date.now(), isDetailVisible: false, partial_exchanges: []
-      });
-      await saveData(); // 변경된 부분
-      renderTable();
-      getEl('money').value = ''; getEl('rate_in').value = ''; getEl('interest').value = ''; getEl('date_in').value = today();
-    }
-    async function delRow(recordId) {
-      if (confirm("정말 이 항목을 삭제하시겠어요?")) {
-        records = records.filter(r => r.id !== recordId);
-        await saveData(); renderTable(); // 변경된 부분
-      }
-    }
-    async function addPartialExchange(recordId) {
-      const rec = records.find(r => r.id === recordId); if (!rec) return;
-      const amount = Number(getEl(`partial_amount_${rec.id}`).value), rate_out = Number(getEl(`partial_rate_out_${rec.id}`).value);
-      if (!amount || !rate_out) return alert("금액/환율 입력하세요!");
-      if (rec.partial_exchanges.reduce((s, p) => s + p.amount, 0) + amount > rec.money + 1) return alert("전체 환전금액 초과!");
-      rec.partial_exchanges.push({ amount, rate_out, date_out: getEl(`partial_date_out_${rec.id}`).value || today(), fee: Number(getEl(`partial_fee_${rec.id}`).value) || 0, id: 'p_' + Date.now() });
-      rec.partial_exchanges.sort((a, b) => new Date(a.date_out) - new Date(b.date_out));
-      await saveData(); renderTable(); // 변경된 부분
-    }
-    async function delPartial(recordId, partialId) {
-      const rec = records.find(r => r.id === recordId);
-      if (rec) { rec.partial_exchanges = rec.partial_exchanges.filter(p => p.id !== partialId); await saveData(); renderTable(); } // 변경된 부분
-    }
-    async function updatePartialFee(recordId, partialId, newFee) {
-      const rec = records.find(r => r.id === recordId);
-      if (rec) { const p = rec.partial_exchanges.find(p => p.id === partialId); if (p) p.fee = Number(newFee); await saveData(); renderTable(); } // 변경된 부분
-    }
-    
-    // --- UI 및 렌더링 함수들 ---
-    function toggleDetail(recordId) {
-        const record = records.find(r => r.id === recordId); if (record) { record.isDetailVisible = !record.isDetailVisible; renderTable(); }
-    }
-    function renderTable() {
-      // ... (기존 renderTable 로직은 변경 없음)
-      let baseRecords=[...records]; baseRecords.sort((a,b)=>new Date(b.date_in)-new Date(a.date_in)); let filteredRecords=baseRecords; if(currentTab==='ing'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)<r.money);}else if(currentTab==='done'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)>=r.money);} const startDateVal=getEl('start-date').value; const endDateVal=getEl('end-date').value; if(startDateVal&&endDateVal){const start=new Date(startDateVal); const end=new Date(endDateVal); end.setHours(23,59,59,999); filteredRecords=filteredRecords.filter(r=>{const d=new Date(r.date_in); return d>=start&&d<=end;});} const recordList=getEl('record-list'); recordList.innerHTML=""; let totalNetProfit=0; if(filteredRecords.length===0){recordList.innerHTML="<tr><td colspan='5' style='text-align:center; color: #8B95A1; padding: 40px;'>기록이 없습니다.</td></tr>";} filteredRecords.forEach(rec=>{const paidSum=rec.partial_exchanges.reduce((a,p)=>a+p.amount,0); const isDone=paidSum>=rec.money; let fx_profit_total=0; rec.partial_exchanges.forEach(p=>{if(p.rate_out>0)fx_profit_total+=(p.amount-(p.amount/p.rate_out*rec.rate_in));}); const total_fee=rec.partial_exchanges.reduce((s,p)=>s+(p.fee||0),0); let d1=new Date(rec.date_in); let d2=rec.partial_exchanges.length?new Date(rec.partial_exchanges[rec.partial_exchanges.length-1].date_out):new Date(); const days=isDone?Math.max(0,Math.round((d2-d1)/(1000*60*60*24))):'-'; const int_fee=isDone?(rec.money*rec.interest/100*days/365):0; const net_profit=fx_profit_total-int_fee-total_fee; if(isDone)totalNetProfit+=net_profit; const profitClass=!isDone?'profit-neutral':(net_profit>=0?'profit-plus':'profit-minus'); const row=recordList.insertRow(); row.innerHTML=`<td><span class="status ${isDone?'status-done':'status-ing'}">${isDone?'완료':'진행중'}</span></td><td>${numberFormat(rec.money)}원</td><td>${rec.date_in.substring(5)}</td><td><b class="${profitClass}">${isDone?(net_profit>=0?'+':'')+numberFormat(net_profit)+'원':'-'}</b></td><td><button class="btn-sm btn-detail" onclick="toggleDetail('${rec.id}')">${rec.isDetailVisible?'▲ 닫기':'▼ 상세'}</button></td>`; if(rec.isDetailVisible){const detailRow=recordList.insertRow(); detailRow.insertCell().colSpan=5; detailRow.cells[0].className='details-content show'; detailRow.cells[0].innerHTML=`<div class="detail-grid"><strong>환전환율</strong><span>${rec.rate_in}</span><strong>환전금액($)</strong><span>${(rec.money/rec.rate_in).toFixed(2)}$</span><strong>이자율</strong><span>${rec.interest}%</span><strong>경과일수</strong><span>${days}일</span><strong>이자비용</strong><span>${numberFormat(int_fee)}원</span><strong>수수료합계</strong><span>${numberFormat(total_fee)}원</span></div><div class="sub-table"><table><thead><tr><th>#</th><th>날짜</th><th>금액</th><th>환율</th><th>수수료</th><th>삭제</th></tr></thead><tbody>${rec.partial_exchanges.map((p,idx)=>`<tr><td>${idx+1}</td><td>${p.date_out}</td><td>${numberFormat(p.amount)}</td><td>${p.rate_out}</td><td><input type="number" value="${p.fee||0}" onchange="updatePartialFee('${rec.id}','${p.id}',this.value)"></td><td><button class="del-partial-btn" onclick="delPartial('${rec.id}','${p.id}')">❌</button></td></tr>`).join('')}<tr class="add-row"><td></td><td><input type="date" id="partial_date_out_${rec.id}" value="${today()}"></td><td><input type="number" id="partial_amount_${rec.id}" placeholder="금액"></td><td><input type="number" id="partial_rate_out_${rec.id}" placeholder="환율"></td><td><input type="number" id="partial_fee_${rec.id}" placeholder="수수료" value="0"></td><td><button class="add-partial-btn" onclick="addPartialExchange('${rec.id}')">추가</button></td></tr></tbody></table></div><button class="btn-delete" onclick="delRow('${rec.id}')">이 기록 삭제하기</button>`;}}); const profitColor=totalNetProfit>=0?'var(--danger-color)':'var(--primary-color)'; getEl('summary').innerHTML=`총 <b>${filteredRecords.length}</b>건, 완료 건 순이익 합계: <b style="color:${profitColor}">${numberFormat(totalNetProfit)}원</b>`;
-    }
-    function showTab(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.tab-section button').forEach(b=>{b.classList.remove('active');if(b.textContent.includes(tab)||(tab==='all'&&b.textContent==='전체')){b.classList.add('active');}});
-        renderTable();
-    }
+    function toggleDetail(recordId) { const record = records.find(r => r.id === recordId); if (record) { record.isDetailVisible = !record.isDetailVisible; renderTable(); } }
+    function renderTable() { let baseRecords=[...records]; baseRecords.sort((a,b)=>new Date(b.date_in)-new Date(a.date_in)); let filteredRecords=baseRecords; if(currentTab==='ing'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)<r.money);}else if(currentTab==='done'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)>=r.money);} const startDateVal=getEl('start-date').value; const endDateVal=getEl('end-date').value; if(startDateVal&&endDateVal){const start=new Date(startDateVal); const end=new Date(endDateVal); end.setHours(23,59,59,999); filteredRecords=filteredRecords.filter(r=>{const d=new Date(r.date_in); return d>=start&&d<=end;});} const recordList=getEl('record-list'); recordList.innerHTML=""; let totalNetProfit=0; if(filteredRecords.length===0){recordList.innerHTML="<tr><td colspan='5' style='text-align:center; color: #8B95A1; padding: 40px;'>기록이 없습니다.</td></tr>";} filteredRecords.forEach(rec=>{const paidSum=rec.partial_exchanges.reduce((a,p)=>a+p.amount,0); const isDone=paidSum>=rec.money; let fx_profit_total=0; rec.partial_exchanges.forEach(p=>{if(p.rate_out>0)fx_profit_total+=(p.amount-(p.amount/p.rate_out*rec.rate_in));}); const total_fee=rec.partial_exchanges.reduce((s,p)=>s+(p.fee||0),0); let d1=new Date(rec.date_in); let d2=rec.partial_exchanges.length?new Date(rec.partial_exchanges[rec.partial_exchanges.length-1].date_out):new Date(); const days=isDone?Math.max(0,Math.round((d2-d1)/(1000*60*60*24))):'-'; const int_fee=isDone?(rec.money*rec.interest/100*days/365):0; const net_profit=fx_profit_total-int_fee-total_fee; if(isDone)totalNetProfit+=net_profit; const profitClass=!isDone?'profit-neutral':(net_profit>=0?'profit-plus':'profit-minus'); const row=recordList.insertRow(); row.innerHTML=`<td><span class="status ${isDone?'status-done':'status-ing'}">${isDone?'완료':'진행중'}</span></td><td>${numberFormat(rec.money)}원</td><td>${rec.date_in.substring(5)}</td><td><b class="${profitClass}">${isDone?(net_profit>=0?'+':'')+numberFormat(net_profit)+'원':'-'}</b></td><td><button class="btn-sm btn-detail" onclick="toggleDetail('${rec.id}')">${rec.isDetailVisible?'▲ 닫기':'▼ 상세'}</button></td>`; if(rec.isDetailVisible){const detailRow=recordList.insertRow(); detailRow.insertCell().colSpan=5; detailRow.cells[0].className='details-content show'; detailRow.cells[0].innerHTML=`<div class="detail-grid"><strong>환전환율</strong><span>${rec.rate_in}</span><strong>환전금액($)</strong><span>${(rec.money/rec.rate_in).toFixed(2)}$</span><strong>이자율</strong><span>${rec.interest}%</span><strong>경과일수</strong><span>${days}일</span><strong>이자비용</strong><span>${numberFormat(int_fee)}원</span><strong>수수료합계</strong><span>${numberFormat(total_fee)}원</span></div><div class="sub-table"><table><thead><tr><th>#</th><th>날짜</th><th>금액</th><th>환율</th><th>수수료</th><th>삭제</th></tr></thead><tbody>${rec.partial_exchanges.map((p,idx)=>`<tr><td>${idx+1}</td><td>${p.date_out}</td><td>${numberFormat(p.amount)}</td><td>${p.rate_out}</td><td><input type="number" value="${p.fee||0}" onchange="updatePartialFee('${rec.id}','${p.id}',this.value)"></td><td><button class="del-partial-btn" onclick="delPartial('${rec.id}','${p.id}')">❌</button></td></tr>`).join('')}<tr class="add-row"><td></td><td><input type="date" id="partial_date_out_${rec.id}" value="${today()}"></td><td><input type="number" id="partial_amount_${rec.id}" placeholder="금액"></td><td><input type="number" id="partial_rate_out_${rec.id}" placeholder="환율"></td><td><input type="number" id="partial_fee_${rec.id}" placeholder="수수료" value="0"></td><td><button class="add-partial-btn" onclick="addPartialExchange('${rec.id}')">추가</button></td></tr></tbody></table></div><button class="btn-delete" onclick="delRow('${rec.id}')">이 기록 삭제하기</button>`;}}); const profitColor=totalNetProfit>=0?'var(--danger-color)':'var(--primary-color)'; getEl('summary').innerHTML=`총 <b>${filteredRecords.length}</b>건, 완료 건 순이익 합계: <b style="color:${profitColor}">${numberFormat(totalNetProfit)}원</b>`; }
+    function showTab(tab) { currentTab = tab; document.querySelectorAll('.tab-section button').forEach(b=>{b.classList.remove('active');if(b.textContent.includes(tab)||(tab==='all'&&b.textContent==='전체')){b.classList.add('active');}}); renderTable(); }
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
-    // --- 로그인 관련 함수 ---
-    function openLoginModal() { getEl('login-modal').style.display = 'flex'; }
+    function openLoginModal() {
+        const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
+        if (rememberedEmail) {
+            getEl('modal-email').value = rememberedEmail;
+            getEl('remember-me-checkbox').checked = true;
+        }
+        getEl('login-modal').style.display = 'flex';
+    }
     function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; }
 
-    // --- 페이지 로드 및 핵심 로직 ---
     document.addEventListener('DOMContentLoaded', () => {
         const loginBtn = getEl('login-btn-main');
         const logoutBtn = getEl('logout-btn-main');
         const modalLoginBtn = getEl('modal-login-btn');
         const modalSignupBtn = getEl('modal-signup-btn');
         
-        // 로그인 상태 감지 (가장 중요한 부분!)
         auth.onAuthStateChanged(async (user) => {
-            if (user) { // 로그인한 경우
+            if (user) {
                 currentUser = user;
                 loginBtn.style.display = 'none';
                 logoutBtn.style.display = 'block';
-                
-                await loadFromFirestore(); // 클라우드에서 데이터 로드
-                renderTable(); // 화면 다시 그리기
-            } else { // 로그아웃한 경우
+                await loadFromFirestore();
+                renderTable();
+            } else {
                 currentUser = null;
                 loginBtn.style.display = 'block';
                 logoutBtn.style.display = 'none';
-                
-                loadLocalData(); // 로컬(게스트) 데이터 로드
-                renderTable(); // 화면 다시 그리기
+                loadLocalData();
+                renderTable();
             }
         });
 
-        // 로그아웃 버튼 이벤트
-        logoutBtn.addEventListener('click', () => {
-          if(confirm("로그아웃하면 현재 기기에만 저장된 내용은 사라지고, 클라우드에 마지막으로 저장된 내용으로 돌아갑니다. 로그아웃할까요?")) {
-            auth.signOut();
-          }
-        });
+        logoutBtn.addEventListener('click', () => { if(confirm("로그아웃 하시겠습니까?")) { auth.signOut(); } });
       
-        // 모달 로그인 버튼
         modalLoginBtn.addEventListener('click', () => {
-            const email = getEl('modal-email').value, password = getEl('modal-password').value;
+            const email = getEl('modal-email').value;
+            const password = getEl('modal-password').value;
+            const rememberMe = getEl('remember-me-checkbox').checked;
+            
             auth.signInWithEmailAndPassword(email, password)
-                .then(() => closeLoginModal())
+                .then(() => {
+                    if (rememberMe) {
+                        localStorage.setItem(REMEMBER_EMAIL_KEY, email);
+                    } else {
+                        localStorage.removeItem(REMEMBER_EMAIL_KEY);
+                    }
+                    closeLoginModal();
+                })
                 .catch(error => getEl('modal-error').textContent = error.message);
         });
 
-        // 모달 회원가입 버튼 (약관 동의 확인 추가)
         modalSignupBtn.addEventListener('click', () => {
-            const termsChecked = getEl('terms-checkbox').checked;
-            if (!termsChecked) {
-                getEl('modal-error').textContent = "개인정보 수집 및 이용 약관에 동의해주세요.";
-                return;
-            }
+            if (!getEl('terms-checkbox').checked) { getEl('modal-error').textContent = "개인정보 수집 및 이용 약관에 동의해주세요."; return; }
             const email = getEl('modal-email').value, password = getEl('modal-password').value;
             auth.createUserWithEmailAndPassword(email, password)
                 .then(() => { getEl('modal-error').textContent = "회원가입 성공! 이제 로그인해주세요."; })
