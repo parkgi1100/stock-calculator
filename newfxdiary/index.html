@@ -18,6 +18,49 @@
           --danger-color: #D94242;
         }
         body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 16px; font-size: 14px; -webkit-font-smoothing: antialiased; }
+        
+        /* 👇 광고 레이아웃을 위한 새 CSS */
+        .page-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .main-wrapper {
+            display: flex;
+            gap: 16px;
+        }
+        #app-content {
+            flex-grow: 1;
+            width: 100%;
+        }
+        #ad-sidebar {
+            width: 300px;
+            flex-shrink: 0;
+        }
+        .ad-placeholder {
+            background-color: #e9ecef;
+            border: 1px dashed var(--border-color);
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--subtext-color);
+            font-size: 14px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        /* 모바일 화면에서는 사이드바 광고를 아래로 */
+        @media (max-width: 992px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+            #ad-sidebar {
+                width: 100%;
+            }
+        }
+        /* --- 기존 CSS --- */
         .card { background-color: var(--card-background-color); border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 16px; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
         h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--primary-color); flex-shrink: 0; }
@@ -74,8 +117,8 @@
         .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
         .modal-buttons button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
         #modal-login-btn, #logout-confirm-btn { background-color: var(--primary-color); color: white; }
-        #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
-        #modal-close-btn, #logout-cancel-btn { background-color: #E9ECEF; color: var(--subtext-color); }
+        #modal-signup-btn, #logout-cancel-btn { background-color: #E9ECEF; color: var(--subtext-color); }
+        #modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtext-color); }
         #logout-cancel-btn { margin-top: 10px;}
         #modal-error { font-size: 13px; text-align: center; margin-top: 16px; min-height: 18px; color: var(--danger-color); }
         #logout-modal-title { color: var(--text-color); font-size: 16px; text-align: center; margin: 16px 0; min-height: 18px; }
@@ -91,54 +134,89 @@
     </style>
 </head>
 <body>
-<main id="app-content">
-    <div class="wrap">
-        <div class="card">
-            <div class="header-row">
-                <h2>환차익 다이어리 💸</h2>
-                <div class="tools">
-                    <a href="https://search.naver.com/search.naver?query=달러환율" target="_blank" rel="noopener noreferrer">실시간 환율</a>
-                    <a href="./fx_diary_app.apk" download class="app-download-btn">앱 다운로드</a>
-                    <button onclick="exportData()">백업</button>
-                    <label for="importFile">불러오기</label>
-                    <input type="file" id="importFile" accept=".json" onchange="importData(event)">
-                    <button id="login-btn-main" onclick="openLoginModal()">로그인</button>
-                    <button id="logout-btn-main" style="display: none;">로그아웃</button>
+
+<!-- 👇 전체 레이아웃을 감싸는 컨테이너 -->
+<div class="page-container">
+    <div class="main-wrapper">
+        <main id="app-content">
+            <div class="wrap">
+                <div class="card">
+                    <div class="header-row">
+                        <h2>환차익 다이어리 💸</h2>
+                        <div class="tools">
+                            <a href="https://search.naver.com/search.naver?query=달러환율" target="_blank" rel="noopener noreferrer">실시간 환율</a>
+                            <a href="./fx_diary_app.apk" download class="app-download-btn">앱 다운로드</a>
+                            <button onclick="exportData()">백업</button>
+                            <label for="importFile">불러오기</label>
+                            <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+                            <button id="login-btn-main" onclick="openLoginModal()">로그인</button>
+                            <button id="logout-btn-main" style="display: none;">로그아웃</button>
+                        </div>
+                    </div>
+                    <div class="input-section">
+                        <div class="input-row">
+                            <input type="number" id="money" placeholder="환전금액(원)" required>
+                            <input type="number" id="rate_in" placeholder="환전환율" required step="any">
+                            <input type="number" id="interest" placeholder="이자율(%)" step="any">
+                        </div>
+                        <div class="input-row">
+                            <input type="date" id="date_in" title="환전날짜(없으면 오늘)">
+                            <button type="button" class="submit-btn" onclick="addRow()">기록</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="tab-section">
+                        <button onclick="showTab('all')" class="active" data-tab="all">전체</button>
+                        <button onclick="showTab('ing')" data-tab="ing">진행중</button>
+                        <button onclick="showTab('done')" data-tab="done">완료</button>
+                    </div>
+                    <div class="date-filter">
+                        <input type="date" id="start-date"><span>~</span><input type="date" id="end-date">
+                        <button onclick="renderTable()" class="btn-search">조회</button>
+                        <button onclick="resetDateFilter()" class="btn-reset">초기화</button>
+                    </div>
+                    <div class="summary" id="summary"></div>
+                </div>
+                <div class="table-container">
+                    <table class="result-table">
+                        <thead><tr><th>상태</th><th>환전금액</th><th>환전날짜</th><th>순이익</th><th>상세</th></tr></thead>
+                        <tbody id="record-list"></tbody>
+                    </table>
                 </div>
             </div>
-            <div class="input-section">
-                <div class="input-row">
-                    <input type="number" id="money" placeholder="환전금액(원)" required>
-                    <input type="number" id="rate_in" placeholder="환전환율" required step="any">
-                    <input type="number" id="interest" placeholder="이자율(%)" step="any">
-                </div>
-                <div class="input-row">
-                    <input type="date" id="date_in" title="환전날짜(없으면 오늘)">
-                    <button type="button" class="submit-btn" onclick="addRow()">기록</button>
-                </div>
+        </main>
+    
+        <!-- 👇 우측 광고 사이드바 -->
+        <aside id="ad-sidebar">
+            <div class="ad-placeholder">
+                <p><strong>우측 사이드바 광고</strong><br>(300x250)</p>
+                <!-- ⭐ 여기에 우측 광고 애드센스 코드 붙여넣기! ⭐ -->
             </div>
-        </div>
-        <div class="card">
-            <div class="tab-section">
-                <button onclick="showTab('all')" class="active" data-tab="all">전체</button>
-                <button onclick="showTab('ing')" data-tab="ing">진행중</button>
-                <button onclick="showTab('done')" data-tab="done">완료</button>
+             <div class="ad-placeholder" style="min-height: 600px;">
+                <p><strong>우측 사이드바 광고</strong><br>(300x600)</p>
+                <!-- ⭐ 여기에 우측 세로형 광고 애드센스 코드 붙여넣기! ⭐ -->
             </div>
-            <div class="date-filter">
-                <input type="date" id="start-date"><span>~</span><input type="date" id="end-date">
-                <button onclick="renderTable()" class="btn-search">조회</button>
-                <button onclick="resetDateFilter()" class="btn-reset">초기화</button>
-            </div>
-            <div class="summary" id="summary"></div>
-        </div>
-        <div class="table-container">
-            <table class="result-table">
-                <thead><tr><th>상태</th><th>환전금액</th><th>환전날짜</th><th>순이익</th><th>상세</th></tr></thead>
-                <tbody id="record-list"></tbody>
-            </table>
-        </div>
+        </aside>
     </div>
-</main>
+
+    <!-- 👇 푸터 위쪽 광고 -->
+    <div class="ad-placeholder" style="min-height: 100px;">
+        <p><strong>푸터 상단 광고</strong><br>(반응형 가로 배너)</p>
+        <!-- ⭐ 여기에 하단 광고 애드센스 코드 붙여넣기! ⭐ -->
+    </div>
+    
+    <!-- 법적 고지 푸터 -->
+    <footer style="text-align: center; padding: 30px 16px; font-size: 12px; color: #8B95A1; border-top: 1px solid #E5E8EB; margin-top: 20px;">
+        <p>
+            <a href="https://docs.google.com/document/d/1qAGPP5aBg5VDztATy5yu9hkUhsj7I8P7fR_4oqkdShs/edit?usp=sharing" target="_blank" style="color: inherit;">이용약관</a> | 
+            <a href="https://docs.google.com/document/d/1aWOY7yy0_Lq5hmMRgS7SDP1XwUe7u7y4lyN61_Kdxx4/edit?usp=sharing" target="_blank" style="color: inherit; font-weight: bold;">개인정보처리방침</a>
+        </p>
+        <p style="margin-top: 8px;">문의: parkgi1100@gmail.com</p>
+        <p style="margin-top: 8px;">© 2024 환차익 다이어리. All Rights Reserved.</p>
+    </footer>
+</div>
+
 
 <!-- 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
@@ -184,15 +262,6 @@
         </div>
     </div>
 </div>
-
-<footer style="text-align: center; padding: 30px 16px; font-size: 12px; color: #8B95A1; border-top: 1px solid #E5E8EB; margin-top: 20px;">
-    <p>
-        <a href="https://docs.google.com/document/d/1qAGPP5aBg5VDztATy5yu9hkUhsj7I8P7fR_4oqkdShs/edit?usp=sharing" target="_blank" style="color: inherit;">이용약관</a> | 
-        <a href="https://docs.google.com/document/d/1aWOY7yy0_Lq5hmMRgS7SDP1XwUe7u7y4lyN61_Kdxx4/edit?usp=sharing" target="_blank" style="color: inherit; font-weight: bold;">개인정보처리방침</a>
-    </p>
-    <p style="margin-top: 8px;">문의: parkgi1100@gmail.com</p>
-    <p style="margin-top: 8px;">© 2024 환차익 다이어리. All Rights Reserved.</p>
-</footer>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
