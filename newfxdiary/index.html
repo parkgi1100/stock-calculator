@@ -5,6 +5,7 @@
     <title>환차익 다이어리</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
+        /* CSS는 변경 사항 없음 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         :root {
           --primary-color: #3182F6;
@@ -66,7 +67,6 @@
         .sub-table input { width: 95%; box-sizing: border-box; text-align: center; border: 1px solid #D1D5DB; border-radius: 4px; padding: 4px; }
         .del-partial-btn { background: none; border: none; cursor: pointer; font-size: 16px; }
         .add-partial-btn { width: 100%; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 6px; padding: 6px; cursor: pointer; font-weight: 500; }
-
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .modal-content h3 { margin-top: 0; margin-bottom: 16px; text-align: center; font-size: 18px; }
@@ -77,10 +77,8 @@
         #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         #modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtext-color); }
         #modal-error { color: var(--danger-color); font-size: 12px; text-align: center; margin-top: 16px; min-height: 18px; }
-        
         .remember-me { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--subtext-color); margin-bottom: 12px; }
         .remember-me label { cursor: pointer; }
-        
         .terms-agreement { margin-top: 16px; padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); }
         .terms-agreement label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
         .terms-agreement input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
@@ -116,9 +114,9 @@
         </div>
         <div class="card">
             <div class="tab-section">
-                <button onclick="showTab('all')" class="active">전체</button>
-                <button onclick="showTab('ing')">진행중</button>
-                <button onclick="showTab('done')">완료</button>
+                <button onclick="showTab('all')" class="active" data-tab="all">전체</button>
+                <button onclick="showTab('ing')" data-tab="ing">진행중</button>
+                <button onclick="showTab('done')" data-tab="done">완료</button>
             </div>
             <div class="date-filter">
                 <input type="date" id="start-date"><span>~</span><input type="date" id="end-date">
@@ -142,12 +140,10 @@
         <h3>로그인 / 회원가입</h3>
         <input class="modal-input" type="email" id="modal-email" placeholder="이메일">
         <input class="modal-input" type="password" id="modal-password" placeholder="비밀번호 (6자리 이상)">
-        
         <div class="remember-me">
             <input type="checkbox" id="remember-me-checkbox">
             <label for="remember-me-checkbox">이메일 기억하기</label>
         </div>
-
         <div class="terms-agreement">
             <label for="terms-checkbox">
                 <input type="checkbox" id="terms-checkbox">
@@ -157,7 +153,6 @@
                 </div>
             </label>
         </div>
-
         <div id="modal-error"></div>
         <div class="modal-buttons">
             <button id="modal-signup-btn">회원가입</button>
@@ -209,7 +204,25 @@ const firebaseConfig = {
     
     function toggleDetail(recordId) { const record = records.find(r => r.id === recordId); if (record) { record.isDetailVisible = !record.isDetailVisible; renderTable(); } }
     function renderTable() { let baseRecords=[...records]; baseRecords.sort((a,b)=>new Date(b.date_in)-new Date(a.date_in)); let filteredRecords=baseRecords; if(currentTab==='ing'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)<r.money);}else if(currentTab==='done'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)>=r.money);} const startDateVal=getEl('start-date').value; const endDateVal=getEl('end-date').value; if(startDateVal&&endDateVal){const start=new Date(startDateVal); const end=new Date(endDateVal); end.setHours(23,59,59,999); filteredRecords=filteredRecords.filter(r=>{const d=new Date(r.date_in); return d>=start&&d<=end;});} const recordList=getEl('record-list'); recordList.innerHTML=""; let totalNetProfit=0; if(filteredRecords.length===0){recordList.innerHTML="<tr><td colspan='5' style='text-align:center; color: #8B95A1; padding: 40px;'>기록이 없습니다.</td></tr>";} filteredRecords.forEach(rec=>{const paidSum=rec.partial_exchanges.reduce((a,p)=>a+p.amount,0); const isDone=paidSum>=rec.money; let fx_profit_total=0; rec.partial_exchanges.forEach(p=>{if(p.rate_out>0)fx_profit_total+=(p.amount-(p.amount/p.rate_out*rec.rate_in));}); const total_fee=rec.partial_exchanges.reduce((s,p)=>s+(p.fee||0),0); let d1=new Date(rec.date_in); let d2=rec.partial_exchanges.length?new Date(rec.partial_exchanges[rec.partial_exchanges.length-1].date_out):new Date(); const days=isDone?Math.max(0,Math.round((d2-d1)/(1000*60*60*24))):'-'; const int_fee=isDone?(rec.money*rec.interest/100*days/365):0; const net_profit=fx_profit_total-int_fee-total_fee; if(isDone)totalNetProfit+=net_profit; const profitClass=!isDone?'profit-neutral':(net_profit>=0?'profit-plus':'profit-minus'); const row=recordList.insertRow(); row.innerHTML=`<td><span class="status ${isDone?'status-done':'status-ing'}">${isDone?'완료':'진행중'}</span></td><td>${numberFormat(rec.money)}원</td><td>${rec.date_in.substring(5)}</td><td><b class="${profitClass}">${isDone?(net_profit>=0?'+':'')+numberFormat(net_profit)+'원':'-'}</b></td><td><button class="btn-sm btn-detail" onclick="toggleDetail('${rec.id}')">${rec.isDetailVisible?'▲ 닫기':'▼ 상세'}</button></td>`; if(rec.isDetailVisible){const detailRow=recordList.insertRow(); detailRow.insertCell().colSpan=5; detailRow.cells[0].className='details-content show'; detailRow.cells[0].innerHTML=`<div class="detail-grid"><strong>환전환율</strong><span>${rec.rate_in}</span><strong>환전금액($)</strong><span>${(rec.money/rec.rate_in).toFixed(2)}$</span><strong>이자율</strong><span>${rec.interest}%</span><strong>경과일수</strong><span>${days}일</span><strong>이자비용</strong><span>${numberFormat(int_fee)}원</span><strong>수수료합계</strong><span>${numberFormat(total_fee)}원</span></div><div class="sub-table"><table><thead><tr><th>#</th><th>날짜</th><th>금액</th><th>환율</th><th>수수료</th><th>삭제</th></tr></thead><tbody>${rec.partial_exchanges.map((p,idx)=>`<tr><td>${idx+1}</td><td>${p.date_out}</td><td>${numberFormat(p.amount)}</td><td>${p.rate_out}</td><td><input type="number" value="${p.fee||0}" onchange="updatePartialFee('${rec.id}','${p.id}',this.value)"></td><td><button class="del-partial-btn" onclick="delPartial('${rec.id}','${p.id}')">❌</button></td></tr>`).join('')}<tr class="add-row"><td></td><td><input type="date" id="partial_date_out_${rec.id}" value="${today()}"></td><td><input type="number" id="partial_amount_${rec.id}" placeholder="금액"></td><td><input type="number" id="partial_rate_out_${rec.id}" placeholder="환율"></td><td><input type="number" id="partial_fee_${rec.id}" placeholder="수수료" value="0"></td><td><button class="add-partial-btn" onclick="addPartialExchange('${rec.id}')">추가</button></td></tr></tbody></table></div><button class="btn-delete" onclick="delRow('${rec.id}')">이 기록 삭제하기</button>`;}}); const profitColor=totalNetProfit>=0?'var(--danger-color)':'var(--primary-color)'; getEl('summary').innerHTML=`총 <b>${filteredRecords.length}</b>건, 완료 건 순이익 합계: <b style="color:${profitColor}">${numberFormat(totalNetProfit)}원</b>`; }
-    function showTab(tab) { currentTab = tab; document.querySelectorAll('.tab-section button').forEach(b=>{b.classList.remove('active');if(b.textContent.includes(tab)||(tab==='all'&&b.textContent==='전체')){b.classList.add('active');}}); renderTable(); }
+    
+    // 👇 JavaScript 부분: showTab 함수 로직을 수정했어!
+    function showTab(tab) {
+        currentTab = tab;
+        
+        // 1. 모든 버튼에서 'active' 클래스를 먼저 지워줘
+        document.querySelectorAll('.tab-section button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // 2. 내가 클릭한 버튼을 찾아서 'active' 클래스를 추가해줘
+        const clickedButton = document.querySelector(`.tab-section button[data-tab="${tab}"]`);
+        if (clickedButton) {
+            clickedButton.classList.add('active');
+        }
+
+        renderTable();
+    }
+
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
     function openLoginModal() {
