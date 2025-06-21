@@ -77,9 +77,12 @@
         #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         #modal-close-btn, #logout-cancel-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         #logout-cancel-btn { margin-top: 10px;}
-        #modal-error, #logout-modal-title { color: var(--text-color); font-size: 16px; text-align: center; margin: 16px 0; min-height: 18px; }
-        .remember-me { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--subtext-color); margin-bottom: 12px; }
-        .remember-me label { cursor: pointer; }
+        #modal-error { font-size: 13px; text-align: center; margin-top: 16px; min-height: 18px; color: var(--danger-color); }
+        #logout-modal-title { color: var(--text-color); font-size: 16px; text-align: center; margin: 16px 0; min-height: 18px; }
+        .remember-me { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px; }
+        .remember-me div { display: flex; align-items: center; gap: 6px; }
+        .remember-me label, .forgot-password a { cursor: pointer; text-decoration: none; color: var(--subtext-color); }
+        .forgot-password a:hover { text-decoration: underline; }
         .terms-agreement { margin-top: 16px; padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); }
         .terms-agreement label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
         .terms-agreement input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
@@ -145,8 +148,13 @@
         <input class="modal-input" type="email" id="modal-email" placeholder="이메일">
         <input class="modal-input" type="password" id="modal-password" placeholder="비밀번호 (6자리 이상)">
         <div class="remember-me">
-            <input type="checkbox" id="remember-me-checkbox">
-            <label for="remember-me-checkbox">이메일 기억하기</label>
+            <div>
+                <input type="checkbox" id="remember-me-checkbox">
+                <label for="remember-me-checkbox">이메일 기억하기</label>
+            </div>
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link">비밀번호를 잊으셨나요?</a>
+            </div>
         </div>
         <div class="terms-agreement">
             <label for="terms-checkbox">
@@ -275,7 +283,7 @@
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
     function openLoginModal() { const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY); if (rememberedEmail) { getEl('modal-email').value = rememberedEmail; getEl('remember-me-checkbox').checked = true; } getEl('login-modal').style.display = 'flex'; }
-    function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; }
+    function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; getEl('modal-error').style.color = 'var(--danger-color)'; }
     function openLogoutModal() { getEl('logout-confirm-modal').style.display = 'flex'; }
     function closeLogoutModal() { getEl('logout-confirm-modal').style.display = 'none'; }
     
@@ -305,6 +313,7 @@
         const modalSignupBtn = getEl('modal-signup-btn');
         const logoutConfirmBtn = getEl('logout-confirm-btn');
         const deleteAccountModalBtn = getEl('delete-account-modal-btn');
+        const forgotPasswordLink = getEl('forgot-password-link');
 
         auth.onAuthStateChanged(async (user) => {
             if (user) {
@@ -326,6 +335,31 @@
         logoutConfirmBtn.addEventListener('click', () => { auth.signOut(); closeLogoutModal(); });
         deleteAccountModalBtn.addEventListener('click', deleteAccount);
       
+        forgotPasswordLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            const email = getEl('modal-email').value;
+            const modalError = getEl('modal-error');
+
+            if (!email) {
+                modalError.textContent = "비밀번호를 찾으려면 이메일을 입력해주세요.";
+                return;
+            }
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    modalError.textContent = "비밀번호 재설정 이메일을 보냈습니다. 받은편지함을 확인해주세요.";
+                    modalError.style.color = 'var(--success-color)';
+                })
+                .catch((error) => {
+                    modalError.style.color = 'var(--danger-color)';
+                    if (error.code === 'auth/user-not-found') {
+                        modalError.textContent = "가입되지 않은 이메일입니다.";
+                    } else {
+                        modalError.textContent = "오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+                    }
+                });
+        });
+
         modalLoginBtn.addEventListener('click', () => {
             const email = getEl('modal-email').value; const password = getEl('modal-password').value;
             const rememberMe = getEl('remember-me-checkbox').checked;
@@ -338,14 +372,13 @@
                     closeLoginModal();
                 })
                 .catch(error => {
+                    modalError.style.color = 'var(--danger-color)';
                     console.error("Login Error:", error.code);
                     switch (error.code) {
                         case 'auth/user-not-found':
-                        case 'auth/invalid-credential': // 이 코드가 잘못된 비밀번호와 이메일 모두를 포함하기도 함
-                            modalError.textContent = "이메일 또는 비밀번호가 일치하지 않습니다.";
-                            break;
+                        case 'auth/invalid-credential':
                         case 'auth/wrong-password':
-                            modalError.textContent = "비밀번호가 일치하지 않아요. 다시 확인해주세요.";
+                            modalError.textContent = "이메일 또는 비밀번호가 일치하지 않습니다.";
                             break;
                         case 'auth/invalid-email':
                             modalError.textContent = "올바른 이메일 형식이 아닙니다.";
@@ -366,9 +399,11 @@
             const email = getEl('modal-email').value, password = getEl('modal-password').value;
             auth.createUserWithEmailAndPassword(email, password)
                 .then(() => {
+                    modalError.style.color = 'var(--success-color)';
                     modalError.textContent = "회원가입 성공! 이제 로그인해주세요.";
                 })
                 .catch(error => {
+                    modalError.style.color = 'var(--danger-color)';
                     console.error("Signup Error:", error.code);
                     switch (error.code) {
                         case 'auth/email-already-in-use':
