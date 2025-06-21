@@ -97,8 +97,7 @@
                     <a href="https://search.naver.com/search.naver?query=달러환율" target="_blank" rel="noopener noreferrer">실시간 환율</a>
                     <a href="./fx_diary_app.apk" download class="app-download-btn">앱 다운로드</a>
                     <button onclick="exportData()">백업</button>
-                    <!-- 👇 '불러오기' UI 수정 -->
-                    <label for="importFile" class="import-label">불러오기</label>
+                    <label for="importFile">불러오기</label>
                     <input type="file" id="importFile" accept=".json" onchange="importData(event)">
                     <button id="login-btn-main" onclick="openLoginModal()">로그인</button>
                     <button id="logout-btn-main" style="display: none;">로그아웃</button>
@@ -178,7 +177,6 @@
     </div>
 </div>
 
-<!-- 👇 요청한 푸터 코드 그대로 추가! -->
 <footer style="text-align: center; padding: 30px 16px; font-size: 12px; color: #8B95A1; border-top: 1px solid #E5E8EB; margin-top: 20px;">
     <p>
         <a href="https://docs.google.com/document/d/1qAGPP5aBg5VDztATy5yu9hkUhsj7I8P7fR_4oqkdShs/edit?usp=sharing" target="_blank" style="color: inherit;">이용약관</a> | 
@@ -331,21 +329,62 @@
         modalLoginBtn.addEventListener('click', () => {
             const email = getEl('modal-email').value; const password = getEl('modal-password').value;
             const rememberMe = getEl('remember-me-checkbox').checked;
+            const modalError = getEl('modal-error');
+            
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     if (rememberMe) { localStorage.setItem(REMEMBER_EMAIL_KEY, email); } 
                     else { localStorage.removeItem(REMEMBER_EMAIL_KEY); }
                     closeLoginModal();
                 })
-                .catch(error => getEl('modal-error').textContent = error.message);
+                .catch(error => {
+                    console.error("Login Error:", error.code);
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                        case 'auth/invalid-credential': // 이 코드가 잘못된 비밀번호와 이메일 모두를 포함하기도 함
+                            modalError.textContent = "이메일 또는 비밀번호가 일치하지 않습니다.";
+                            break;
+                        case 'auth/wrong-password':
+                            modalError.textContent = "비밀번호가 일치하지 않아요. 다시 확인해주세요.";
+                            break;
+                        case 'auth/invalid-email':
+                            modalError.textContent = "올바른 이메일 형식이 아닙니다.";
+                            break;
+                        default:
+                            modalError.textContent = "로그인 중 문제가 발생했습니다.";
+                            break;
+                    }
+                });
         });
 
         modalSignupBtn.addEventListener('click', () => {
-            if (!getEl('terms-checkbox').checked) { getEl('modal-error').textContent = "개인정보 수집 및 이용 약관에 동의해주세요."; return; }
+            const modalError = getEl('modal-error');
+            if (!getEl('terms-checkbox').checked) {
+                modalError.textContent = "개인정보 수집 및 이용 약관에 동의해주세요.";
+                return;
+            }
             const email = getEl('modal-email').value, password = getEl('modal-password').value;
             auth.createUserWithEmailAndPassword(email, password)
-                .then(() => { getEl('modal-error').textContent = "회원가입 성공! 이제 로그인해주세요."; })
-                .catch(error => getEl('modal-error').textContent = error.message);
+                .then(() => {
+                    modalError.textContent = "회원가입 성공! 이제 로그인해주세요.";
+                })
+                .catch(error => {
+                    console.error("Signup Error:", error.code);
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            modalError.textContent = "이미 가입된 이메일입니다. 로그인을 시도해주세요.";
+                            break;
+                        case 'auth/weak-password':
+                            modalError.textContent = "비밀번호는 6자리 이상이어야 합니다.";
+                            break;
+                        case 'auth/invalid-email':
+                            modalError.textContent = "올바른 이메일 형식이 아닙니다.";
+                            break;
+                        default:
+                            modalError.textContent = "회원가입 중 문제가 발생했습니다.";
+                            break;
+                    }
+                });
         });
     });
 </script>
