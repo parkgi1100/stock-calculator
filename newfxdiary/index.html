@@ -5,7 +5,7 @@
     <title>환차익 다이어리</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <style>
-        /* CSS는 변경 사항 없음 */
+        /* CSS 일부 수정 */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
         :root {
           --primary-color: #3182F6;
@@ -19,13 +19,14 @@
         }
         body { font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif; background-color: var(--background-color); color: var(--text-color); margin: 0; padding: 16px; font-size: 14px; -webkit-font-smoothing: antialiased; }
         .card { background-color: var(--card-background-color); border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); margin-bottom: 16px; }
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
         h2 { font-size: 16px; font-weight: 700; margin: 0; color: var(--primary-color); flex-shrink: 0; }
         .tools { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
         .tools button, .tools label, .tools a { font-size: 13px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #F9FAFB; color: #4E5968; padding: 8px 12px; cursor: pointer; font-weight: 500; text-align: center; white-space: nowrap; text-decoration: none; }
         .tools input[type="file"] { display: none; }
         .tools #login-btn-main { border-color: var(--primary-color); background-color: var(--primary-color); color: white; }
         .app-download-btn { background-color: var(--success-color) !important; border-color: var(--success-color) !important; color: white !important; font-weight: 700 !important; }
+        #live-exchange-rate { font-size: 12px; font-weight: 500; color: var(--primary-color); background-color: #F0F6FF; padding: 8px 12px; border-radius: 8px; }
         .input-section { display: flex; flex-direction: column; gap: 8px; }
         .input-row { display: flex; gap: 8px; }
         .input-section input { flex: 1 1 auto; font-size: 14px; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #F9FAFB; min-width: 0; }
@@ -41,7 +42,7 @@
         .date-filter .btn-search { background: var(--primary-color); color: white;}
         .date-filter .btn-reset { background: #E9ECEF; color:var(--subtext-color);}
         .summary { font-size: 15px; font-weight: 500; padding: 16px; background-color: #F0F6FF; color: #194583; border-radius: 12px; text-align: center; margin-top: 16px; }
-        .table-container { width: 100%; }
+        .table-container { width: 100%; overflow-x: auto; }
         .result-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); table-layout: fixed; }
         .result-table th, .result-table td { text-align: center; padding: 12px 4px; border-bottom: 1px solid var(--border-color); font-size: 12px; vertical-align: middle; }
         .result-table thead { background-color: #F9FAFB; }
@@ -68,21 +69,23 @@
         .del-partial-btn { background: none; border: none; cursor: pointer; font-size: 16px; }
         .add-partial-btn { width: 100%; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 6px; padding: 6px; cursor: pointer; font-weight: 500; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
         .modal-content h3 { margin-top: 0; margin-bottom: 16px; text-align: center; font-size: 18px; }
         .modal-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 8px; }
-        .modal-buttons button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
-        #modal-login-btn { background-color: var(--primary-color); color: white; }
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+        .modal-buttons button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
+        #modal-login-btn, #logout-confirm-btn { background-color: var(--primary-color); color: white; }
         #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
-        #modal-close-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--subtext-color); }
-        #modal-error { color: var(--danger-color); font-size: 12px; text-align: center; margin-top: 16px; min-height: 18px; }
+        #modal-close-btn, #logout-cancel-btn { background-color: #E9ECEF; color: var(--subtext-color); }
+        #logout-cancel-btn { margin-top: 10px;}
+        #modal-error, #logout-modal-title { color: var(--text-color); font-size: 16px; text-align: center; margin: 16px 0; min-height: 18px; }
         .remember-me { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--subtext-color); margin-bottom: 12px; }
         .remember-me label { cursor: pointer; }
         .terms-agreement { margin-top: 16px; padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); }
         .terms-agreement label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
         .terms-agreement input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
         .terms-agreement strong { color: var(--text-color); font-weight: 500; display: block; margin-bottom: 4px; }
+        #delete-account-modal-btn { background: none; color: var(--danger-color); font-weight: 500; padding: 10px; font-size: 14px; margin-top: 4px; border: 1px solid #FEE2E2; }
     </style>
 </head>
 <body>
@@ -92,8 +95,8 @@
             <div class="header-row">
                 <h2>환차익 다이어리 💸</h2>
                 <div class="tools">
+                    <span id="live-exchange-rate">환율 로딩중...</span>
                     <a href="./fx_diary_app.apk" download class="app-download-btn">앱 다운로드</a>
-                    <button onclick="exportCSV()">엑셀</button>
                     <button onclick="exportData()">백업</button>
                     <label>불러오기<input type="file" id="importFile" accept=".json" onchange="importData(event)"></label>
                     <button id="login-btn-main" onclick="openLoginModal()">로그인</button>
@@ -134,6 +137,7 @@
     </div>
 </main>
 
+<!-- 로그인 모달 -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content">
         <button id="modal-close-btn" onclick="closeLoginModal()">×</button>
@@ -149,33 +153,54 @@
                 <input type="checkbox" id="terms-checkbox">
                 <div>
                     <strong>[필수] 개인정보 수집 및 이용 동의</strong>
-                    <span>환차익 다이어리 서비스는 회원 식별 및 데이터 클라우드 저장을 위해 귀하의 이메일 주소와 암호화된 비밀번호를 수집합니다. 동의하지 않을 경우 회원가입이 불가능합니다.</span>
+                    <span>회원 식별 및 데이터 저장을 위해 이메일, 비밀번호를 수집합니다.</span>
                 </div>
             </label>
         </div>
         <div id="modal-error"></div>
         <div class="modal-buttons">
-            <button id="modal-signup-btn">회원가입</button>
-            <button id="modal-login-btn">로그인</button>
+             <button id="modal-login-btn">로그인</button>
+             <button id="modal-signup-btn">회원가입</button>
         </div>
     </div>
 </div>
+
+<!-- 로그아웃 & 회원탈퇴 확인 모달 -->
+<div id="logout-confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <p id="logout-modal-title">어떻게 할까요?</p>
+        <div class="modal-buttons">
+            <button id="logout-confirm-btn">로그아웃</button>
+            <button id="delete-account-modal-btn">회원탈퇴</button>
+            <button id="logout-cancel-btn" onclick="closeLogoutModal()">취소</button>
+        </div>
+    </div>
+</div>
+
+<!-- 법적 고지 푸터 -->
+<footer style="text-align: center; padding: 30px 16px; font-size: 12px; color: #8B95A1; border-top: 1px solid #E5E8EB; margin-top: 20px;">
+    <p>
+        <a href="여기에_이용약관_페이지_링크" target="_blank" style="color: inherit;">이용약관</a> | 
+        <a href="여기에_개인정보처리방침_링크" target="_blank" style="color: inherit; font-weight: bold;">개인정보처리방침</a>
+    </p>
+    <p style="margin-top: 8px;">문의: your_contact_email@example.com</p>
+    <p style="margin-top: 8px;">© 2024 환차익 다이어리. All Rights Reserved.</p>
+</footer>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyBw7_3CquES3aoDpgrIAo8iJWouO68xm3o",
-  authDomain: "fxdiarynew.firebaseapp.com",
-  projectId: "fxdiarynew",
-  storageBucket: "fxdiarynew.firebasestorage.app",
-  messagingSenderId: "924905093472",
-  appId: "1:924905093472:web:62ce7aa52161730bd58605",
-  measurementId: "G-2HDGLJSLS8"
-};
-
+    const firebaseConfig = {
+      apiKey: "AIzaSyBw7_3CquES3aoDpgrIAo8iJWouO68xm3o",
+      authDomain: "fxdiarynew.firebaseapp.com",
+      projectId: "fxdiarynew",
+      storageBucket: "fxdiarynew.appspot.com",
+      messagingSenderId: "924905093472",
+      appId: "1:924905093472:web:62ce7aa52161730bd58605",
+      measurementId: "G-2HDGLJSLS8"
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
@@ -190,87 +215,130 @@ const firebaseConfig = {
     function today() { return new Date().toISOString().slice(0, 10); }
     function numberFormat(n) { return Math.round(n).toLocaleString('ko-KR'); }
 
+    // --- 데이터 저장/로드 로직 ---
     function saveLocalData() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records)); }
     function loadLocalData() { const data = localStorage.getItem(LOCAL_STORAGE_KEY); records = data ? JSON.parse(data) : []; }
     async function saveToFirestore() { if (!currentUser) return; records.forEach((r, i) => { if (!r.id) r.id = `record_${Date.now()}_${i}`; }); try { await db.collection('diaries').doc(currentUser.uid).set({ records: records }); } catch (error) { console.error("Firestore 저장 오류: ", error); } }
     async function loadFromFirestore() { if (!currentUser) return; try { const doc = await db.collection('diaries').doc(currentUser.uid).get(); records = (doc.exists && doc.data().records) ? doc.data().records : []; } catch (error) { console.error("Firestore 불러오기 오류: ", error); records = []; } }
     async function saveData() { if (currentUser) { await saveToFirestore(); } else { saveLocalData(); } }
+    
+    // --- 백업/불러오기 로직 ---
+    function exportData() {
+        if(records.length === 0) return alert("내보낼 데이터가 없어요!");
+        const dataStr = JSON.stringify(records, null, 2);
+        const blob = new Blob([dataStr], {type:"application/json"});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        const dt = new Date(); a.download = `fx_diary_backup_${dt.getFullYear()}${String(dt.getMonth()+1).padStart(2,"0")}${String(dt.getDate()).padStart(2,"0")}.json`;
+        a.click(); URL.revokeObjectURL(a.href);
+    }
+    async function importData(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        try {
+          const imported = JSON.parse(evt.target.result);
+          if (Array.isArray(imported)) {
+            if(!confirm("기존 데이터가 모두 사라지고 새로 불러온 데이터로 덮어씌워져요. 정말 진행할까요?")) { e.target.value = ""; return; }
+            records = imported;
+            await saveData();
+            showTab('all');
+            alert("불러오기 완료!");
+          } else { alert("잘못된 파일 형식입니다."); }
+        } catch (err) { alert("불러오기 오류: " + err.message); }
+      }
+      reader.readAsText(file); e.target.value = "";
+    }
 
+    // --- 핵심 CRUD 로직 ---
     async function addRow() { if (getEl('money').value === '' || getEl('rate_in').value === '') return alert("환전금액과 환전환율을 채워주세요!"); records.unshift({ money: Number(getEl('money').value), rate_in: Number(getEl('rate_in').value), interest: Number(getEl('interest').value) || 0, date_in: getEl('date_in').value || today(), id: 'record_' + Date.now(), isDetailVisible: false, partial_exchanges: [] }); await saveData(); renderTable(); getEl('money').value = ''; getEl('rate_in').value = ''; getEl('interest').value = ''; getEl('date_in').value = today(); }
     async function delRow(recordId) { if (confirm("정말 이 항목을 삭제하시겠어요?")) { records = records.filter(r => r.id !== recordId); await saveData(); renderTable(); } }
     async function addPartialExchange(recordId) { const rec = records.find(r => r.id === recordId); if (!rec) return; const amount = Number(getEl(`partial_amount_${rec.id}`).value), rate_out = Number(getEl(`partial_rate_out_${rec.id}`).value); if (!amount || !rate_out) return alert("금액/환율 입력하세요!"); if (rec.partial_exchanges.reduce((s, p) => s + p.amount, 0) + amount > rec.money + 1) return alert("전체 환전금액 초과!"); rec.partial_exchanges.push({ amount, rate_out, date_out: getEl(`partial_date_out_${rec.id}`).value || today(), fee: Number(getEl(`partial_fee_${rec.id}`).value) || 0, id: 'p_' + Date.now() }); rec.partial_exchanges.sort((a, b) => new Date(a.date_out) - new Date(b.date_out)); await saveData(); renderTable(); }
     async function delPartial(recordId, partialId) { const rec = records.find(r => r.id === recordId); if (rec) { rec.partial_exchanges = rec.partial_exchanges.filter(p => p.id !== partialId); await saveData(); renderTable(); } }
     async function updatePartialFee(recordId, partialId, newFee) { const rec = records.find(r => r.id === recordId); if (rec) { const p = rec.partial_exchanges.find(p => p.id === partialId); if (p) p.fee = Number(newFee); await saveData(); renderTable(); } }
     
+    // --- UI 렌더링 로직 ---
     function toggleDetail(recordId) { const record = records.find(r => r.id === recordId); if (record) { record.isDetailVisible = !record.isDetailVisible; renderTable(); } }
     function renderTable() { let baseRecords=[...records]; baseRecords.sort((a,b)=>new Date(b.date_in)-new Date(a.date_in)); let filteredRecords=baseRecords; if(currentTab==='ing'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)<r.money);}else if(currentTab==='done'){filteredRecords=baseRecords.filter(r=>r.partial_exchanges.reduce((a,p)=>a+p.amount,0)>=r.money);} const startDateVal=getEl('start-date').value; const endDateVal=getEl('end-date').value; if(startDateVal&&endDateVal){const start=new Date(startDateVal); const end=new Date(endDateVal); end.setHours(23,59,59,999); filteredRecords=filteredRecords.filter(r=>{const d=new Date(r.date_in); return d>=start&&d<=end;});} const recordList=getEl('record-list'); recordList.innerHTML=""; let totalNetProfit=0; if(filteredRecords.length===0){recordList.innerHTML="<tr><td colspan='5' style='text-align:center; color: #8B95A1; padding: 40px;'>기록이 없습니다.</td></tr>";} filteredRecords.forEach(rec=>{const paidSum=rec.partial_exchanges.reduce((a,p)=>a+p.amount,0); const isDone=paidSum>=rec.money; let fx_profit_total=0; rec.partial_exchanges.forEach(p=>{if(p.rate_out>0)fx_profit_total+=(p.amount-(p.amount/p.rate_out*rec.rate_in));}); const total_fee=rec.partial_exchanges.reduce((s,p)=>s+(p.fee||0),0); let d1=new Date(rec.date_in); let d2=rec.partial_exchanges.length?new Date(rec.partial_exchanges[rec.partial_exchanges.length-1].date_out):new Date(); const days=isDone?Math.max(0,Math.round((d2-d1)/(1000*60*60*24))):'-'; const int_fee=isDone?(rec.money*rec.interest/100*days/365):0; const net_profit=fx_profit_total-int_fee-total_fee; if(isDone)totalNetProfit+=net_profit; const profitClass=!isDone?'profit-neutral':(net_profit>=0?'profit-plus':'profit-minus'); const row=recordList.insertRow(); row.innerHTML=`<td><span class="status ${isDone?'status-done':'status-ing'}">${isDone?'완료':'진행중'}</span></td><td>${numberFormat(rec.money)}원</td><td>${rec.date_in.substring(5)}</td><td><b class="${profitClass}">${isDone?(net_profit>=0?'+':'')+numberFormat(net_profit)+'원':'-'}</b></td><td><button class="btn-sm btn-detail" onclick="toggleDetail('${rec.id}')">${rec.isDetailVisible?'▲ 닫기':'▼ 상세'}</button></td>`; if(rec.isDetailVisible){const detailRow=recordList.insertRow(); detailRow.insertCell().colSpan=5; detailRow.cells[0].className='details-content show'; detailRow.cells[0].innerHTML=`<div class="detail-grid"><strong>환전환율</strong><span>${rec.rate_in}</span><strong>환전금액($)</strong><span>${(rec.money/rec.rate_in).toFixed(2)}$</span><strong>이자율</strong><span>${rec.interest}%</span><strong>경과일수</strong><span>${days}일</span><strong>이자비용</strong><span>${numberFormat(int_fee)}원</span><strong>수수료합계</strong><span>${numberFormat(total_fee)}원</span></div><div class="sub-table"><table><thead><tr><th>#</th><th>날짜</th><th>금액</th><th>환율</th><th>수수료</th><th>삭제</th></tr></thead><tbody>${rec.partial_exchanges.map((p,idx)=>`<tr><td>${idx+1}</td><td>${p.date_out}</td><td>${numberFormat(p.amount)}</td><td>${p.rate_out}</td><td><input type="number" value="${p.fee||0}" onchange="updatePartialFee('${rec.id}','${p.id}',this.value)"></td><td><button class="del-partial-btn" onclick="delPartial('${rec.id}','${p.id}')">❌</button></td></tr>`).join('')}<tr class="add-row"><td></td><td><input type="date" id="partial_date_out_${rec.id}" value="${today()}"></td><td><input type="number" id="partial_amount_${rec.id}" placeholder="금액"></td><td><input type="number" id="partial_rate_out_${rec.id}" placeholder="환율"></td><td><input type="number" id="partial_fee_${rec.id}" placeholder="수수료" value="0"></td><td><button class="add-partial-btn" onclick="addPartialExchange('${rec.id}')">추가</button></td></tr></tbody></table></div><button class="btn-delete" onclick="delRow('${rec.id}')">이 기록 삭제하기</button>`;}}); const profitColor=totalNetProfit>=0?'var(--danger-color)':'var(--primary-color)'; getEl('summary').innerHTML=`총 <b>${filteredRecords.length}</b>건, 완료 건 순이익 합계: <b style="color:${profitColor}">${numberFormat(totalNetProfit)}원</b>`; }
-    
-    // 👇 JavaScript 부분: showTab 함수 로직을 수정했어!
-    function showTab(tab) {
-        currentTab = tab;
-        
-        // 1. 모든 버튼에서 'active' 클래스를 먼저 지워줘
-        document.querySelectorAll('.tab-section button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // 2. 내가 클릭한 버튼을 찾아서 'active' 클래스를 추가해줘
-        const clickedButton = document.querySelector(`.tab-section button[data-tab="${tab}"]`);
-        if (clickedButton) {
-            clickedButton.classList.add('active');
-        }
-
-        renderTable();
-    }
-
+    function showTab(tab) { currentTab = tab; document.querySelectorAll('.tab-section button').forEach(btn => { btn.classList.remove('active'); }); const clickedButton = document.querySelector(`.tab-section button[data-tab="${tab}"]`); if (clickedButton) { clickedButton.classList.add('active'); } renderTable(); }
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
-    function openLoginModal() {
-        const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
-        if (rememberedEmail) {
-            getEl('modal-email').value = rememberedEmail;
-            getEl('remember-me-checkbox').checked = true;
-        }
-        getEl('login-modal').style.display = 'flex';
-    }
+    // --- 모달 제어 로직 ---
+    function openLoginModal() { const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY); if (rememberedEmail) { getEl('modal-email').value = rememberedEmail; getEl('remember-me-checkbox').checked = true; } getEl('login-modal').style.display = 'flex'; }
     function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; }
+    function openLogoutModal() { getEl('logout-confirm-modal').style.display = 'flex'; }
+    function closeLogoutModal() { getEl('logout-confirm-modal').style.display = 'none'; }
+    
+    // --- 계정 관리 로직 ---
+    async function deleteAccount() {
+        if (!currentUser) return;
+        const confirmation = confirm("정말로 계정을 삭제하시겠습니까?\n\n모든 데이터가 영구적으로 삭제되며, 다시는 복구할 수 없습니다.");
+        if (!confirmation) return;
+        try {
+            await db.collection('diaries').doc(currentUser.uid).delete();
+            await currentUser.delete();
+            alert("계정이 성공적으로 삭제되었습니다.");
+            closeLogoutModal();
+        } catch (error) {
+            console.error("계정 삭제 오류:", error);
+            if (error.code === 'auth/requires-recent-login') {
+                alert("보안을 위해 다시 로그인한 후 계정 삭제를 시도해주세요.");
+            } else {
+                alert("계정 삭제 중 오류가 발생했습니다: " + error.message);
+            }
+        }
+    }
+    
+    // --- 실시간 환율 로직 ---
+    async function fetchExchangeRate() {
+        try {
+            const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+            const data = await response.json();
+            const rate = data.rates.KRW;
+            getEl('live-exchange-rate').textContent = `오늘의 환율: ${rate.toFixed(2)}원`;
+        } catch (error) {
+            console.error('환율 정보 로딩 실패:', error);
+            getEl('live-exchange-rate').textContent = '환율 정보 로딩 실패';
+        }
+    }
 
+    // --- 페이지 로드 시 실행되는 메인 로직 ---
     document.addEventListener('DOMContentLoaded', () => {
+        fetchExchangeRate(); // 페이지 로드 시 환율 정보 가져오기
+
         const loginBtn = getEl('login-btn-main');
         const logoutBtn = getEl('logout-btn-main');
         const modalLoginBtn = getEl('modal-login-btn');
         const modalSignupBtn = getEl('modal-signup-btn');
-        
+        const logoutConfirmBtn = getEl('logout-confirm-btn');
+        const deleteAccountModalBtn = getEl('delete-account-modal-btn');
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'block';
+                logoutBtn.style.display = 'inline-block';
                 await loadFromFirestore();
                 renderTable();
             } else {
                 currentUser = null;
-                loginBtn.style.display = 'block';
+                loginBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'none';
                 loadLocalData();
                 renderTable();
             }
         });
 
-        logoutBtn.addEventListener('click', () => { if(confirm("로그아웃 하시겠습니까?")) { auth.signOut(); } });
+        logoutBtn.addEventListener('click', openLogoutModal);
+        logoutConfirmBtn.addEventListener('click', () => { auth.signOut(); closeLogoutModal(); });
+        deleteAccountModalBtn.addEventListener('click', deleteAccount);
       
         modalLoginBtn.addEventListener('click', () => {
-            const email = getEl('modal-email').value;
-            const password = getEl('modal-password').value;
+            const email = getEl('modal-email').value; const password = getEl('modal-password').value;
             const rememberMe = getEl('remember-me-checkbox').checked;
-            
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
-                    if (rememberMe) {
-                        localStorage.setItem(REMEMBER_EMAIL_KEY, email);
-                    } else {
-                        localStorage.removeItem(REMEMBER_EMAIL_KEY);
-                    }
+                    if (rememberMe) { localStorage.setItem(REMEMBER_EMAIL_KEY, email); } 
+                    else { localStorage.removeItem(REMEMBER_EMAIL_KEY); }
                     closeLoginModal();
                 })
                 .catch(error => getEl('modal-error').textContent = error.message);
