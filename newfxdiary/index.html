@@ -109,29 +109,30 @@
         .add-partial-btn { width: 100%; background: #F3F4F6; border: 1px solid #D1D5DB; border-radius: 6px; padding: 6px; cursor: pointer; font-weight: 500; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 24px; border-radius: 16px; width: 90%; max-width: 380px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: relative; }
-        .modal-content h3 { margin-top: 0; margin-bottom: 24px; text-align: center; font-size: 18px; }
         .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
         .modal-buttons button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
         #modal-close-btn, #logout-cancel-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         #logout-cancel-btn { margin-top: 10px;}
         #logout-modal-title { color: var(--text-color); font-size: 16px; text-align: center; margin: 16px 0; min-height: 18px; }
-        #google-login-btn { background-color: white; color: #333; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 15px; font-weight: 700; width: 100%; box-sizing: border-box;}
-        #google-login-btn svg { width: 18px; height: 18px; }
+        .google-login-btn { background-color: white; color: #333; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; font-size: 15px; font-weight: 700; width: 100%; box-sizing: border-box;}
+        .google-login-btn svg { width: 18px; height: 18px; }
         #logout-confirm-btn { background-color: var(--primary-color); color: white; }
         #delete-account-modal-btn { background: none; color: var(--danger-color); font-weight: 500; padding: 10px; font-size: 14px; margin-top: 4px; border: 1px solid #FEE2E2; }
         #modal-error { font-size: 13px; text-align: center; margin-top: 16px; min-height: 18px; color: var(--danger-color); }
-        .divider { text-align: center; font-size: 12px; color: #ccc; margin: 16px 0; }
         .modal-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
-        #modal-login-btn { background-color: var(--primary-color); color: white; }
-        #modal-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
+        #email-login-btn { background-color: var(--primary-color); color: white; }
+        #email-signup-btn { background-color: #E9ECEF; color: var(--subtext-color); }
         .remember-me { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--subtext-color); margin-bottom: 16px; }
         .remember-me div { display: flex; align-items: center; gap: 6px; }
         .remember-me label, .forgot-password a { cursor: pointer; text-decoration: none; color: var(--subtext-color); }
         .forgot-password a:hover { text-decoration: underline; }
-        .terms-agreement { margin-top: 16px; padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); }
+        .terms-agreement { padding: 10px; background-color: #F9FAFB; border: 1px solid var(--border-color); border-radius: 8px; font-size: 12px; color: var(--subtext-color); margin-top: 16px; }
         .terms-agreement label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
         .terms-agreement input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
         .terms-agreement strong { color: var(--text-color); font-weight: 500; display: block; margin-bottom: 4px; }
+        .modal-tab-container { display: flex; margin-bottom: 24px; background-color: #E9ECEF; border-radius: 8px; padding: 4px; }
+        .modal-tab-btn { flex: 1; padding: 8px 0; background-color: transparent; border: none; font-size: 14px; border-radius: 6px; color: var(--subtext-color); font-weight: 500; cursor: pointer; }
+        .modal-tab-btn.active { background-color: var(--card-background-color); color: var(--primary-color); font-weight: 700; }
     </style>
 </head>
 <body>
@@ -205,50 +206,61 @@
     </footer>
 </div>
 
-<!-- 👇 구글 + 이메일/비번 로그인 모달 -->
+<!-- 👇 로그인/가입 통합 모달 (탭 방식) -->
 <div id="login-modal" class="modal-overlay">
     <div class="modal-content">
         <button id="modal-close-btn" onclick="closeLoginModal()">×</button>
-        <h3>로그인 / 회원가입</h3>
-        
-        <div class="modal-buttons">
-            <button id="google-login-btn">
-                <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.519-3.536-11.011-8.46l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.012,36.45,44,30.638,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
-                <span>Google 계정으로 시작</span>
-            </button>
+        <div class="modal-tab-container">
+            <button id="login-tab-btn" class="modal-tab-btn active">로그인</button>
+            <button id="signup-tab-btn" class="modal-tab-btn">회원가입</button>
         </div>
 
-        <div class="divider">또는</div>
-        
-        <input class="modal-input" type="email" id="modal-email" placeholder="이메일">
-        <input class="modal-input" type="password" id="modal-password" placeholder="비밀번호 (6자리 이상)">
-        
-        <div class="remember-me">
-            <div>
-                <input type="checkbox" id="remember-me-checkbox">
-                <label for="remember-me-checkbox">이메일 기억하기</label>
-            </div>
-            <div class="forgot-password">
-                <a href="#" id="forgot-password-link">비밀번호를 잊으셨나요?</a>
-            </div>
-        </div>
-        
-        <div class="terms-agreement">
-            <label for="terms-checkbox">
-                <input type="checkbox" id="terms-checkbox">
+        <!-- 로그인 폼 -->
+        <div id="login-form-container">
+            <button class="google-login-btn">
+                <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.519-3.536-11.011-8.46l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.012,36.45,44,30.638,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                <span>Google 계정으로 로그인</span>
+            </button>
+            <div class="divider">또는</div>
+            <input class="modal-input" type="email" id="login-email-input" placeholder="이메일">
+            <input class="modal-input" type="password" id="login-password-input" placeholder="비밀번호">
+            <div class="remember-me">
                 <div>
-                    <strong>[필수] 개인정보 수집 및 이용 동의</strong>
-                    <span>(목적) 회원 식별, 클라우드 데이터 저장 (항목) 이메일, 비밀번호 (보유) 회원 탈퇴 시 파기. 동의를 거부할 권리가 있으며, 거부 시 회원가입이 불가합니다.</span>
+                    <input type="checkbox" id="remember-me-checkbox">
+                    <label for="remember-me-checkbox">이메일 기억하기</label>
                 </div>
-            </label>
+                <div class="forgot-password">
+                    <a href="#" id="forgot-password-link">비밀번호를 잊으셨나요?</a>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                 <button id="email-login-btn">이메일로 로그인</button>
+            </div>
         </div>
-        
+
+        <!-- 회원가입 폼 -->
+        <div id="signup-form-container" style="display: none;">
+             <button class="google-login-btn">
+                <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.519-3.536-11.011-8.46l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.012,36.45,44,30.638,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                <span>Google 계정으로 가입</span>
+            </button>
+            <div class="divider">또는</div>
+            <input class="modal-input" type="email" id="signup-email-input" placeholder="이메일">
+            <input class="modal-input" type="password" id="signup-password-input" placeholder="비밀번호 (6자리 이상)">
+            <div class="terms-agreement">
+                <label for="terms-checkbox">
+                    <input type="checkbox" id="terms-checkbox">
+                    <div>
+                        <strong>[필수] 개인정보 수집 및 이용 동의</strong>
+                        <span>(목적) 회원 식별, 클라우드 데이터 저장 (항목) 이메일, 비밀번호 (보유) 회원 탈퇴 시 파기. 동의를 거부할 권리가 있으며, 거부 시 회원가입이 불가합니다.</span>
+                    </div>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                 <button id="email-signup-btn">이메일로 회원가입</button>
+            </div>
+        </div>
         <div id="modal-error"></div>
-        
-        <div class="modal-buttons">
-             <button id="modal-login-btn">로그인</button>
-             <button id="modal-signup-btn">회원가입</button>
-        </div>
     </div>
 </div>
 
@@ -336,7 +348,14 @@
     function showTab(tab) { currentTab = tab; document.querySelectorAll('.tab-section button').forEach(btn => { btn.classList.remove('active'); }); const clickedButton = document.querySelector(`.tab-section button[data-tab="${tab}"]`); if (clickedButton) { clickedButton.classList.add('active'); } renderTable(); }
     function resetDateFilter(){ getEl('start-date').value = ''; getEl('end-date').value = ''; renderTable(); }
 
-    function openLoginModal() { const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY); if (rememberedEmail) { getEl('modal-email').value = rememberedEmail; getEl('remember-me-checkbox').checked = true; } getEl('login-modal').style.display = 'flex'; }
+    function openLoginModal() { 
+        const rememberedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY); 
+        if (rememberedEmail) { 
+            getEl('login-email-input').value = rememberedEmail; 
+            getEl('remember-me-checkbox').checked = true; 
+        } 
+        getEl('login-modal').style.display = 'flex'; 
+    }
     function closeLoginModal() { getEl('login-modal').style.display = 'none'; getEl('modal-error').textContent = ''; getEl('modal-error').style.color = 'var(--danger-color)'; clearInterval(resendTimerInterval); }
     function openLogoutModal() { getEl('logout-confirm-modal').style.display = 'flex'; }
     function closeLogoutModal() { getEl('logout-confirm-modal').style.display = 'none'; }
@@ -391,12 +410,16 @@
     document.addEventListener('DOMContentLoaded', () => {
         const loginBtn = getEl('login-btn-main');
         const logoutBtn = getEl('logout-btn-main');
-        const googleLoginBtn = getEl('google-login-btn');
-        const modalLoginBtn = getEl('modal-login-btn');
-        const modalSignupBtn = getEl('modal-signup-btn');
+        const googleLoginButtons = document.querySelectorAll('.google-login-btn');
+        const emailLoginBtn = getEl('email-login-btn');
+        const emailSignupBtn = getEl('email-signup-btn');
         const logoutConfirmBtn = getEl('logout-confirm-btn');
         const deleteAccountModalBtn = getEl('delete-account-modal-btn');
         const forgotPasswordLink = getEl('forgot-password-link');
+        const loginTabBtn = getEl('login-tab-btn');
+        const signupTabBtn = getEl('signup-tab-btn');
+        const loginForm = getEl('login-form-container');
+        const signupForm = getEl('signup-form-container');
 
         auth.onAuthStateChanged(async (user) => {
             if (user && (user.emailVerified || user.providerData.some(p => p.providerId !== 'password'))) {
@@ -414,32 +437,48 @@
                 renderTable();
             }
         });
+        
+        // 탭 전환 로직
+        loginTabBtn.addEventListener('click', () => {
+            loginTabBtn.classList.add('active');
+            signupTabBtn.classList.remove('active');
+            loginForm.style.display = 'block';
+            signupForm.style.display = 'none';
+        });
+
+        signupTabBtn.addEventListener('click', () => {
+            signupTabBtn.classList.add('active');
+            loginTabBtn.classList.remove('active');
+            signupForm.style.display = 'block';
+            loginForm.style.display = 'none';
+        });
 
         logoutBtn.addEventListener('click', openLogoutModal);
         logoutConfirmBtn.addEventListener('click', () => { auth.signOut(); closeLogoutModal(); });
         deleteAccountModalBtn.addEventListener('click', deleteAccount);
       
-        googleLoginBtn.addEventListener('click', () => {
-            const modalError = getEl('modal-error');
-            if (!getEl('terms-checkbox').checked) {
-                modalError.textContent = "가입을 위해 개인정보 수집 및 이용 약관에 동의해주세요.";
-                return;
-            }
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
-                .then((result) => {
-                    console.log('구글 로그인 성공:', result.user);
-                    closeLoginModal();
-                })
-                .catch((error) => {
-                    console.error('구글 로그인 에러:', error);
-                    modalError.textContent = '구글 로그인 중 문제가 발생했습니다.';
-                });
+        // 구글 로그인/가입 버튼 (2개 모두 동일하게 작동)
+        googleLoginButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modalError = getEl('modal-error');
+                // 회원가입 탭에 있는 구글 버튼일 경우에만 약관 동의 체크
+                if (signupForm.style.display !== 'none' && !getEl('terms-checkbox').checked) {
+                    modalError.textContent = "가입을 위해 개인정보 수집 및 이용 약관에 동의해주세요.";
+                    return;
+                }
+                const provider = new firebase.auth.GoogleAuthProvider();
+                auth.signInWithPopup(provider)
+                    .then(() => closeLoginModal())
+                    .catch((error) => {
+                        console.error('구글 로그인 에러:', error);
+                        modalError.textContent = '구글 로그인/가입 중 문제가 발생했습니다.';
+                    });
+            });
         });
-
+        
         forgotPasswordLink.addEventListener('click', (event) => {
             event.preventDefault();
-            const email = getEl('modal-email').value;
+            const email = getEl('login-email-input').value; // 로그인 폼의 이메일 사용
             const modalError = getEl('modal-error');
             if (!email) {
                 modalError.textContent = "비밀번호를 찾으려면 이메일을 입력해주세요."; return;
@@ -459,8 +498,9 @@
                 });
         });
 
-        modalLoginBtn.addEventListener('click', () => {
-            const email = getEl('modal-email').value; const password = getEl('modal-password').value;
+        emailLoginBtn.addEventListener('click', () => {
+            const email = getEl('login-email-input').value; 
+            const password = getEl('login-password-input').value;
             const rememberMe = getEl('remember-me-checkbox').checked;
             const modalError = getEl('modal-error');
             
@@ -502,12 +542,13 @@
                 });
         });
 
-        modalSignupBtn.addEventListener('click', () => {
+        emailSignupBtn.addEventListener('click', () => {
             const modalError = getEl('modal-error');
             if (!getEl('terms-checkbox').checked) {
                 modalError.textContent = "가입을 위해 개인정보 수집 및 이용 약관에 동의해주세요."; return;
             }
-            const email = getEl('modal-email').value, password = getEl('modal-password').value;
+            const email = getEl('signup-email-input').value; 
+            const password = getEl('signup-password-input').value;
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     userCredential.user.sendEmailVerification().then(() => {
