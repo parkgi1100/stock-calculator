@@ -1,32 +1,34 @@
-// components/Memo.js
+// src/components/Memo.js
+
 import React, { useState } from 'react';
 import { db } from '../firebase';
 import { doc, updateDoc, arrayUnion, arrayRemove, collection, query, where, getDocs } from 'firebase/firestore';
 
-// 현재 로그인한 사용자 정보 (App.js에서 props로 받아옴)
-const currentUser = { uid: "user_id_1", displayName: "김메모" }; 
+// Comments 컴포넌트를 가져옵니다.
+import Comments from './Comments';
 
-const Memo = ({ memo }) => {
+const Memo = ({ memo, currentUser }) => {
   const [inviteInput, setInviteInput] = useState('');
 
   // 체크박스 클릭 핸들러
-  const handleCheck = async (item) => {
+  const handleCheck = async (itemIndex) => {
     const memoRef = doc(db, 'memos', memo.id);
-    const isCompleted = item.completedBy.includes(currentUser.uid);
+    
+    // 원본 배열을 복사하여 불변성을 유지합니다.
+    const newItems = [...memo.items];
+    const targetItem = newItems[itemIndex];
+    
+    const isCompleted = targetItem.completedBy.includes(currentUser.uid);
 
-    // 아이템 객체 전체를 찾아서 업데이트
-    const newItems = memo.items.map(i => {
-      if (i.task === item.task) { // task 내용으로 아이템 식별
-        return {
-          ...i,
-          completedBy: isCompleted 
-            ? arrayRemove(currentUser.uid) 
-            : arrayUnion(currentUser.uid)
-        };
-      }
-      return i;
-    });
+    if (isCompleted) {
+      // 이미 완료했다면, currentUser.uid를 배열에서 제거
+      targetItem.completedBy = targetItem.completedBy.filter(uid => uid !== currentUser.uid);
+    } else {
+      // 완료하지 않았다면, currentUser.uid를 배열에 추가
+      targetItem.completedBy.push(currentUser.uid);
+    }
 
+    // 수정된 newItems 배열로 Firestore 문서를 업데이트합니다.
     await updateDoc(memoRef, { items: newItems });
   };
   
@@ -34,9 +36,9 @@ const Memo = ({ memo }) => {
   const handleInvite = async () => {
     if (!inviteInput) return;
     
-    // 1. 초대 코드로 사용자 검색
+    // 1. 초대 코드로 Firestore의 'users' 컬렉션에서 사용자 검색
     const usersRef = collection(db, 'users');
-    const q = query(usersRef, where("inviteCode", "==", inviteInput));
+    const q = query(usersRef, where("inviteCode", "==", inviteInput.trim()));
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -44,7 +46,7 @@ const Memo = ({ memo }) => {
         return;
     }
 
-    // 2. 검색된 사용자를 멤버에 추가
+    // 2. 검색된 사용자를 현재 메모의 'members' 배열에 추가
     const invitedUser = querySnapshot.docs[0].data();
     if(memo.members.includes(invitedUser.uid)) {
         alert("이미 참여하고 있는 사용자입니다.");
@@ -53,16 +55,16 @@ const Memo = ({ memo }) => {
 
     const memoRef = doc(db, 'memos', memo.id);
     await updateDoc(memoRef, {
-        members: arrayUnion(invitedUser.uid)
+        members: arrayUnion(invitedUser.uid) // arrayUnion으로 중복 없이 추가
     });
     
     alert(`${invitedUser.displayName}님을 초대했습니다!`);
     setInviteInput('');
   };
 
-  // 달성률 계산
+  // 할 일 항목의 달성률 계산 함수
   const calculateProgress = (item) => {
-    if (memo.members.length === 0) return 0;
+    if (!memo.members || memo.members.length === 0) return 0;
     return (item.completedBy.length / memo.members.length) * 100;
   };
 
@@ -79,32 +81,37 @@ const Memo = ({ memo }) => {
         />
         <button onClick={handleInvite}>초대</button>
       </div>
-      <p><strong>참여자:</strong> {memo.members.join(', ')}</p>
+      <p><strong>참여자:</strong> {memo.members.length}명</p>
 
       {/* 할 일 목록 (체크리스트) */}
       <ul>
-        {memo.items.map((item, index) => (
-          <li key={index} style={{ listStyle: 'none' }}>
+        {memo.items && memo.items.map((item, index) => (
+          <li key={index} style={{ listStyle: 'none', marginBottom: '10px' }}>
             <input
               type="checkbox"
               checked={item.completedBy.includes(currentUser.uid)}
-              onChange={() => handleCheck(item)}
+              onChange={() => handleCheck(index)}
             />
             <span style={{ textDecoration: item.completedBy.includes(currentUser.uid) ? 'line-through' : 'none' }}>
               {item.task}
             </span>
             
             {/* 달성률 프로그레스 바 */}
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: '12px', marginTop: '4px' }}>
                 <span>달성률: {Math.round(calculateProgress(item))}%</span>
-                <div style={{ width: '100px', height: '10px', backgroundColor: '#eee', marginLeft: '10px' }}>
-                    <div style={{ width: `${calculateProgress(item)}%`, height: '100%', backgroundColor: 'green' }}></div>
+                <div style={{ width: '100px', height: '10px', backgroundColor: '#eee', marginLeft: '10px', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ width: `${calculateProgress(item)}%`, height: '100%', backgroundColor: '#4caf50' }}></div>
                 </div>
             </div>
           </li>
         ))}
       </ul>
-      {/* 여기에 <Comments memoId={memo.id} /> 컴포넌트 추가 */}
+      
+      {/* [추가된 부분]
+        메모의 고유 id와 현재 사용자 정보를 Comments 컴포넌트에 props로 전달하여
+        해당 메모에 대한 댓글 기능을 렌더링합니다.
+      */}
+      <Comments memoId={memo.id} currentUser={currentUser} />
     </div>
   );
 };
