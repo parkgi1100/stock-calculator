@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유벤트 (YouVent) - 모든 유튜브 이벤트를 한눈에!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .form-checkbox:checked { background-color: #2563eb; border-color: #2563eb; }
+        .page, .modal-overlay { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+        .hidden { display: none; }
+        .modal-overlay.hidden { visibility: hidden; opacity: 0; }
+        .modal-overlay { visibility: visible; opacity: 1; }
+        .pagination-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600 cursor-pointer" onclick="showListPage()">You<span class="text-orange-500">Vent</span></div>
+            <div id="main-nav" class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium" onclick="showListPage('ongoing'); return false;">진행중인 이벤트</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium" onclick="showListPage('ended'); return false;">종료된 이벤트</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 font-medium" onclick="openModal('report-modal')">이벤트 제보</a>
+            </div>
+            <div id="auth-section">
+                 <button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700">로그인</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- List Page -->
+    <main id="list-page" class="page container mx-auto px-6 py-8">
+        <div class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center">
+            <div class="w-[10%] text-center">D-Day</div><div class="w-[10%] text-center">상태</div><div class="w-[40%]">상품</div><div class="w-[20%]">채널명</div><div class="w-[10%]">마감일</div><div class="w-[10%] text-center">참여 여부</div>
+        </div>
+        <div id="eventList" class="bg-white rounded-b-lg shadow-sm"></div>
+        <div id="pagination" class="mt-6 flex justify-center items-center space-x-2"></div>
+    </main>
+
+    <!-- Detail Page -->
+    <main id="detail-page" class="page hidden container mx-auto px-6 py-8"></main>
+
+    <!-- Admin Dashboard Page -->
+    <main id="admin-dashboard-page" class="page hidden container mx-auto px-6 py-8">
+        <h1 class="text-3xl font-bold mb-8">관리자 대시보드</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">이벤트 관리</h2>
+                <button onclick="openModal('register-modal')" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">+ 새 이벤트 등록하기</button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">접수된 제보 목록</h2>
+                <div id="reportList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="login-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
+    <div id="report-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
+    <div id="register-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
+
+    <script type="module">
+        // This is a simulation. For actual operation, you would use Firebase.
+        
+        // --- Simulation Data ---
+        const today = new Date('2025-07-03T00:00:00');
+        let user = { loggedIn: false, name: null, isAdmin: false };
+        let events = Array.from({length: 25}, (_, i) => ({ id: i, channelName: `테스트 채널 ${i+1}`, prize: `게이밍 마우스 ${i+1}`, endDate: `2025-07-${String((i%28)+1).padStart(2, '0')}`, participated: i % 3 === 0, participants: 100+i, youtubeUrl: `https://youtube.com/watch?v=${i}` }));
+        let reports = [ { id: 101, youtubeUrl: 'https://www.youtube.com/watch?v=new1', summary: '새로운 채널에서 그래픽카드 이벤트를 시작했어요!', status: 'pending' } ];
+        
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let currentFilter = 'ongoing';
+
+        // --- DOM Elements ---
+        const listPage = document.getElementById('list-page'), detailPage = document.getElementById('detail-page'), adminDashboardPage = document.getElementById('admin-dashboard-page');
+        const eventList = document.getElementById('eventList'), reportList = document.getElementById('reportList'), paginationContainer = document.getElementById('pagination');
+        const authSection = document.getElementById('auth-section'), mainNav = document.getElementById('main-nav');
+
+        // --- Logic Functions ---
+        
+        window.getEventStatus = function(endDateStr) {
+            const endDate = new Date(endDateStr + 'T23:59:59');
+            const diffTime = endDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0) {
+                return { status: '진행중', badge: '<span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">진행중</span>', d_day_html: `<span class="text-orange-500 font-bold text-lg">${`D-${diffDays}`}</span>` };
+            } else {
+                return { status: '종료', badge: '<span class="bg-gray-200 text-gray-600 text-xs font-bold px-3 py-1 rounded-full">종료</span>', d_day_html: `<span class="text-gray-400 font-bold">종료</span>` };
+            }
+        }
+
+        window.toggleParticipation = function(id, fromDetailPage = false) {
+            if (!user.loggedIn) {
+                alert("로그인이 필요한 기능입니다.");
+                openModal('login-modal');
+                return;
+            }
+            const event = events.find(e => e.id === id);
+            if (!event) return;
+            event.participated = !event.participated;
+            event.participants += event.participated ? 1 : -1;
+            if (fromDetailPage) {
+                showDetailPage(id);
+            } else {
+                renderEventList();
+            }
+        }
+
+        window.login = function(provider) {
+            user = { loggedIn: true, name: '홍길동', isAdmin: true };
+            alert(`${provider} 계정으로 로그인되었습니다. 안녕하세요, ${user.name}님!`);
+            closeModal('login-modal');
+            updateUIForAuthState();
+        }
+
+        window.logout = function() {
+            user = { loggedIn: false, name: null, isAdmin: false };
+            alert('로그아웃되었습니다.');
+            updateUIForAuthState();
+        }
+
+        window.handleEventSubmit = function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const youtubeUrl = form.youtubeUrl.value;
+
+            // **[기능 추가]** 유튜브 주소 중복 체크
+            const isDuplicate = events.some(event => event.youtubeUrl === youtubeUrl);
+            if (isDuplicate) {
+                alert('이미 등록된 이벤트입니다.');
+                return;
+            }
+
+            const newEvent = {
+                id: Date.now(),
+                prize: form.prize.value,
+                channelName: form.channelName.value,
+                endDate: form.endDate.value,
+                youtubeUrl: youtubeUrl,
+                participated: false,
+                participants: 0
+            };
+            events.unshift(newEvent);
+            closeModal('register-modal');
+            form.reset();
+            showListPage();
+        }
+
+        window.approveReport = function(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (!report) return;
+            openModal('register-modal', { youtubeUrl: report.youtubeUrl });
+            report.status = 'approved';
+            renderReportListPage();
+        }
+
+        window.rejectReport = function(reportId) {
+            reports = reports.filter(r => r.id !== reportId);
+            renderReportListPage();
+        }
+        
+        // --- UI Rendering Functions ---
+        
+        function updateUIForAuthState() {
+            if (user.loggedIn) {
+                authSection.innerHTML = `<div class="flex items-center"><span class="font-semibold mr-4">${user.name}님</span><button onclick="logout()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-300">로그아웃</button></div>`;
+            } else {
+                authSection.innerHTML = `<button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700">로그인</button>`;
+            }
+            const adminNavLink = document.getElementById('admin-nav-link');
+            if (user.isAdmin && !adminNavLink) {
+                const link = document.createElement('a');
+                link.id = 'admin-nav-link';
+                link.href = '#';
+                link.className = 'text-red-500 hover:text-red-700 font-bold';
+                link.innerText = '관리자 대시보드';
+                link.onclick = () => showAdminDashboard();
+                mainNav.appendChild(link);
+            } else if (!user.isAdmin && adminNavLink) {
+                adminNavLink.remove();
+            }
+        }
+
+        function renderEventList() {
+            eventList.innerHTML = '';
+            
+            const filteredEvents = events.filter(event => {
+                const status = getEventStatus(event.endDate).status.toLowerCase();
+                return currentFilter === 'all' || status === currentFilter;
+            }).sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+
+            const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+            const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            if (paginatedEvents.length === 0) {
+                eventList.innerHTML = `<div class="text-center text-gray-500 p-10">표시할 이벤트가 없습니다.</div>`;
+            } else {
+                paginatedEvents.forEach(event => {
+                    const { badge, d_day_html } = getEventStatus(event.endDate);
+                    const participationCheckbox = `<input type="checkbox" onclick="toggleParticipation(${event.id})" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" ${event.participated ? 'checked' : ''}>`;
+                    const listItem = document.createElement('div');
+                    listItem.className = "border-b last:border-b-0";
+                    listItem.innerHTML = `
+                        <div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50">
+                            <div class="w-[10%] text-center">${d_day_html}</div><div class="w-[10%] text-center">${badge}</div>
+                            <div class="w-[40%] pr-4"><p class="font-bold truncate cursor-pointer" onclick="showDetailPage(${event.id})">${event.prize}</p></div>
+                            <div class="w-[20%] truncate">${event.channelName}</div><div class="w-[10%]">${event.endDate.replace(/-/g, '.')}</div>
+                            <div class="w-[10%] text-center">${user.loggedIn ? participationCheckbox : ''}</div>
+                        </div>
+                        <div class="w-full md:hidden p-4 cursor-pointer" onclick="showDetailPage(${event.id})">
+                            <div class="flex justify-between items-start mb-2"><p class="font-bold w-4/5">${event.prize}</p>${d_day_html}</div>
+                            <p class="text-sm text-gray-600 mb-3">${event.channelName}</p>
+                            <div class="flex justify-between items-center text-sm">${badge}<span class="ml-3">마감: ${event.endDate.replace(/-/g, '.')}</span></div>
+                        </div>`;
+                    eventList.appendChild(listItem);
+                });
+            }
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            paginationContainer.innerHTML = '';
+            if (totalPages <= 1) return;
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.innerText = i;
+                pageBtn.className = `pagination-btn px-4 py-2 border rounded-md ${currentPage === i ? 'active' : 'bg-white'}`;
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    renderEventList();
+                };
+                paginationContainer.appendChild(pageBtn);
+            }
+        }
+        
+        function renderReportListPage() {
+            reportList.innerHTML = '';
+            const pendingReports = reports.filter(r => r.status === 'pending');
+            if (pendingReports.length === 0) {
+                reportList.innerHTML = `<div class="p-6 text-center text-gray-500">새로운 제보가 없습니다.</div>`;
+                return;
+            }
+            pendingReports.forEach(report => {
+                const reportItem = document.createElement('div');
+                reportItem.className = 'p-4 border-b last:border-b-0 flex justify-between items-center';
+                reportItem.innerHTML = `
+                    <div>
+                        <p class="font-semibold">${report.summary}</p>
+                        <a href="${report.youtubeUrl}" target="_blank" class="text-sm text-blue-500 hover:underline">${report.youtubeUrl}</a>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="approveReport(${report.id})" class="bg-blue-500 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-600">승인</button>
+                        <button onclick="rejectReport(${report.id})" class="bg-red-500 text-white px-3 py-1 text-sm rounded-md hover:bg-red-600">거절</button>
+                    </div>`;
+                reportList.appendChild(reportItem);
+            });
+        }
+
+        function renderModals() {
+            document.getElementById('login-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm"><h2 class="text-2xl font-bold text-center mb-6">로그인</h2><div class="space-y-4"><button onclick="login('Google')" class="w-full flex items-center justify-center bg-white border border-gray-300 py-3 rounded-lg"><img src="https://www.google.com/favicon.ico" class="w-5 h-5 mr-3"> Google 계정으로 로그인</button><button onclick="login('Naver')" class="w-full flex items-center justify-center bg-[#03C75A] text-white py-3 rounded-lg"><img src="https://logoproject.naver.com/favicon.ico" class="w-5 h-5 mr-3"> 네이버 계정으로 로그인</button></div><button onclick="closeModal('login-modal')" class="mt-6 w-full text-center text-gray-500">닫기</button></div>`;
+            document.getElementById('report-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">이벤트 제보하기</h2><form onsubmit="alert('제보가 접수되었습니다.'); closeModal('report-modal'); this.reset(); return false;"><div class="space-y-4"><input type="url" placeholder="유튜브 영상 링크" required class="w-full p-3 border rounded-lg"><textarea placeholder="이벤트 내용 요약" required class="w-full p-3 border rounded-lg h-24"></textarea></div><div class="mt-6 flex justify-end space-x-3"><button type="button" onclick="closeModal('report-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">제출</button></div></form></div>`;
+            document.getElementById('register-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">새 이벤트 등록</h2><form onsubmit="handleEventSubmit(event)"><div class="space-y-4"><input type="text" name="prize" placeholder="상품명" required class="w-full p-3 border rounded-lg"><input type="text" name="channelName" placeholder="채널명" required class="w-full p-3 border rounded-lg"><input type="url" name="youtubeUrl" placeholder="유튜브 주소" required class="w-full p-3 border rounded-lg"><input type="date" name="endDate" required class="w-full p-3 border rounded-lg"></div><div class="mt-6 flex justify-end space-x-3"><button type="button" onclick="closeModal('register-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">등록</button></div></form></div>`;
+        }
+
+        // --- Page Switching Functions ---
+        
+        window.showPage = function(pageId) {
+            [listPage, detailPage, adminDashboardPage].forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        window.showListPage = function(filter = 'ongoing') {
+            currentPage = 1;
+            currentFilter = filter;
+            showPage('list-page');
+            renderEventList();
+        }
+
+        window.showAdminDashboard = function() {
+            if(user.isAdmin) {
+                showPage('admin-dashboard-page');
+                renderReportListPage();
+            }
+        }
+
+        window.showDetailPage = function(id) {
+            const event = events.find(e => e.id === id);
+            if (!event) return;
+            const { badge, d_day_html } = getEventStatus(event.endDate);
+            detailPage.innerHTML = `
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <button onclick="showListPage()" class="mb-6 text-blue-600 hover:underline">&larr; 목록으로 돌아가기</button>
+                    <div class="flex flex-col md:flex-row justify-between items-start mb-4">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2 md:mb-0">${event.prize}</h1>
+                        <div class="flex items-center space-x-3">${badge} ${d_day_html}</div>
+                    </div>
+                    <p class="text-lg text-gray-600 mb-6">주최: ${event.channelName}</p>
+                    <div class="border-y py-6 mb-6">
+                        <h2 class="text-xl font-semibold mb-3">상세 정보</h2>
+                        <p class="mb-4">여기에 이벤트 참여 방법, 상세 규칙 등 상세 내용이 표시됩니다.</p>
+                        <a href="${event.youtubeUrl}" target="_blank" class="inline-block bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700">유튜브에서 보기 &rarr;</a>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="toggleParticipation(${event.id}, true)" class="font-semibold px-6 py-3 rounded-lg ${event.participated ? 'bg-gray-200 text-gray-800' : 'bg-blue-600 text-white'}">${event.participated ? '✔️ 참여 취소' : '👍 참여하기'}</button>
+                            <div class="text-gray-500"><span class="font-bold">${event.participants.toLocaleString()}</span>명이 참여중</div>
+                        </div>
+                        <div class="text-right"><p class="font-semibold">마감일</p><p>${event.endDate.replace(/-/g, '.')}</p></div>
+                    </div>
+                </div>`;
+            showPage('detail-page');
+        }
+
+        // --- Modal Control ---
+        window.openModal = function(modalId, data = {}) {
+            const modal = document.getElementById(modalId);
+            if (modalId === 'register-modal' && data.youtubeUrl) {
+                const form = modal.querySelector('form');
+                if (form) form.youtubeUrl.value = data.youtubeUrl;
+            }
+            modal.classList.remove('hidden');
+        }
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+        
+        // --- Initial Load ---
+        window.onload = () => {
+            renderModals();
+            updateUIForAuthState();
+            showListPage();
+        };
+    </script>
+</body>
+</html>
