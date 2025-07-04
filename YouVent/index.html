@@ -96,6 +96,7 @@
         const auth = getAuth(app);
         const eventsCollection = collection(db, "events");
         const usersCollection = collection(db, "users");
+        const reportsCollection = collection(db, "reports");
 
         let currentUser = null;
         let currentUserInfo = null;
@@ -108,6 +109,7 @@
         const endedEventsNotice = document.getElementById('ended-events-notice');
         const authSection = document.getElementById('auth-section');
         const mainNav = document.getElementById('main-nav');
+        const reportList = document.getElementById('reportList');
 
         // --- 로직 함수 ---
         const getEventStatus = (endDateStr) => {
@@ -123,27 +125,36 @@
             }
         };
 
-        const toggleParticipation = async (id) => {
+        const handleParticipation = async (eventId, newStatus) => {
             if (!currentUser) { alert("로그인이 필요한 기능입니다."); openModal('login-modal'); return; }
             const userId = currentUser.uid;
-            const eventRef = doc(db, "events", id);
-            const participationRef = doc(db, "events", id, "participants", userId);
+            const eventRef = doc(db, "events", eventId);
+            const participationRef = doc(db, "events", eventId, "participants", userId);
+
             try {
                 await runTransaction(db, async (transaction) => {
                     const eventDoc = await transaction.get(eventRef);
-                    if (!eventDoc.exists()) { throw "Event does not exist!"; }
+                    if (!eventDoc.exists()) throw "Event does not exist!";
+                    
                     const participationDoc = await transaction.get(participationRef);
+                    const oldStatus = participationDoc.exists() ? participationDoc.data().status : null;
+
                     let newParticipantsCount = eventDoc.data().participants || 0;
-                    if (participationDoc.exists()) {
+
+                    if (oldStatus === 'participated') newParticipantsCount--;
+                    
+                    if (newStatus === 'participated') newParticipantsCount++;
+
+                    if (oldStatus === newStatus) { // 같은 버튼을 다시 누르면 취소
                         transaction.delete(participationRef);
-                        newParticipantsCount--;
+                        if (oldStatus === 'participated') newParticipantsCount--;
                     } else {
-                        transaction.set(participationRef, { participatedAt: serverTimestamp() });
-                        newParticipantsCount++;
+                        transaction.set(participationRef, { status: newStatus, updatedAt: serverTimestamp() });
                     }
+                    
                     transaction.update(eventRef, { participants: newParticipantsCount < 0 ? 0 : newParticipantsCount });
                 });
-                if (!detailPage.classList.contains('hidden')) { showDetailPage(id); } else { renderEventList(); }
+                if (!detailPage.classList.contains('hidden')) { showDetailPage(eventId); } else { renderEventList(); }
             } catch (error) { console.error("참여 상태 업데이트 오류: ", error); alert('상태 변경 중 오류가 발생했습니다.'); }
         };
 
@@ -156,29 +167,36 @@
             const form = e.target;
             const eventType = form.eventType.value;
             const linkUrl = form.linkUrl.value;
-            const description = form.description.value; // 상세 내용 추가
+            const description = form.description.value;
             
-            try {
-                new URL(linkUrl);
-            } catch (_) {
-                alert('올바른 형식의 링크 주소를 입력해주세요. (예: https://...)');
-                return;
-            }
+            try { new URL(linkUrl); } catch (_) { alert('올바른 형식의 링크 주소를 입력해주세요. (예: https://...)'); return; }
 
             const q = query(eventsCollection, where("linkUrl", "==", linkUrl));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) { alert('이미 등록된 링크의 이벤트입니다.'); return; }
-            const newEvent = { 
-                type: eventType, 
-                prize: form.prize.value, 
-                channelName: form.channelName.value, 
-                endDate: form.endDate.value || '9999-12-31', 
-                linkUrl: linkUrl, 
-                description: description, // 상세 내용 저장
-                participants: 0, 
-                createdAt: serverTimestamp() 
-            };
+            const newEvent = { type: eventType, prize: form.prize.value, channelName: form.channelName.value, endDate: form.endDate.value || '9999-12-31', linkUrl: linkUrl, description: description, participants: 0, createdAt: serverTimestamp() };
             try { await addDoc(eventsCollection, newEvent); alert('이벤트가 성공적으로 등록되었습니다.'); closeModal('register-modal'); form.reset(); showListPage(eventType); } catch (error) { console.error("이벤트 등록 오류: ", error); alert('등록 중 오류가 발생했습니다.'); }
+        };
+
+        const handleReportSubmit = async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const newReport = {
+                linkUrl: form.linkUrl.value,
+                summary: form.summary.value,
+                status: 'pending',
+                createdAt: serverTimestamp(),
+                reporter: currentUser ? currentUser.email : '비회원'
+            };
+            try {
+                await addDoc(reportsCollection, newReport);
+                alert('제보가 정상적으로 접수되었습니다. 감사합니다.');
+                closeModal('report-modal');
+                form.reset();
+            } catch (error) {
+                console.error("제보 등록 오류: ", error);
+                alert("제보 처리 중 오류가 발생했습니다.");
+            }
         };
         
         // --- UI 렌더링 함수 ---
@@ -239,13 +257,13 @@
                         if (event.type === 'discount') {
                             return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-1/5 text-center">${badge}</div><div class="w-2/5 font-bold truncate">${event.prize}</div><div class="w-1/5 text-gray-600 truncate">${event.channelName}</div><div class="w-1/5 text-center"><a href="${event.linkUrl}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600">보러가기</a></div><div class="w-[5%] text-center">${deleteButton}</div></div><a href="${event.linkUrl}" target="_blank" class="block md:hidden p-4"><div class="flex justify-between items-center mb-2"><p class="font-bold w-4/5">${event.prize}</p>${badge}</div><p class="text-sm text-gray-600">${event.channelName}</p></a></div>`;
                         } else {
-                            let participated = false;
+                            let hasInteracted = false;
                             if (currentUser) {
                                 const participationRef = doc(db, "events", event.id, "participants", currentUser.uid);
                                 const participationSnap = await getDoc(participationRef);
-                                participated = participationSnap.exists();
+                                hasInteracted = participationSnap.exists();
                             }
-                            const participationCheckbox = `<input type="checkbox" onclick="toggleParticipation('${event.id}')" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300" ${participated ? 'checked' : ''}>`;
+                            const participationCheckbox = `<input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300" ${hasInteracted ? 'checked' : ''} disabled>`;
                             return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-[10%] text-center">${d_day_html}</div><div class="w-[10%] text-center">${badge}</div><div class="w-[35%] pr-4"><p class="font-bold truncate cursor-pointer" onclick="showDetailPage('${event.id}')">${event.prize}</p></div><div class="w-[20%] truncate">${event.channelName}</div><div class="w-[10%]">${event.endDate.replace(/-/g, '.')}</div><div class="w-[10%] text-center">${currentUser ? participationCheckbox : ''}</div><div class="w-[5%] text-center">${deleteButton}</div></div><div class="w-full md:hidden p-4 cursor-pointer" onclick="showDetailPage('${event.id}')"><div class="flex justify-between items-start mb-2"><p class="font-bold w-4/5">${event.prize}</p>${d_day_html}</div><p class="text-sm text-gray-600 mb-3">${event.channelName}</p><div class="flex justify-between items-center text-sm">${badge}<span class="ml-3">마감: ${event.endDate.replace(/-/g, '.')}</span></div></div></div>`;
                         }
                     }));
@@ -371,10 +389,40 @@
                 if (!docSnap.exists()) { detailPage.innerHTML = `<div class="text-center p-10 text-red-500">해당 이벤트를 찾을 수 없습니다.</div>`; showPage('detail-page'); return; }
                 const event = { id: docSnap.id, ...docSnap.data() };
                 const { badge, d_day_html } = getEventStatus(event.endDate);
-                let participated = false;
-                if (currentUser && (event.type === 'youtube' || event.type === 'airdrop' || event.type === 'other')) { const participationRef = doc(db, "events", event.id, "participants", currentUser.uid); const participationSnap = await getDoc(participationRef); participated = participationSnap.exists(); }
-                let detailHTML = `<div class="bg-white p-8 rounded-lg shadow-lg"><button onclick="showListPage('${mainFilter}', '${subFilter}')" class="mb-6 text-blue-600 hover:underline">&larr; 목록으로 돌아가기</button><div class="flex flex-col md:flex-row justify-between items-start mb-4"><h1 class="text-3xl font-bold text-gray-900 mb-2 md:mb-0">${event.prize}</h1><div class="flex items-center space-x-3">${badge} ${d_day_html}</div></div><p class="text-lg text-gray-600 mb-6">주최/판매처: ${event.channelName}</p><div class="border-y py-6 mb-6"><h2 class="text-xl font-semibold mb-3">상세 정보</h2><p class="mb-4 whitespace-pre-wrap">${event.description || '상세 정보가 없습니다.'}</p><a href="${event.linkUrl}" target="_blank" class="inline-block bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700">링크 바로가기 &rarr;</a></div>`;
-                if (event.type === 'youtube' || event.type === 'airdrop' || event.type === 'other') { detailHTML += `<div class="flex justify-between items-center"><div class="flex items-center space-x-3"><button onclick="toggleParticipation('${event.id}')" class="font-semibold px-6 py-3 rounded-lg ${participated ? 'bg-gray-200 text-gray-800' : 'bg-blue-600 text-white'}">${participated ? '✔️ 참여 취소' : '👍 참여하기'}</button><div class="text-gray-500"><span class="font-bold">${(event.participants || 0).toLocaleString()}</span>명이 참여중</div></div><div class="text-right"><p class="font-semibold">마감일</p><p>${event.endDate.replace(/-/g, '.')}</div></div>`; }
+                let participationStatus = null;
+                if (currentUser && (event.type === 'youtube' || event.type === 'airdrop' || event.type === 'other')) { 
+                    const participationRef = doc(db, "events", event.id, "participants", currentUser.uid); 
+                    const participationSnap = await getDoc(participationRef); 
+                    if(participationSnap.exists()) {
+                        participationStatus = participationSnap.data().status;
+                    }
+                }
+                let detailHTML = `<div class="bg-white p-8 rounded-lg shadow-lg">
+                    <div class="flex justify-between items-start mb-4">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2 md:mb-0">${event.prize}</h1>
+                        <div class="flex items-center space-x-3">${badge} ${d_day_html}</div>
+                    </div>
+                    <p class="text-lg text-gray-600 mb-6">채널명: ${event.channelName}</p>
+                    <div class="border-y py-6 mb-6">
+                        <h2 class="text-xl font-semibold mb-3">상세 정보</h2>
+                        <p class="mb-4 whitespace-pre-wrap">${event.description || '상세 정보가 없습니다.'}</p>
+                        <a href="${event.linkUrl}" target="_blank" class="inline-block bg-red-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-700">링크 바로가기 &rarr;</a>
+                    </div>`;
+                if (event.type === 'youtube' || event.type === 'airdrop' || event.type === 'other') { 
+                    const participatedBtnClass = participationStatus === 'participated' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800';
+                    const notInterestedBtnClass = participationStatus === 'not_interested' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-800';
+                    detailHTML += `<div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center space-x-3">
+                            <button onclick="handleParticipation('${event.id}', 'participated')" class="font-semibold px-6 py-3 rounded-lg ${participatedBtnClass}">👍 참여하기</button>
+                            <button onclick="handleParticipation('${event.id}', 'not_interested')" class="font-semibold px-6 py-3 rounded-lg ${notInterestedBtnClass}">👎 관심없음</button>
+                            <button onclick="showListPage('${mainFilter}', '${subFilter}')" class="font-semibold px-6 py-3 rounded-lg bg-gray-600 text-white hover:bg-gray-700">&larr; 목록으로</button>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold">마감일</p>
+                            <p>${event.endDate.replace(/-/g, '.')}</p>
+                        </div>
+                    </div>`; 
+                }
                 detailHTML += `</div>`;
                 detailPage.innerHTML = detailHTML;
                 showPage('detail-page');
@@ -385,7 +433,10 @@
             const modal = document.getElementById(modalId); 
             if (modalId === 'register-modal' && data.linkUrl) { 
                 const form = modal.querySelector('form'); 
-                if (form) form.linkUrl.value = data.linkUrl; 
+                if (form) {
+                    form.linkUrl.value = data.linkUrl;
+                    form.description.value = data.summary || '';
+                }
             } 
             modal.classList.remove('hidden'); 
         };
@@ -396,7 +447,7 @@
 
         const renderModals = () => { 
             document.getElementById('login-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm"><h2 class="text-2xl font-bold text-center mb-6">로그인 또는 회원가입</h2><div class="space-y-4"><button onclick="login()" class="w-full flex items-center justify-center bg-white border border-gray-300 py-3 rounded-lg hover:bg-gray-200 font-semibold">Google 계정으로 로그인</button><div class="text-center text-sm text-gray-500">또는</div><button onclick="openModal('terms-modal'); closeModal('login-modal');" class="w-full flex items-center justify-center bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold">회원가입</button></div><button onclick="closeModal('login-modal')" class="mt-6 w-full text-center text-gray-500">닫기</button></div>`; 
-            document.getElementById('report-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">이벤트 제보하기</h2><form onsubmit="alert('제보가 접수되었습니다.'); closeModal('report-modal'); this.reset(); return false;"><div class="space-y-4"><input type="url" placeholder="이벤트 링크" required class="w-full p-3 border rounded-lg"><textarea placeholder="이벤트 내용 요약" required class="w-full p-3 border rounded-lg h-24"></textarea></div><div class="mt-6 flex justify-end space-x-3"><button type="button" onclick="closeModal('report-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">제출</button></div></form></div>`; 
+            document.getElementById('report-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">이벤트 제보하기</h2><form onsubmit="handleReportSubmit(event)"><div class="space-y-4"><input name="linkUrl" type="url" placeholder="이벤트 링크" required class="w-full p-3 border rounded-lg"><textarea name="summary" placeholder="이벤트 내용 요약" required class="w-full p-3 border rounded-lg h-24"></textarea></div><div class="mt-6 flex justify-end space-x-3"><button type="button" onclick="closeModal('report-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">제출</button></div></form></div>`; 
             document.getElementById('register-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold mb-6">새 이벤트 등록</h2><form onsubmit="handleEventSubmit(event)"><div class="space-y-4"><div><label class="block text-sm font-medium text-gray-700">이벤트 종류</label><select name="eventType" class="w-full p-3 border rounded-lg"><option value="youtube">유튜브(SNS)</option><option value="discount">할인이벤트</option><option value="airdrop">에어드랍</option><option value="other">기타</option></select></div><input type="text" name="prize" placeholder="상품명/내용" required class="w-full p-3 border rounded-lg"><input type="text" name="channelName" placeholder="채널명/판매처" required class="w-full p-3 border rounded-lg"><input type="url" name="linkUrl" placeholder="이벤트 링크 (https://...)" required class="w-full p-3 border rounded-lg"><input type="date" name="endDate" class="w-full p-3 border rounded-lg"><textarea name="description" placeholder="상세 내용 (참여 방법 등)" required class="w-full p-3 border rounded-lg h-24"></textarea></div><div class="mt-6 flex justify-end space-x-3"><button type="button" onclick="closeModal('register-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg">등록</button></div></form></div>`; 
             document.getElementById('terms-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg"><h2 class="text-2xl font-bold mb-4">YouVent 서비스 약관 동의</h2><p class="text-gray-600 mb-6">서비스를 이용하시려면 아래의 이용약관과 개인정보 처리방침에 동의해주세요.</p><div class="space-y-4"><div class="space-y-2"> <h3 class="font-semibold">이용약관</h3> <div class="terms-content"><strong>제1조 (목적)</strong><br>본 약관은 YouVent(이하 '회사')가 제공하는 모든 서비스(이하 '서비스')의 이용 조건 및 절차, 회원과 회사의 권리, 의무 및 책임사항 등 기타 필요한 사항을 규정함을 목적으로 합니다.<br><br><strong>제2조 (용어의 정의)</strong><br>본 약관에서 사용하는 용어의 정의는 다음과 같습니다.<br>1. '서비스'라 함은 회사가 제공하는 모든 이벤트 정보 제공 서비스를 의미합니다.<br>2. '회원'이라 함은 회사에 개인정보를 제공하여 회원등록을 한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.<br><br><strong>제3조 (약관의 효력 및 변경)</strong><br>1. 본 약관은 서비스를 이용하고자 하는 모든 회원에 대하여 그 효력을 발생합니다.<br>2. 회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다.</div><label class="flex items-center"><input type="checkbox" id="terms-agree-1" class="form-checkbox h-5 w-5"> <span class="ml-2 text-sm">이용약관에 동의합니다. (필수)</span></label></div><div class="space-y-2"> <h3 class="font-semibold">개인정보 처리방침</h3> <div class="terms-content"><strong>1. 수집하는 개인정보의 항목</strong><br>회사는 회원가입, 원활한 고객상담, 각종 서비스의 제공을 위해 최초 회원가입 당시 아래와 같은 최소한의 개인정보를 필수항목으로 수집하고 있습니다.<br>- 구글 계정 정보: 이메일 주소, 이름, 프로필 사진<br><br><strong>2. 개인정보의 수집 및 이용 목적</strong><br>회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.<br>- 회원 관리: 회원제 서비스 이용에 따른 본인확인, 개인 식별, 불량회원의 부정 이용 방지와 비인가 사용 방지<br><br><strong>3. 개인정보의 보유 및 이용기간</strong><br>회원의 개인정보는 원칙적으로 개인정보의 수집 및 이용목적이 달성되면 지체 없이 파기합니다. 단, 회원탈퇴 시 모든 정보는 즉시 삭제됩니다.</div><label class="flex items-center"><input type="checkbox" id="terms-agree-2" class="form-checkbox h-5 w-5"> <span class="ml-2 text-sm">개인정보 처리방침에 동의합니다. (필수)</span></label></div></div><div class="mt-6 flex justify-end"><button id="agree-btn" onclick="agreeAndSignUp()" class="px-6 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-400" disabled>전체 동의하고 회원가입</button></div></div>`;
             document.getElementById('logout-options-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-xs"><h2 class="text-xl font-bold text-center mb-6">계정 관리</h2><div class="space-y-3"><button onclick="logout()" class="w-full bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300">로그아웃</button><button onclick="closeModal('logout-options-modal'); openModal('delete-account-modal');" class="w-full text-red-600 py-2 hover:underline">회원탈퇴</button></div><button onclick="closeModal('logout-options-modal')" class="mt-4 w-full text-center text-gray-500 text-sm">닫기</button></div>`;
@@ -413,55 +464,50 @@
                 return;
             }
             showPage('admin-dashboard-page');
-            
-            userManagementSection.classList.toggle('hidden', currentUserInfo.role !== 'admin');
-            if(currentUserInfo.role === 'admin') {
-                renderUserListForAdmin();
-            }
+            renderReportList();
         };
 
-        const renderUserListForAdmin = async () => {
-            const userListDiv = document.getElementById('userListForAdmin');
-            userListDiv.innerHTML = '회원 목록을 불러오는 중...';
+        const renderReportList = async () => {
+            const reportListDiv = document.getElementById('reportList');
+            reportListDiv.innerHTML = '제보 목록을 불러오는 중...';
             try {
-                const querySnapshot = await getDocs(usersCollection);
-                let usersHtml = '<div class="divide-y divide-gray-200">';
+                const q = query(reportsCollection, where("status", "==", "pending"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                if (querySnapshot.empty) {
+                    reportListDiv.innerHTML = '<p class="text-gray-500">새로운 제보가 없습니다.</p>';
+                    return;
+                }
+                let reportsHtml = '<div class="divide-y divide-gray-200">';
                 querySnapshot.forEach(doc => {
-                    const user = doc.data();
-                    usersHtml += `
-                        <div class="py-3 flex justify-between items-center">
-                            <div>
-                                <p class="font-semibold">${user.displayName} <span class="text-sm font-normal text-gray-500">(${user.email})</span></p>
-                                <p class="text-sm text-gray-600">역할: ${user.role}</p>
+                    const report = doc.data();
+                    reportsHtml += `
+                        <div class="py-3">
+                            <p class="font-semibold text-gray-800">${report.summary}</p>
+                            <a href="${report.linkUrl}" target="_blank" class="text-sm text-blue-500 hover:underline">${report.linkUrl}</a>
+                            <div class="mt-2 flex space-x-2">
+                                <button onclick="approveReport('${doc.id}', '${report.linkUrl}', '${report.summary}')" class="bg-blue-500 text-white px-3 py-1 text-sm rounded-md hover:bg-blue-600">승인</button>
+                                <button onclick="rejectReport('${doc.id}')" class="bg-red-500 text-white px-3 py-1 text-sm rounded-md hover:bg-red-600">거절</button>
                             </div>
-                            <button onclick="forceDeleteUser('${doc.id}', '${user.displayName}')" class="bg-red-500 text-white px-3 py-1 text-sm rounded-md hover:bg-red-600">강제탈퇴</button>
                         </div>
                     `;
                 });
-                usersHtml += '</div>';
-                userListDiv.innerHTML = usersHtml;
+                reportsHtml += '</div>';
+                reportListDiv.innerHTML = reportsHtml;
             } catch (error) {
-                console.error("회원 목록 로딩 오류: ", error);
-                userListDiv.innerHTML = '<p class="text-red-500">회원 목록을 불러오는데 실패했습니다.</p>';
+                console.error("제보 목록 로딩 오류: ", error);
+                reportListDiv.innerHTML = '<p class="text-red-500">제보 목록을 불러오는데 실패했습니다.</p>';
             }
         };
 
-        const forceDeleteUser = async (userId, displayName) => {
-            if (currentUserInfo.role !== 'admin') {
-                alert('최고 관리자만 사용할 수 있는 기능입니다.');
-                return;
-            }
-            if (confirm(`정말로 '${displayName}' 회원을 강제탈퇴 시키겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
-                alert(`'${displayName}' 회원에 대한 강제탈퇴는 백엔드 기능(Cloud Function)에서 처리해야 합니다. 현재 프로토타입에서는 Firestore 데이터만 삭제합니다.`);
-                try {
-                    const userRef = doc(db, "users", userId);
-                    await deleteDoc(userRef);
-                    alert('Firestore에서 사용자 데이터가 삭제되었습니다.');
-                    renderUserListForAdmin();
-                } catch (error) {
-                    console.error("강제탈퇴 처리 오류:", error);
-                    alert("강제탈퇴 처리 중 오류가 발생했습니다.");
-                }
+        const approveReport = async (reportId, linkUrl, summary) => {
+            openModal('register-modal', { linkUrl, summary });
+            await updateDoc(doc(db, "reports", reportId), { status: "approved" });
+        };
+
+        const rejectReport = async (reportId) => {
+            if (confirm("이 제보를 삭제하시겠습니까?")) {
+                await deleteDoc(doc(db, "reports", reportId));
+                renderReportList();
             }
         };
 
@@ -491,12 +537,13 @@
         window.logout = logout;
         window.deleteAccount = deleteAccount;
         window.agreeAndSignUp = agreeAndSignUp;
-        window.toggleParticipation = toggleParticipation;
+        window.handleParticipation = handleParticipation;
         window.showDetailPage = showDetailPage;
         window.handleEventSubmit = handleEventSubmit;
         window.showAdminDashboard = showAdminDashboard;
-        window.forceDeleteUser = forceDeleteUser;
         window.deleteEvent = deleteEvent;
+        window.approveReport = approveReport;
+        window.rejectReport = rejectReport;
         
         // --- 초기화 ---
         window.onload = () => {
