@@ -70,11 +70,38 @@
         import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, getDoc, setDoc, serverTimestamp, runTransaction, deleteDoc } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
         
+        // ===================================================================================
+        // [오류 해결] Firestore 보안 규칙 안내
+        // "Missing or insufficient permissions" 오류는 Firestore 보안 규칙 때문에 발생합니다.
+        // Firebase 콘솔 > Firestore Database > 규칙(Rules) 탭으로 이동하여
+        // 아래의 내용으로 규칙을 변경하고 게시(Publish)해주세요.
+        //
+        // rules_version = '2';
+        // service cloud.firestore {
+        //   match /databases/{database}/documents {
+        //     // events 컬렉션: 누구나 읽을 수 있음
+        //     match /events/{eventId} {
+        //       allow read: if true;
+        //       // 쓰기(생성, 수정, 삭제)는 관리자 역할(role)을 가진 사용자만 가능
+        //       allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'sub-admin'];
+        //     }
+        //     // users 컬렉션: 본인 정보만 읽고 쓸 수 있음
+        //     match /users/{userId} {
+        //       allow read, write: if request.auth != null && request.auth.uid == userId;
+        //     }
+        //     // 참여 정보: 본인만 생성, 수정, 삭제 가능
+        //     match /events/{eventId}/participants/{userId} {
+        //       allow read, write: if request.auth != null && request.auth.uid == userId;
+        //     }
+        //   }
+        // }
+        // ===================================================================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyD5xVbWnUE4gF9PUdXoqUZ62U7YDwiSu0s",
             authDomain: "youvent-3cb0d.firebaseapp.com",
             projectId: "youvent-3cb0d",
-            storageBucket: "youvent-3cb0d.appspot.com",
+            storageBucket: "youvent-3cb0d.appspot.com", // .firebasestorage.app -> .appspot.com 으로 수정
             messagingSenderId: "647513816009",
             appId: "1:647513816009:web:0638bbd49496e1514f4618",
             measurementId: "G-BKNFPCY4NS"
@@ -99,9 +126,55 @@
         const mainNav = document.getElementById('main-nav');
 
         // --- 로직 함수 ---
-        window.getEventStatus = function(endDateStr) { /* 이전과 동일 */ };
-        window.toggleParticipation = async function(id) { /* 이전과 동일 */ };
-        window.handleEventSubmit = async function(e) { /* 이전과 동일 */ };
+        window.getEventStatus = function(endDateStr) {
+            const today = new Date();
+            if (!endDateStr) return { status: '진행중', badge: '<span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">진행중</span>', d_day_html: '' };
+            
+            const endDate = new Date(endDateStr + 'T23:59:59');
+            const diffTime = endDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0) {
+                return { status: '진행중', badge: '<span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">진행중</span>', d_day_html: `<span class="text-orange-500 font-bold text-lg">${`D-${diffDays}`}</span>` };
+            } else {
+                return { status: '종료', badge: '<span class="bg-gray-200 text-gray-600 text-xs font-bold px-3 py-1 rounded-full">종료</span>', d_day_html: `<span class="text-gray-400 font-bold">종료</span>` };
+            }
+        };
+
+        window.toggleParticipation = async function(id) {
+            if (!currentUser) { alert("로그인이 필요한 기능입니다."); openModal('login-modal'); return; }
+            const userId = currentUser.uid;
+            const eventRef = doc(db, "events", id);
+            const participationRef = doc(db, "events", id, "participants", userId);
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const eventDoc = await transaction.get(eventRef);
+                    if (!eventDoc.exists()) { throw "Event does not exist!"; }
+                    const participationDoc = await transaction.get(participationRef);
+                    let newParticipantsCount = eventDoc.data().participants || 0;
+                    if (participationDoc.exists()) {
+                        transaction.delete(participationRef);
+                        newParticipantsCount--;
+                    } else {
+                        transaction.set(participationRef, { participatedAt: serverTimestamp() });
+                        newParticipantsCount++;
+                    }
+                    transaction.update(eventRef, { participants: newParticipantsCount < 0 ? 0 : newParticipantsCount });
+                });
+                if (!detailPage.classList.contains('hidden')) { showDetailPage(id); } else { renderEventList(); }
+            } catch (error) { console.error("참여 상태 업데이트 오류: ", error); alert('상태 변경 중 오류가 발생했습니다.'); }
+        };
+
+        window.handleEventSubmit = async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const eventType = form.eventType.value;
+            const linkUrl = form.linkUrl.value;
+            const q = query(eventsCollection, where("linkUrl", "==", linkUrl));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) { alert('이미 등록된 링크의 이벤트입니다.'); return; }
+            const newEvent = { type: eventType, prize: form.prize.value, channelName: form.channelName.value, endDate: form.endDate.value || '9999-12-31', linkUrl: linkUrl, participants: 0, createdAt: serverTimestamp() };
+            try { await addDoc(eventsCollection, newEvent); alert('이벤트가 성공적으로 등록되었습니다.'); closeModal('register-modal'); form.reset(); showListPage(eventType); } catch (error) { console.error("이벤트 등록 오류: ", error); alert('등록 중 오류가 발생했습니다.'); }
+        };
         
         // --- UI 렌더링 함수 ---
         
@@ -182,7 +255,7 @@
                 paginationContainer.innerHTML = '';
             } catch (error) {
                 console.error("이벤트 목록 불러오기 오류: ", error);
-                eventList.innerHTML = `<div class="text-center p-10 text-red-500">목록을 불러오는데 실패했습니다.</div>`;
+                eventList.innerHTML = `<div class="text-center p-10 text-red-500">목록을 불러오는데 실패했습니다. Firebase 보안 규칙을 확인해주세요.</div>`;
             }
         }
         
@@ -281,11 +354,8 @@
             if (!currentUser) return;
             
             try {
-                // 1. Firestore에서 사용자 데이터 삭제
                 const userRef = doc(db, "users", currentUser.uid);
                 await deleteDoc(userRef);
-
-                // 2. Firebase Authentication에서 사용자 계정 삭제
                 await deleteUser(currentUser);
                 
                 closeModal('delete-account-modal');
@@ -303,7 +373,6 @@
                 openModal('login-modal');
                 return;
             }
-            // ... (이하 상세 페이지 로직은 이전과 동일)
             const eventDocRef = doc(db, "events", id);
             try {
                 const docSnap = await getDoc(eventDocRef);
@@ -335,8 +404,8 @@
         // --- 초기화 ---
         window.onload = () => {
             renderModals();
-            onAuthStateChanged(auth, (user) => {
-                handleUser(user);
+            onAuthStateChanged(auth, async (user) => {
+                await handleUser(user);
                 showListPage(mainFilter, subFilter);
             });
         };
