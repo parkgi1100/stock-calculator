@@ -81,6 +81,22 @@
         import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, getDoc, setDoc, serverTimestamp, runTransaction, deleteDoc } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
         
+        // ===================================================================================
+        // [오류 해결] Firestore 색인(Index) 생성 안내 - 이 부분을 꼭 읽고 따라해주세요!
+        //
+        // "목록을 불러오는데 실패했습니다" 오류는 Firestore '색인'이 없어서 발생합니다.
+        // 색인은 Firestore가 여러 조건으로 데이터를 빠르게 찾기 위한 '특수 목차'와 같습니다.
+        //
+        // --- 해결 방법 ---
+        // 1. 사이트에서 오류가 발생하는 탭을 클릭합니다. (예: '유튜브 및 SNS' 탭)
+        // 2. 브라우저에서 F12 키를 눌러 '개발자 도구'를 엽니다.
+        // 3. 'Console(콘솔)' 탭을 클릭합니다.
+        // 4. 표시되는 빨간색 오류 메시지 안에 있는 파란색 링크(https://console.firebase.google.com/...)를 클릭합니다.
+        //    이 링크는 Firebase가 "이런 검색을 하려면 이런 목차가 필요해요!"라고 자동으로 만들어준 링크입니다.
+        // 5. 자동으로 열리는 Firebase 페이지에서 [색인 만들기] 버튼을 누릅니다.
+        // 6. 색인이 생성되기까지 몇 분 정도 걸릴 수 있습니다. 생성이 완료되면 사이트에서 필터가 정상적으로 작동합니다.
+        // ===================================================================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyD5xVbWnUE4gF9PUdXoqUZ62U7YDwiSu0s",
             authDomain: "youvent-3cb0d.firebaseapp.com",
@@ -139,20 +155,27 @@
                     const participationDoc = await transaction.get(participationRef);
                     const oldStatus = participationDoc.exists() ? participationDoc.data().status : null;
 
-                    let newParticipantsCount = eventDoc.data().participants || 0;
+                    let participatedCount = eventDoc.data().participatedCount || 0;
+                    let notInterestedCount = eventDoc.data().notInterestedCount || 0;
 
-                    if (oldStatus === 'participated') newParticipantsCount--;
-                    
-                    if (newStatus === 'participated') newParticipantsCount++;
-
-                    if (oldStatus === newStatus) { // 같은 버튼을 다시 누르면 취소
+                    if (oldStatus === newStatus) { // 같은 버튼 다시 클릭 -> 취소
                         transaction.delete(participationRef);
-                        if (oldStatus === 'participated') newParticipantsCount--;
-                    } else {
+                        if (newStatus === 'participated') participatedCount--;
+                        if (newStatus === 'not_interested') notInterestedCount--;
+                    } else { // 다른 버튼 클릭 또는 최초 클릭
+                        if (oldStatus === 'participated') participatedCount--;
+                        if (oldStatus === 'not_interested') notInterestedCount--;
+                        
+                        if (newStatus === 'participated') participatedCount++;
+                        if (newStatus === 'not_interested') notInterestedCount++;
+                        
                         transaction.set(participationRef, { status: newStatus, updatedAt: serverTimestamp() });
                     }
                     
-                    transaction.update(eventRef, { participants: newParticipantsCount < 0 ? 0 : newParticipantsCount });
+                    transaction.update(eventRef, { 
+                        participatedCount: participatedCount < 0 ? 0 : participatedCount,
+                        notInterestedCount: notInterestedCount < 0 ? 0 : notInterestedCount
+                    });
                 });
                 if (!detailPage.classList.contains('hidden')) { showDetailPage(eventId); } else { renderEventList(); }
             } catch (error) { console.error("참여 상태 업데이트 오류: ", error); alert('상태 변경 중 오류가 발생했습니다.'); }
@@ -174,7 +197,7 @@
             const q = query(eventsCollection, where("linkUrl", "==", linkUrl));
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) { alert('이미 등록된 링크의 이벤트입니다.'); return; }
-            const newEvent = { type: eventType, prize: form.prize.value, channelName: form.channelName.value, endDate: form.endDate.value || '9999-12-31', linkUrl: linkUrl, description: description, participants: 0, createdAt: serverTimestamp() };
+            const newEvent = { type: eventType, prize: form.prize.value, channelName: form.channelName.value, endDate: form.endDate.value || '9999-12-31', linkUrl: linkUrl, description: description, participatedCount: 0, notInterestedCount: 0, createdAt: serverTimestamp() };
             try { await addDoc(eventsCollection, newEvent); alert('이벤트가 성공적으로 등록되었습니다.'); closeModal('register-modal'); form.reset(); showListPage(eventType); } catch (error) { console.error("이벤트 등록 오류: ", error); alert('등록 중 오류가 발생했습니다.'); }
         };
 
@@ -263,7 +286,7 @@
                                 const participationSnap = await getDoc(participationRef);
                                 hasInteracted = participationSnap.exists();
                             }
-                            const participationCheckbox = `<input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300" ${hasInteracted ? 'checked' : ''} disabled>`;
+                            const participationCheckbox = `<input type="checkbox" onclick="handleParticipation('${event.id}', 'participated')" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 cursor-pointer" ${hasInteracted ? 'checked' : ''}>`;
                             return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-[10%] text-center">${d_day_html}</div><div class="w-[10%] text-center">${badge}</div><div class="w-[35%] pr-4"><p class="font-bold truncate cursor-pointer" onclick="showDetailPage('${event.id}')">${event.prize}</p></div><div class="w-[20%] truncate">${event.channelName}</div><div class="w-[10%]">${event.endDate.replace(/-/g, '.')}</div><div class="w-[10%] text-center">${currentUser ? participationCheckbox : ''}</div><div class="w-[5%] text-center">${deleteButton}</div></div><div class="w-full md:hidden p-4 cursor-pointer" onclick="showDetailPage('${event.id}')"><div class="flex justify-between items-start mb-2"><p class="font-bold w-4/5">${event.prize}</p>${d_day_html}</div><p class="text-sm text-gray-600 mb-3">${event.channelName}</p><div class="flex justify-between items-center text-sm">${badge}<span class="ml-3">마감: ${event.endDate.replace(/-/g, '.')}</span></div></div></div>`;
                         }
                     }));
@@ -413,13 +436,11 @@
                     const notInterestedBtnClass = participationStatus === 'not_interested' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-800';
                     detailHTML += `<div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex items-center space-x-3">
-                            <button onclick="handleParticipation('${event.id}', 'participated')" class="font-semibold px-6 py-3 rounded-lg ${participatedBtnClass}">👍 참여하기</button>
-                            <button onclick="handleParticipation('${event.id}', 'not_interested')" class="font-semibold px-6 py-3 rounded-lg ${notInterestedBtnClass}">👎 관심없음</button>
-                            <button onclick="showListPage('${mainFilter}', '${subFilter}')" class="font-semibold px-6 py-3 rounded-lg bg-gray-600 text-white hover:bg-gray-700">&larr; 목록으로</button>
+                            <button onclick="handleParticipation('${event.id}', 'participated')" class="font-semibold px-4 py-2 rounded-lg ${participatedBtnClass}">👍 참여하기 (${event.participatedCount || 0})</button>
+                            <button onclick="handleParticipation('${event.id}', 'not_interested')" class="font-semibold px-4 py-2 rounded-lg ${notInterestedBtnClass}">👎 관심없음 (${event.notInterestedCount || 0})</button>
                         </div>
-                        <div class="text-right">
-                            <p class="font-semibold">마감일</p>
-                            <p>${event.endDate.replace(/-/g, '.')}</p>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="showListPage('${mainFilter}', '${subFilter}')" class="font-semibold px-6 py-3 rounded-lg bg-gray-600 text-white hover:bg-gray-700">&larr; 목록으로</button>
                         </div>
                     </div>`; 
                 }
