@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>유벤트 (YouVent) - 모든 유튜브 이벤트를 한눈에!</title>
+    <meta name="description" content="유튜브, SNS, 쇼핑몰 등 모든 종류의 이벤트를 모아서 보여주는 유벤트입니다.">
+    <meta name="keywords" content="유튜브, 이벤트, 구독, 댓글, 경품, 할인, 에어드랍">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -16,10 +19,10 @@
         .pagination-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
         .nav-link.active { color: #2563eb; font-weight: 700; border-bottom: 2px solid #2563eb; }
         .sub-filter-btn.active { background-color: #3B82F6; color: white; }
-        .terms-content { height: 10rem; overflow-y: scroll; border: 1px solid #e5e7eb; padding: 0.75rem; font-size: 0.875rem; color: #4b5563; background-color: #f9fafb; border-radius: 0.5rem;}
+        .terms-content { height: 15rem; overflow-y: scroll; border: 1px solid #e5e7eb; padding: 0.75rem; font-size: 0.875rem; color: #4b5563; background-color: #f9fafb; border-radius: 0.5rem;}
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
 
     <!-- Header Section -->
     <header class="bg-white shadow-md sticky top-0 z-50">
@@ -36,37 +39,61 @@
         </nav>
     </header>
 
-    <main id="list-page" class="page container mx-auto px-6 py-8">
-        <div id="ended-events-notice" class="hidden mb-4 p-4 bg-blue-100 text-blue-800 rounded-lg text-sm text-center">
-            종료일로부터 2주가 지난 게시글은 자동으로 목록에서 사라집니다.
-        </div>
-        <div id="sub-filter-container" class="mb-6 flex space-x-2 flex-wrap gap-y-2">
-            <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
-            <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
-            <button id="sub-filter-discount" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('discount')">할인이벤트</button>
-            <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
-            <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
-        </div>
-        <div id="list-header" class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center"></div>
-        <div id="eventList" class="bg-white rounded-b-lg shadow-sm"></div>
-        <div id="pagination" class="mt-6 flex justify-center items-center space-x-2"></div>
-    </main>
+    <div class="flex-grow">
+        <main id="list-page" class="page container mx-auto px-6 py-8">
+            <div id="ended-events-notice" class="hidden mb-4 p-4 bg-blue-100 text-blue-800 rounded-lg text-sm text-center">
+                종료일로부터 2주가 지난 게시글은 자동으로 목록에서 사라집니다.
+            </div>
+            <div id="sub-filter-container" class="mb-6 flex space-x-2 flex-wrap gap-y-2">
+                <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
+                <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
+                <button id="sub-filter-discount" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('discount')">할인이벤트</button>
+                <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
+                <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
+            </div>
+            <div id="list-header" class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center"></div>
+            <div id="eventList" class="bg-white rounded-b-lg shadow-sm"></div>
+            <div id="pagination" class="mt-6 flex justify-center items-center space-x-2"></div>
+        </main>
 
-    <main id="detail-page" class="page hidden container mx-auto px-6 py-8"></main>
-    
-    <main id="admin-dashboard-page" class="page hidden container mx-auto px-6 py-8">
-        <h1 class="text-3xl font-bold mb-8">관리자 대시보드</h1>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-bold mb-4">이벤트 관리</h2>
-                <button onclick="openModal('register-modal')" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">+ 새 이벤트 등록하기</button>
+        <main id="detail-page" class="page hidden container mx-auto px-6 py-8"></main>
+        
+        <main id="admin-dashboard-page" class="page hidden container mx-auto px-6 py-8">
+            <h1 class="text-3xl font-bold mb-8">관리자 대시보드</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-bold mb-4">이벤트 관리</h2>
+                    <button onclick="openModal('register-modal')" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">+ 새 이벤트 등록하기</button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-bold mb-4">접수된 제보 목록</h2>
+                    <div id="reportList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-bold mb-4">접수된 제보 목록</h2>
-                <div id="reportList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+        </main>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <h3 class="text-xl font-bold">YouVent</h3>
+                    <p class="text-gray-400 text-sm">모든 이벤트를 한 곳에서.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" onclick="openModal('terms-of-service-modal'); return false;" class="text-gray-400 hover:text-white">이용약관</a>
+                    <a href="#" onclick="openModal('privacy-policy-modal'); return false;" class="text-gray-400 hover:text-white">개인정보처리방침</a>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-gray-700 pt-6 text-sm text-gray-500">
+                <p>(주)유벤트 | 대표: 홍길동 | 사업자등록번호: 123-45-67890</p>
+                <p>주소: 서울특별시 강남구 테헤란로 123 | 통신판매업신고: 제2025-서울강남-01234호</p>
+                <p>고객센터: youvent@example.com</p>
+                <p class="mt-4">&copy; 2025 YouVent. All Rights Reserved.</p>
             </div>
         </div>
-    </main>
+    </footer>
 
     <div id="login-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
     <div id="report-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
@@ -74,6 +101,8 @@
     <div id="terms-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
     <div id="logout-options-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
     <div id="delete-account-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
+    <div id="terms-of-service-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
+    <div id="privacy-policy-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
 
 
     <script type="module">
@@ -81,22 +110,6 @@
         import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, getDoc, setDoc, serverTimestamp, runTransaction, deleteDoc } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
         
-        // ===================================================================================
-        // [오류 해결] Firestore 색인(Index) 생성 안내 - 이 부분을 꼭 읽고 따라해주세요!
-        //
-        // "목록을 불러오는데 실패했습니다" 오류는 Firestore '색인'이 없어서 발생합니다.
-        // 색인은 Firestore가 여러 조건으로 데이터를 빠르게 찾기 위한 '특수 목차'와 같습니다.
-        //
-        // --- 해결 방법 ---
-        // 1. 사이트에서 오류가 발생하는 탭을 클릭합니다. (예: '유튜브 및 SNS' 탭)
-        // 2. 브라우저에서 F12 키를 눌러 '개발자 도구'를 엽니다.
-        // 3. 'Console(콘솔)' 탭을 클릭합니다.
-        // 4. 표시되는 빨간색 오류 메시지 안에 있는 파란색 링크(https://console.firebase.google.com/...)를 클릭합니다.
-        //    이 링크는 Firebase가 "이런 검색을 하려면 이런 목차가 필요해요!"라고 자동으로 만들어준 링크입니다.
-        // 5. 자동으로 열리는 Firebase 페이지에서 [색인 만들기] 버튼을 누릅니다.
-        // 6. 색인이 생성되기까지 몇 분 정도 걸릴 수 있습니다. 생성이 완료되면 사이트에서 필터가 정상적으로 작동합니다.
-        // ===================================================================================
-
         const firebaseConfig = {
             apiKey: "AIzaSyD5xVbWnUE4gF9PUdXoqUZ62U7YDwiSu0s",
             authDomain: "youvent-3cb0d.firebaseapp.com",
@@ -146,7 +159,6 @@
             const userId = currentUser.uid;
             const eventRef = doc(db, "events", eventId);
             const participationRef = doc(db, "events", eventId, "participants", userId);
-
             try {
                 await runTransaction(db, async (transaction) => {
                     const eventDoc = await transaction.get(eventRef);
@@ -158,11 +170,11 @@
                     let participatedCount = eventDoc.data().participatedCount || 0;
                     let notInterestedCount = eventDoc.data().notInterestedCount || 0;
 
-                    if (oldStatus === newStatus) { // 같은 버튼 다시 클릭 -> 취소
+                    if (oldStatus === newStatus) {
                         transaction.delete(participationRef);
                         if (newStatus === 'participated') participatedCount--;
                         if (newStatus === 'not_interested') notInterestedCount--;
-                    } else { // 다른 버튼 클릭 또는 최초 클릭
+                    } else {
                         if (oldStatus === 'participated') participatedCount--;
                         if (oldStatus === 'not_interested') notInterestedCount--;
                         
@@ -473,6 +485,9 @@
             document.getElementById('terms-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg"><h2 class="text-2xl font-bold mb-4">YouVent 서비스 약관 동의</h2><p class="text-gray-600 mb-6">서비스를 이용하시려면 아래의 이용약관과 개인정보 처리방침에 동의해주세요.</p><div class="space-y-4"><div class="space-y-2"> <h3 class="font-semibold">이용약관</h3> <div class="terms-content"><strong>제1조 (목적)</strong><br>본 약관은 YouVent(이하 '회사')가 제공하는 모든 서비스(이하 '서비스')의 이용 조건 및 절차, 회원과 회사의 권리, 의무 및 책임사항 등 기타 필요한 사항을 규정함을 목적으로 합니다.<br><br><strong>제2조 (용어의 정의)</strong><br>본 약관에서 사용하는 용어의 정의는 다음과 같습니다.<br>1. '서비스'라 함은 회사가 제공하는 모든 이벤트 정보 제공 서비스를 의미합니다.<br>2. '회원'이라 함은 회사에 개인정보를 제공하여 회원등록을 한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.<br><br><strong>제3조 (약관의 효력 및 변경)</strong><br>1. 본 약관은 서비스를 이용하고자 하는 모든 회원에 대하여 그 효력을 발생합니다.<br>2. 회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다.</div><label class="flex items-center"><input type="checkbox" id="terms-agree-1" class="form-checkbox h-5 w-5"> <span class="ml-2 text-sm">이용약관에 동의합니다. (필수)</span></label></div><div class="space-y-2"> <h3 class="font-semibold">개인정보 처리방침</h3> <div class="terms-content"><strong>1. 수집하는 개인정보의 항목</strong><br>회사는 회원가입, 원활한 고객상담, 각종 서비스의 제공을 위해 최초 회원가입 당시 아래와 같은 최소한의 개인정보를 필수항목으로 수집하고 있습니다.<br>- 구글 계정 정보: 이메일 주소, 이름, 프로필 사진<br><br><strong>2. 개인정보의 수집 및 이용 목적</strong><br>회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.<br>- 회원 관리: 회원제 서비스 이용에 따른 본인확인, 개인 식별, 불량회원의 부정 이용 방지와 비인가 사용 방지<br><br><strong>3. 개인정보의 보유 및 이용기간</strong><br>회원의 개인정보는 원칙적으로 개인정보의 수집 및 이용목적이 달성되면 지체 없이 파기합니다. 단, 회원탈퇴 시 모든 정보는 즉시 삭제됩니다.</div><label class="flex items-center"><input type="checkbox" id="terms-agree-2" class="form-checkbox h-5 w-5"> <span class="ml-2 text-sm">개인정보 처리방침에 동의합니다. (필수)</span></label></div></div><div class="mt-6 flex justify-end"><button id="agree-btn" onclick="agreeAndSignUp()" class="px-6 py-2 bg-blue-600 text-white rounded-lg disabled:bg-gray-400" disabled>전체 동의하고 회원가입</button></div></div>`;
             document.getElementById('logout-options-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-xs"><h2 class="text-xl font-bold text-center mb-6">계정 관리</h2><div class="space-y-3"><button onclick="logout()" class="w-full bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300">로그아웃</button><button onclick="closeModal('logout-options-modal'); openModal('delete-account-modal');" class="w-full text-red-600 py-2 hover:underline">회원탈퇴</button></div><button onclick="closeModal('logout-options-modal')" class="mt-4 w-full text-center text-gray-500 text-sm">닫기</button></div>`;
             document.getElementById('delete-account-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md"><h2 class="text-2xl font-bold text-center mb-4">회원 탈퇴</h2><p class="text-center text-gray-600 mb-6">정말로 탈퇴하시겠습니까?<br>모든 활동 기록이 영구적으로 삭제되며 복구할 수 없습니다.</p><div class="flex justify-center space-x-4"><button onclick="closeModal('delete-account-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">취소</button><button onclick="deleteAccount()" class="px-6 py-2 bg-red-600 text-white rounded-lg">탈퇴하기</button></div></div>`;
+            document.getElementById('terms-of-service-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl"><h2 class="text-2xl font-bold mb-4">이용약관</h2><div class="terms-content max-h-96"><strong>제1조 (목적)</strong><br>본 약관은 YouVent(이하 '회사')가 제공하는 모든 서비스(이하 '서비스')의 이용 조건 및 절차, 회원과 회사의 권리, 의무 및 책임사항 등 기타 필요한 사항을 규정함을 목적으로 합니다.<br><br><strong>제2조 (용어의 정의)</strong><br>본 약관에서 사용하는 용어의 정의는 다음과 같습니다.<br>1. '서비스'라 함은 회사가 제공하는 모든 이벤트 정보 제공 서비스를 의미합니다.<br>2. '회원'이라 함은 회사에 개인정보를 제공하여 회원등록을 한 자로서, 회사의 정보를 지속적으로 제공받으며, 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.<br><br><strong>제3조 (약관의 효력 및 변경)</strong><br>1. 본 약관은 서비스를 이용하고자 하는 모든 회원에 대하여 그 효력을 발생합니다.<br>2. 회사는 필요한 경우 관련 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다.</div><div class="mt-6 flex justify-end"><button onclick="closeModal('terms-of-service-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">닫기</button></div></div>`;
+            document.getElementById('privacy-policy-modal').innerHTML = `<div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl"><h2 class="text-2xl font-bold mb-4">개인정보처리방침</h2><div class="terms-content max-h-96"><strong>1. 수집하는 개인정보의 항목</strong><br>회사는 회원가입, 원활한 고객상담, 각종 서비스의 제공을 위해 최초 회원가입 당시 아래와 같은 최소한의 개인정보를 필수항목으로 수집하고 있습니다.<br>- 구글 계정 정보: 이메일 주소, 이름, 프로필 사진<br><br><strong>2. 개인정보의 수집 및 이용 목적</strong><br>회사는 수집한 개인정보를 다음의 목적을 위해 활용합니다.<br>- 회원 관리: 회원제 서비스 이용에 따른 본인확인, 개인 식별, 불량회원의 부정 이용 방지와 비인가 사용 방지<br><br><strong>3. 개인정보의 보유 및 이용기간</strong><br>회원의 개인정보는 원칙적으로 개인정보의 수집 및 이용목적이 달성되면 지체 없이 파기합니다. 단, 회원탈퇴 시 모든 정보는 즉시 삭제됩니다.</div><div class="mt-6 flex justify-end"><button onclick="closeModal('privacy-policy-modal')" class="px-6 py-2 bg-gray-200 rounded-lg">닫기</button></div></div>`;
+
             const agreeBtn = document.getElementById('agree-btn');
             const chk1 = document.getElementById('terms-agree-1');
             const chk2 = document.getElementById('terms-agree-2');
@@ -516,7 +531,7 @@
                 reportListDiv.innerHTML = reportsHtml;
             } catch (error) {
                 console.error("제보 목록 로딩 오류: ", error);
-                reportListDiv.innerHTML = '<p class="text-red-500">제보 목록을 불러오는데 실패했습니다.</p>';
+                reportListDiv.innerHTML = '<p class="text-red-500">제보 목록을 불러오는데 실패했습니다. Firebase 보안 규칙과 색인을 확인해주세요.</p>';
             }
         };
 
@@ -561,6 +576,7 @@
         window.handleParticipation = handleParticipation;
         window.showDetailPage = showDetailPage;
         window.handleEventSubmit = handleEventSubmit;
+        window.handleReportSubmit = handleReportSubmit;
         window.showAdminDashboard = showAdminDashboard;
         window.deleteEvent = deleteEvent;
         window.approveReport = approveReport;
