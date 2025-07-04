@@ -37,12 +37,9 @@
     </header>
 
     <main id="list-page" class="page container mx-auto px-6 py-8">
-        <!-- Notice for 'Ended Events' -->
         <div id="ended-events-notice" class="hidden mb-4 p-4 bg-blue-100 text-blue-800 rounded-lg text-sm text-center">
             종료일로부터 2주가 지난 게시글은 자동으로 목록에서 사라집니다.
         </div>
-
-        <!-- Sub-filters for 'Ongoing Events' -->
         <div id="sub-filter-container" class="mb-6 flex space-x-2 flex-wrap gap-y-2">
             <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
             <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
@@ -50,14 +47,31 @@
             <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
             <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
         </div>
-
         <div id="list-header" class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center"></div>
         <div id="eventList" class="bg-white rounded-b-lg shadow-sm"></div>
         <div id="pagination" class="mt-6 flex justify-center items-center space-x-2"></div>
     </main>
 
     <main id="detail-page" class="page hidden container mx-auto px-6 py-8"></main>
-    <main id="admin-dashboard-page" class="page hidden container mx-auto px-6 py-8"></main>
+    
+    <main id="admin-dashboard-page" class="page hidden container mx-auto px-6 py-8">
+        <h1 class="text-3xl font-bold mb-8">관리자 대시보드</h1>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">이벤트 관리</h2>
+                <button onclick="openModal('register-modal')" class="w-full bg-green-500 text-white p-3 rounded-lg font-semibold hover:bg-green-600 transition-colors">+ 새 이벤트 등록하기</button>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">접수된 제보 목록</h2>
+                <div id="reportList" class="space-y-3 max-h-96 overflow-y-auto"></div>
+            </div>
+            <div id="user-management-section" class="hidden lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-bold mb-4">회원 관리 (최고 관리자 전용)</h2>
+                <div id="userListForAdmin" class="space-y-3 max-h-96 overflow-y-auto"></div>
+            </div>
+        </div>
+    </main>
+
     <div id="login-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
     <div id="report-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
     <div id="register-modal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"></div>
@@ -98,12 +112,13 @@
         const endedEventsNotice = document.getElementById('ended-events-notice');
         const authSection = document.getElementById('auth-section');
         const mainNav = document.getElementById('main-nav');
+        const userManagementSection = document.getElementById('user-management-section');
+        const userListForAdmin = document.getElementById('userListForAdmin');
 
         // --- 로직 함수 ---
         const getEventStatus = (endDateStr) => {
             const today = new Date();
             if (!endDateStr) return { status: '진행중', badge: '<span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">진행중</span>', d_day_html: '' };
-            
             const endDate = new Date(endDateStr + 'T23:59:59');
             const diffTime = endDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -140,6 +155,10 @@
 
         const handleEventSubmit = async (e) => {
             e.preventDefault();
+            if (!currentUserInfo || !['admin', 'sub-admin'].includes(currentUserInfo.role)) {
+                alert('이벤트 등록 권한이 없습니다.');
+                return;
+            }
             const form = e.target;
             const eventType = form.eventType.value;
             const linkUrl = form.linkUrl.value;
@@ -165,26 +184,19 @@
 
         const setListHeader = () => {
             if (subFilter === 'discount' && mainFilter === 'ongoing') {
-                listHeader.innerHTML = `
-                    <div class="w-1/5 text-center">상태</div><div class="w-2/5">상품/내용</div>
-                    <div class="w-1/5">판매처</div><div class="w-1/5 text-center">바로가기</div>`;
+                listHeader.innerHTML = `<div class="w-1/5 text-center">상태</div><div class="w-2/5">상품/내용</div><div class="w-1/5">판매처</div><div class="w-1/5 text-center">바로가기</div>`;
             } else {
-                listHeader.innerHTML = `
-                    <div class="w-[10%] text-center">D-Day</div><div class="w-[10%] text-center">상태</div>
-                    <div class="w-[40%]">상품</div><div class="w-[20%]">채널명</div>
-                    <div class="w-[10%]">마감일</div><div class="w-[10%] text-center">참여 여부</div>`;
+                listHeader.innerHTML = `<div class="w-[10%] text-center">D-Day</div><div class="w-[10%] text-center">상태</div><div class="w-[40%]">상품</div><div class="w-[20%]">채널명</div><div class="w-[10%]">마감일</div><div class="w-[10%] text-center">참여 여부</div>`;
             }
         }
 
         const renderEventList = async () => {
             eventList.innerHTML = `<div class="text-center p-10 text-gray-500">이벤트 목록을 불러오는 중...</div>`;
             setListHeader();
-            
             try {
                 const today = new Date();
                 const todayStr = today.toISOString().split('T')[0];
                 let queryConstraints = [];
-
                 if (mainFilter === 'ongoing') {
                     queryConstraints.push(where("endDate", ">=", todayStr));
                 } else {
@@ -192,19 +204,14 @@
                     const twoWeeksAgoStr = twoWeeksAgo.toISOString().split('T')[0];
                     queryConstraints.push(where("endDate", "<", todayStr), where("endDate", ">=", twoWeeksAgoStr));
                 }
-
                 if (mainFilter === 'ongoing' && subFilter !== 'all') {
                     queryConstraints.push(where("type", "==", subFilter));
                 }
-
                 queryConstraints.push(orderBy("endDate", "desc"));
-
                 const q = query(eventsCollection, ...queryConstraints);
                 const querySnapshot = await getDocs(q);
-
                 const eventsData = [];
                 querySnapshot.forEach((doc) => { eventsData.push({ id: doc.id, ...doc.data() }); });
-                
                 eventList.innerHTML = '';
                 if (eventsData.length === 0) {
                     eventList.innerHTML = `<div class="text-center p-10 text-gray-500">표시할 이벤트가 없습니다.</div>`;
@@ -259,14 +266,11 @@
             if (user) {
                 const userRef = doc(db, "users", user.uid);
                 const userSnap = await getDoc(userRef);
-
-                if (!userSnap.exists()) {
-                    // This case is handled by the sign-up flow
-                } else {
-                    currentUserInfo = userSnap.data();
-                    if (!currentUserInfo.termsAgreed) {
-                        openModal('terms-modal');
-                    }
+                currentUserInfo = userSnap.exists() ? userSnap.data() : null;
+                if (!currentUserInfo) { // 최초 로그인
+                    openModal('terms-modal');
+                } else if (!currentUserInfo.termsAgreed) {
+                    openModal('terms-modal');
                 }
             } else {
                 currentUserInfo = null;
@@ -280,29 +284,19 @@
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                
                 const userRef = doc(db, "users", user.uid);
-                const newUserInfo = {
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    role: "user",
-                    createdAt: serverTimestamp(),
-                    termsAgreed: true
-                };
+                const newUserInfo = { email: user.email, displayName: user.displayName, photoURL: user.photoURL, role: "user", createdAt: serverTimestamp(), termsAgreed: true };
                 await setDoc(userRef, newUserInfo);
                 currentUserInfo = newUserInfo;
                 alert("회원가입이 완료되었습니다. 환영합니다!");
-            } catch (error) {
-                console.error("회원가입/로그인 오류:", error);
-                alert("처리 중 오류가 발생했습니다.");
-            }
+            } catch (error) { console.error("회원가입/로그인 오류:", error); alert("처리 중 오류가 발생했습니다."); }
         }
 
         const updateUIForAuthState = (user) => {
             currentUser = user;
-            const isAdmin = currentUserInfo && (currentUserInfo.role === 'admin' || currentUserInfo.role === 'sub-admin');
-            
+            const isAdmin = currentUserInfo && currentUserInfo.role === 'admin';
+            const isSubAdmin = currentUserInfo && currentUserInfo.role === 'sub-admin';
+
             if (user) { 
                 authSection.innerHTML = `<button onclick="openModal('logout-options-modal')" class="font-semibold text-gray-700 hover:text-blue-600">${user.displayName} 님</button>`; 
             } else { 
@@ -310,11 +304,11 @@
             }
             
             const adminNavLink = document.getElementById('admin-nav-link');
-            if (isAdmin && !adminNavLink) { 
+            if ((isAdmin || isSubAdmin) && !adminNavLink) { 
                 const link = document.createElement('a'); link.id = 'admin-nav-link'; link.href = '#'; 
                 link.className = 'nav-link pb-1 text-red-500 font-bold'; link.innerText = '관리자'; 
                 link.onclick = () => showAdminDashboard(); mainNav.appendChild(link); 
-            } else if (!isAdmin && adminNavLink) { 
+            } else if (!isAdmin && !isSubAdmin && adminNavLink) { 
                 adminNavLink.remove(); 
             }
         };
@@ -335,17 +329,14 @@
         
         const deleteAccount = async () => {
             if (!currentUser) return;
-            
             try {
                 const userRef = doc(db, "users", currentUser.uid);
                 await deleteDoc(userRef);
                 await deleteUser(currentUser);
-                
                 closeModal('delete-account-modal');
                 alert("회원탈퇴가 정상적으로 처리되었습니다. 이용해주셔서 감사합니다.");
-
             } catch (error) {
-                console.error("회원탈퇴 오류:", error);
+                console.error("회원탈퇴 오류: ", error);
                 alert("회원탈퇴 중 오류가 발생했습니다. 재로그인 후 다시 시도해주세요.");
             }
         };
@@ -398,8 +389,66 @@
             [chk1, chk2].forEach(chk => { chk.addEventListener('change', () => { agreeBtn.disabled = !(chk1.checked && chk2.checked); }); });
         };
         
+        const showAdminDashboard = async () => {
+            if (!currentUserInfo || !['admin', 'sub-admin'].includes(currentUserInfo.role)) {
+                alert('권한이 없습니다.');
+                return;
+            }
+            showPage('admin-dashboard-page');
+            
+            // 최고 관리자일 경우에만 회원 목록 표시
+            userManagementSection.classList.toggle('hidden', currentUserInfo.role !== 'admin');
+            if(currentUserInfo.role === 'admin') {
+                renderUserListForAdmin();
+            }
+        };
+
+        const renderUserListForAdmin = async () => {
+            const userListDiv = document.getElementById('userListForAdmin');
+            userListDiv.innerHTML = '회원 목록을 불러오는 중...';
+            try {
+                const querySnapshot = await getDocs(usersCollection);
+                let usersHtml = '<div class="divide-y divide-gray-200">';
+                querySnapshot.forEach(doc => {
+                    const user = doc.data();
+                    usersHtml += `
+                        <div class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold">${user.displayName} <span class="text-sm font-normal text-gray-500">(${user.email})</span></p>
+                                <p class="text-sm text-gray-600">역할: ${user.role}</p>
+                            </div>
+                            <button onclick="forceDeleteUser('${doc.id}', '${user.displayName}')" class="bg-red-500 text-white px-3 py-1 text-sm rounded-md hover:bg-red-600">강제탈퇴</button>
+                        </div>
+                    `;
+                });
+                usersHtml += '</div>';
+                userListDiv.innerHTML = usersHtml;
+            } catch (error) {
+                console.error("회원 목록 로딩 오류: ", error);
+                userListDiv.innerHTML = '<p class="text-red-500">회원 목록을 불러오는데 실패했습니다.</p>';
+            }
+        };
+
+        const forceDeleteUser = async (userId, displayName) => {
+            if (currentUserInfo.role !== 'admin') {
+                alert('최고 관리자만 사용할 수 있는 기능입니다.');
+                return;
+            }
+            if (confirm(`정말로 '${displayName}' 회원을 강제탈퇴 시키겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                alert(`'${displayName}' 회원에 대한 강제탈퇴는 백엔드 기능(Cloud Function)에서 처리해야 합니다. 현재 프로토타입에서는 Firestore 데이터만 삭제합니다.`);
+                try {
+                    const userRef = doc(db, "users", userId);
+                    await deleteDoc(userRef);
+                    alert('Firestore에서 사용자 데이터가 삭제되었습니다.');
+                    renderUserListForAdmin();
+                } catch (error) {
+                    console.error("강제탈퇴 처리 오류:", error);
+                    alert("강제탈퇴 처리 중 오류가 발생했습니다.");
+                }
+            }
+        };
+
         // --- [오류 수정] 함수를 전역 스코프에 할당 ---
-        // onclick 속성에서 호출할 수 있도록 함수들을 window 객체에 할당합니다.
         window.showListPage = showListPage;
         window.setSubFilter = setSubFilter;
         window.openModal = openModal;
@@ -411,6 +460,8 @@
         window.toggleParticipation = toggleParticipation;
         window.showDetailPage = showDetailPage;
         window.handleEventSubmit = handleEventSubmit;
+        window.showAdminDashboard = showAdminDashboard;
+        window.forceDeleteUser = forceDeleteUser;
         
         // --- 초기화 ---
         window.onload = () => {
