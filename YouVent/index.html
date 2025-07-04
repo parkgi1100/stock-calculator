@@ -70,38 +70,11 @@
         import { getFirestore, collection, getDocs, addDoc, doc, updateDoc, query, where, orderBy, getDoc, setDoc, serverTimestamp, runTransaction, deleteDoc } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore.js";
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/9.19.1/firebase-auth.js";
         
-        // ===================================================================================
-        // [오류 해결] Firestore 보안 규칙 안내
-        // "Missing or insufficient permissions" 오류는 Firestore 보안 규칙 때문에 발생합니다.
-        // Firebase 콘솔 > Firestore Database > 규칙(Rules) 탭으로 이동하여
-        // 아래의 내용으로 규칙을 변경하고 게시(Publish)해주세요.
-        //
-        // rules_version = '2';
-        // service cloud.firestore {
-        //   match /databases/{database}/documents {
-        //     // events 컬렉션: 누구나 읽을 수 있음
-        //     match /events/{eventId} {
-        //       allow read: if true;
-        //       // 쓰기(생성, 수정, 삭제)는 관리자 역할(role)을 가진 사용자만 가능
-        //       allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'sub-admin'];
-        //     }
-        //     // users 컬렉션: 본인 정보만 읽고 쓸 수 있음
-        //     match /users/{userId} {
-        //       allow read, write: if request.auth != null && request.auth.uid == userId;
-        //     }
-        //     // 참여 정보: 본인만 생성, 수정, 삭제 가능
-        //     match /events/{eventId}/participants/{userId} {
-        //       allow read, write: if request.auth != null && request.auth.uid == userId;
-        //     }
-        //   }
-        // }
-        // ===================================================================================
-
         const firebaseConfig = {
             apiKey: "AIzaSyD5xVbWnUE4gF9PUdXoqUZ62U7YDwiSu0s",
             authDomain: "youvent-3cb0d.firebaseapp.com",
             projectId: "youvent-3cb0d",
-            storageBucket: "youvent-3cb0d.appspot.com", // .firebasestorage.app -> .appspot.com 으로 수정
+            storageBucket: "youvent-3cb0d.appspot.com",
             messagingSenderId: "647513816009",
             appId: "1:647513816009:web:0638bbd49496e1514f4618",
             measurementId: "G-BKNFPCY4NS"
@@ -113,8 +86,8 @@
         const eventsCollection = collection(db, "events");
         const usersCollection = collection(db, "users");
 
-        let currentUser = null; // Firebase Auth User
-        let currentUserInfo = null; // Firestore User Info (with role)
+        let currentUser = null;
+        let currentUserInfo = null;
         let mainFilter = 'ongoing';
         let subFilter = 'all';
         
@@ -387,6 +360,19 @@
                 detailPage.innerHTML = detailHTML;
                 showPage('detail-page');
             } catch (error) { console.error("상세 페이지 로딩 오류: ", error); detailPage.innerHTML = `<div class="text-center p-10 text-red-500">상세 정보를 불러오는 데 실패했습니다.</div>`; }
+        };
+
+        window.openModal = function(modalId, data = {}) { 
+            const modal = document.getElementById(modalId); 
+            if (modalId === 'register-modal' && data.linkUrl) { 
+                const form = modal.querySelector('form'); 
+                if (form) form.linkUrl.value = data.linkUrl; 
+            } 
+            modal.classList.remove('hidden'); 
+        };
+
+        window.closeModal = function(modalId) { 
+            document.getElementById(modalId).classList.add('hidden'); 
         };
 
         function renderModals() { 
