@@ -75,22 +75,14 @@
 
     <!-- Footer Section -->
     <footer class="bg-gray-800 text-white mt-12">
-        <div class="container mx-auto px-6 py-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="mb-4 md:mb-0">
-                    <h3 class="text-xl font-bold">YouVent</h3>
-                    <p class="text-gray-400 text-sm">모든 이벤트를 한 곳에서.</p>
+        <div class="container mx-auto px-6 py-6 text-sm">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400">
+                <p>&copy; 2025 YouVent. All Rights Reserved.</p>
+                <div class="flex space-x-4">
+                    <a href="#" onclick="openModal('terms-of-service-modal'); return false;" class="hover:text-white">이용약관</a>
+                    <a href="#" onclick="openModal('privacy-policy-modal'); return false;" class="hover:text-white">개인정보처리방침</a>
                 </div>
-                <div class="flex space-x-6">
-                    <a href="#" onclick="openModal('terms-of-service-modal'); return false;" class="text-gray-400 hover:text-white">이용약관</a>
-                    <a href="#" onclick="openModal('privacy-policy-modal'); return false;" class="text-gray-400 hover:text-white">개인정보처리방침</a>
-                </div>
-            </div>
-            <div class="mt-8 border-t border-gray-700 pt-6 text-sm text-gray-500">
-                <p>(주)유벤트 | 대표: 홍길동 | 사업자등록번호: 123-45-67890</p>
-                <p>주소: 서울특별시 강남구 테헤란로 123 | 통신판매업신고: 제2025-서울강남-01234호</p>
-                <p>고객센터: youvent@example.com</p>
-                <p class="mt-4">&copy; 2025 YouVent. All Rights Reserved.</p>
+                <p>운영자: 홍길동 | 문의: youvent@example.com</p>
             </div>
         </div>
     </footer>
