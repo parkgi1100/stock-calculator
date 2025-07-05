@@ -241,7 +241,7 @@
 
         const setListHeader = () => {
             const isAdmin = currentUserInfo && ['admin', 'sub-admin'].includes(currentUserInfo.role);
-            const adminHeader = isAdmin ? `<div class="w-[5%]"></div>` : '';
+            const adminHeader = isAdmin ? `<div class="w-[10%]"></div>` : '';
 
             if (subFilter === 'discount' && mainFilter === 'ongoing') {
                 listHeader.innerHTML = `<div class="w-1/5 text-center">상태</div><div class="w-2/5">상품/내용</div><div class="w-1/5">판매처</div><div class="w-1/5 text-center">바로가기</div>${adminHeader}`;
@@ -282,7 +282,7 @@
                         const deleteButton = isAdmin ? `<button onclick="deleteEvent('${event.id}', '${event.prize.replace(/'/g, "\\'")}')" class="text-red-500 hover:text-red-700 text-xs">삭제</button>` : '';
 
                         if (event.type === 'discount') {
-                            return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-1/5 text-center">${badge}</div><div class="w-2/5 font-bold truncate">${event.prize}</div><div class="w-1/5 text-gray-600 truncate">${event.channelName}</div><div class="w-1/5 text-center"><a href="${event.linkUrl}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600">보러가기</a></div><div class="w-[5%] text-center">${deleteButton}</div></div><a href="${event.linkUrl}" target="_blank" class="block md:hidden p-4"><div class="flex justify-between items-center mb-2"><p class="font-bold w-4/5">${event.prize}</p>${badge}</div><p class="text-sm text-gray-600">${event.channelName}</p></a></div>`;
+                            return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-1/5 text-center">${badge}</div><div class="w-2/5 font-bold truncate">${event.prize}</div><div class="w-1/5 text-gray-600 truncate">${event.channelName}</div><div class="w-1/5 text-center"><a href="${event.linkUrl}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-600">보러가기</a></div><div class="w-[10%] text-center">${deleteButton}</div></div><a href="${event.linkUrl}" target="_blank" class="block md:hidden p-4"><div class="flex justify-between items-center mb-2"><p class="font-bold w-4/5">${event.prize}</p>${badge}</div><p class="text-sm text-gray-600">${event.channelName}</p></a></div>`;
                         } else {
                             let hasInteracted = false;
                             if (currentUser) {
@@ -291,7 +291,22 @@
                                 hasInteracted = participationSnap.exists();
                             }
                             const participationCheckbox = `<input type="checkbox" onclick="handleParticipation('${event.id}', 'participated')" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 cursor-pointer" ${hasInteracted ? 'checked' : ''}>`;
-                            return `<div class="border-b last:border-b-0"><div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50"><div class="w-[10%] text-center">${d_day_html}</div><div class="w-[10%] text-center">${badge}</div><div class="w-[35%] pr-4"><p class="font-bold truncate cursor-pointer" onclick="showDetailPage('${event.id}')">${event.prize}</p></div><div class="w-[20%] truncate">${event.channelName}</div><div class="w-[10%]">${event.endDate.replace(/-/g, '.')}</div><div class="w-[10%] text-center">${currentUser ? participationCheckbox : ''}</div><div class="w-[5%] text-center">${deleteButton}</div></div><div class="w-full md:hidden p-4 cursor-pointer" onclick="showDetailPage('${event.id}')"><div class="flex justify-between items-start mb-2"><p class="font-bold w-4/5">${event.prize}</p>${d_day_html}</div><p class="text-sm text-gray-600 mb-3">${event.channelName}</p><div class="flex justify-between items-center text-sm">${badge}<span class="ml-3">마감: ${event.endDate.replace(/-/g, '.')}</span></div></div></div>`;
+                            return `<div class="border-b last:border-b-0">
+                                        <div class="hidden md:flex w-full items-center px-6 py-4 hover:bg-gray-50">
+                                            <div class="w-[10%] text-center">${d_day_html}</div><div class="w-[10%] text-center">${badge}</div>
+                                            <div class="w-[35%] pr-4"><p class="font-bold truncate cursor-pointer" onclick="showDetailPage('${event.id}')">${event.prize}</p></div>
+                                            <div class="w-[20%] truncate">${event.channelName}</div><div class="w-[10%]">${event.endDate.replace(/-/g, '.')}</div>
+                                            <div class="w-[10%] text-center">${currentUser ? participationCheckbox : ''}</div><div class="w-[5%] text-center">${deleteButton}</div>
+                                        </div>
+                                        <div class="md:hidden flex items-center p-3 space-x-3 border-b last:border-b-0">
+                                            <div class="flex-shrink-0 w-1/12">${currentUser ? participationCheckbox : ''}</div>
+                                            <div class="flex-grow w-8/12 cursor-pointer" onclick="showDetailPage('${event.id}')">
+                                                <p class="font-bold truncate">${event.prize}</p>
+                                                <p class="text-xs text-gray-500 truncate">${event.channelName}</p>
+                                            </div>
+                                            <div class="flex-shrink-0 w-3/12 text-right text-sm">${d_day_html || badge}</div>
+                                        </div>
+                                    </div>`;
                         }
                     }));
                     eventList.innerHTML = listItemsHtml.join('');
