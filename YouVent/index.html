@@ -33,10 +33,21 @@
                 <a href="#" id="nav-ended" class="nav-link pb-1" onclick="showListPage('ended'); return false;">종료된 이벤트</a>
                 <a href="#" class="nav-link pb-1" onclick="openModal('report-modal')">이벤트 제보</a>
             </div>
-            <div id="auth-section">
-                 <button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700">로그인</button>
+            <div class="flex items-center">
+                <div id="auth-section" class="hidden md:block mr-4">
+                     <button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700">로그인</button>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-500 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
             </div>
         </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t">
+            <!-- Mobile nav links will be populated by JS -->
+        </div>
     </header>
 
     <div class="flex-grow">
@@ -75,14 +86,14 @@
 
     <!-- Footer Section -->
     <footer class="bg-gray-800 text-white mt-12">
-        <div class="container mx-auto px-6 py-6 text-sm">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-gray-400">
-                <p>&copy; 2025 YouVent. All Rights Reserved.</p>
-                <div class="flex space-x-4">
+        <div class="container mx-auto px-6 py-4 text-xs">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2 text-center md:text-left">
+                <p class="order-3 md:order-1">&copy; 2025 YouVent. All Rights Reserved.</p>
+                <div class="order-2 md:order-2 flex space-x-4">
                     <a href="#" onclick="openModal('terms-of-service-modal'); return false;" class="hover:text-white">이용약관</a>
                     <a href="#" onclick="openModal('privacy-policy-modal'); return false;" class="hover:text-white">개인정보처리방침</a>
                 </div>
-                <p>운영자: 홍길동 | 문의: youvent@example.com</p>
+                <p class="order-1 md:order-3">운영자: 홍길동 | 문의: youvent@example.com</p>
             </div>
         </div>
     </footer>
@@ -131,6 +142,8 @@
         const authSection = document.getElementById('auth-section');
         const mainNav = document.getElementById('main-nav');
         const reportList = document.getElementById('reportList');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
 
         // --- 로직 함수 ---
         const getEventStatus = (endDateStr) => {
@@ -299,12 +312,17 @@
                                             <div class="w-[10%] text-center">${currentUser ? participationCheckbox : ''}</div><div class="w-[5%] text-center">${deleteButton}</div>
                                         </div>
                                         <div class="md:hidden flex items-center p-3 space-x-3 border-b last:border-b-0">
-                                            <div class="flex-shrink-0 w-1/12">${currentUser ? participationCheckbox : ''}</div>
-                                            <div class="flex-grow w-8/12 cursor-pointer" onclick="showDetailPage('${event.id}')">
-                                                <p class="font-bold truncate">${event.prize}</p>
+                                            <div class="flex-shrink-0">
+                                                ${currentUser ? participationCheckbox : '<div class="w-5 h-5"></div>'}
+                                            </div>
+                                            <div class="flex-grow min-w-0 cursor-pointer" onclick="showDetailPage('${event.id}')">
+                                                <p class="font-semibold truncate">${event.prize}</p>
                                                 <p class="text-xs text-gray-500 truncate">${event.channelName}</p>
                                             </div>
-                                            <div class="flex-shrink-0 w-3/12 text-right text-sm">${d_day_html || badge}</div>
+                                            <div class="flex-shrink-0 text-right text-sm w-16">
+                                                ${d_day_html || badge}
+                                            </div>
+                                            ${isAdmin ? `<div class="flex-shrink-0 ml-2">${deleteButton}</div>` : ''}
                                         </div>
                                     </div>`;
                         }
@@ -376,9 +394,9 @@
             const isSubAdmin = currentUserInfo && currentUserInfo.role === 'sub-admin';
 
             if (user) { 
-                authSection.innerHTML = `<button onclick="openModal('logout-options-modal')" class="font-semibold text-gray-700 hover:text-blue-600">${user.displayName} 님</button>`; 
+                authSection.innerHTML = `<button onclick="openModal('logout-options-modal')" class="font-semibold text-gray-700 hover:text-blue-600 hidden md:block">${user.displayName} 님</button>`; 
             } else { 
-                authSection.innerHTML = `<button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700">로그인</button>`; 
+                authSection.innerHTML = `<button onclick="openModal('login-modal')" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow hover:bg-blue-700 hidden md:block">로그인</button>`; 
             }
             
             const adminNavLink = document.getElementById('admin-nav-link');
@@ -389,6 +407,25 @@
             } else if (!isAdmin && !isSubAdmin && adminNavLink) { 
                 adminNavLink.remove(); 
             }
+            
+            // Mobile Menu
+            const mobileNavContainer = document.getElementById('mobile-menu');
+            let mobileNavHTML = `
+                <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="showListPage('ongoing', 'all'); return false;">진행중인 이벤트</a>
+                <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="showListPage('ended'); return false;">종료된 이벤트</a>
+                <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="openModal('report-modal')">이벤트 제보</a>
+            `;
+            if (isAdmin || isSubAdmin) {
+                mobileNavHTML += `<a href="#" class="block py-2 px-4 text-sm text-red-500 font-bold hover:bg-gray-100" onclick="showAdminDashboard()">관리자</a>`;
+            }
+            mobileNavHTML += '<hr class="my-2">';
+            if(user) {
+                mobileNavHTML += `<a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="openModal('logout-options-modal')">${user.displayName}님 (계정관리)</a>`;
+            } else {
+                mobileNavHTML += `<a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="openModal('login-modal')">로그인 / 회원가입</a>`;
+            }
+            mobileNavContainer.innerHTML = mobileNavHTML;
+
         };
 
         const login = async () => { 
@@ -595,6 +632,9 @@
             onAuthStateChanged(auth, async (user) => {
                 await handleUser(user);
                 showListPage(mainFilter, subFilter);
+            });
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
             });
         };
     </script>
