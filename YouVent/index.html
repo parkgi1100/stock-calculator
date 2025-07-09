@@ -16,10 +16,10 @@
         .hidden { display: none; }
         .modal-overlay.hidden { visibility: hidden; opacity: 0; }
         .modal-overlay { visibility: visible; opacity: 1; }
-        .pagination-btn.active { background-color: #2563eb; color: white; border-color: #2563eb; }
         .nav-link.active { color: #2563eb; font-weight: 700; border-bottom: 2px solid #2563eb; }
         .sub-filter-btn.active { background-color: #3B82F6; color: white; }
         .terms-content { height: 12rem; overflow-y: scroll; border: 1px solid #e5e7eb; padding: 0.75rem; font-size: 0.875rem; color: #4b5563; background-color: #f9fafb; border-radius: 0.5rem;}
+        .mobile-filter-btn.active { background-color: #1D4ED8; color: white; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
@@ -29,7 +29,7 @@
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-4">
                 <div class="text-2xl font-bold text-blue-600 cursor-pointer" onclick="showListPage('ongoing', 'all')">You<span class="text-orange-500">Vent</span></div>
-                <a href="#" onclick="showListPage('ongoing', 'youtube'); return false;" class="hidden lg:inline-block text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-cyan-600 transition-all">모든 SNS 이벤트 참여하기</a>
+                <a href="#" onclick="showListPage('ongoing', 'all'); return false;" class="hidden lg:inline-block text-xs font-semibold text-white bg-gradient-to-r from-blue-500 to-cyan-500 px-3 py-1 rounded-full shadow-md hover:from-blue-600 hover:to-cyan-600 transition-all">모든 SNS 이벤트 참여하기</a>
             </div>
             <div id="main-nav" class="hidden md:flex items-center space-x-8">
                 <a href="#" id="nav-ongoing" class="nav-link pb-1" onclick="showListPage('ongoing', 'all'); return false;">진행중인 이벤트</a>
@@ -58,22 +58,29 @@
             <div id="ended-events-notice" class="hidden mb-4 p-4 bg-blue-100 text-blue-800 rounded-lg text-sm text-center">
                 종료일로부터 2주가 지난 게시글은 자동으로 목록에서 사라집니다.
             </div>
-            <div id="sub-filter-container" class="mb-6">
-                <div class="relative md:hidden">
-                    <button id="filter-toggle-button" class="w-full flex justify-between items-center px-4 py-2 rounded-full text-sm font-semibold border bg-white">
-                        <span id="current-filter-name">전체</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                </div>
-                <div id="filter-options" class="hidden md:flex md:space-x-2 md:flex-wrap md:gap-y-2 absolute md:relative z-10 top-full left-0 w-full md:w-auto bg-white md:bg-transparent shadow-lg md:shadow-none rounded-lg mt-1 p-2 md:p-0">
-                    <button id="sub-filter-all" class="sub-filter-btn w-full md:w-auto text-left md:text-center px-4 py-2 rounded-full text-sm font-semibold border-transparent md:border" onclick="setSubFilter('all')">전체</button>
-                    <button id="sub-filter-youtube" class="sub-filter-btn w-full md:w-auto text-left md:text-center px-4 py-2 rounded-full text-sm font-semibold border-transparent md:border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
-                    <button id="sub-filter-discount" class="sub-filter-btn w-full md:w-auto text-left md:text-center px-4 py-2 rounded-full text-sm font-semibold border-transparent md:border" onclick="setSubFilter('discount')">할인이벤트</button>
-                    <button id="sub-filter-airdrop" class="sub-filter-btn w-full md:w-auto text-left md:text-center px-4 py-2 rounded-full text-sm font-semibold border-transparent md:border" onclick="setSubFilter('airdrop')">에어드랍</button>
-                    <button id="sub-filter-other" class="sub-filter-btn w-full md:w-auto text-left md:text-center px-4 py-2 rounded-full text-sm font-semibold border-transparent md:border" onclick="setSubFilter('other')">기타</button>
-                </div>
+            
+            <!-- Desktop Sub-filters -->
+            <div id="sub-filter-container" class="hidden md:flex mb-6 space-x-2 flex-wrap gap-y-2">
+                <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
+                <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
+                <button id="sub-filter-discount" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('discount')">할인이벤트</button>
+                <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
+                <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
             </div>
+
+            <!-- Mobile Participation Filters -->
+            <div id="mobile-participation-filter-container" class="md:hidden mb-4 grid grid-cols-3 gap-2 p-1 bg-gray-200 rounded-full">
+                <button id="mobile-part-filter-all" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('all')">전체</button>
+                <button id="mobile-part-filter-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('participated')">참여</button>
+                <button id="mobile-part-filter-not-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('not-participated')">미참여</button>
+            </div>
+
             <div id="list-header" class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center"></div>
+            <div id="mobile-list-header" class="md:hidden flex bg-white rounded-t-lg px-3 py-2 text-xs font-bold text-gray-500 border-b items-center">
+                <div class="w-1/6 text-center">참여</div>
+                <div class="w-4/6">상품명</div>
+                <div class="w-1/6 text-right">D-Day</div>
+            </div>
             <div id="eventList" class="bg-white rounded-b-lg shadow-sm"></div>
             <div id="pagination" class="mt-6 flex justify-center items-center space-x-2"></div>
         </main>
@@ -145,20 +152,20 @@
         let currentUserInfo = null;
         let mainFilter = 'ongoing';
         let subFilter = 'all';
+        let mobileParticipationFilter = 'all'; 
         
         const listPage = document.getElementById('list-page'), detailPage = document.getElementById('detail-page'), adminDashboardPage = document.getElementById('admin-dashboard-page');
         const eventList = document.getElementById('eventList'), paginationContainer = document.getElementById('pagination');
         const listHeader = document.getElementById('list-header'), subFilterContainer = document.getElementById('sub-filter-container');
+        const mobileParticipationFilterContainer = document.getElementById('mobile-participation-filter-container');
+        const mobileListHeader = document.getElementById('mobile-list-header');
         const endedEventsNotice = document.getElementById('ended-events-notice');
         const authSection = document.getElementById('auth-section');
         const mainNav = document.getElementById('main-nav');
         const reportList = document.getElementById('reportList');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
-        const filterToggleButton = document.getElementById('filter-toggle-button');
-        const filterOptions = document.getElementById('filter-options');
-        const currentFilterName = document.getElementById('current-filter-name');
-
+        
         // --- 로직 함수 ---
         const getEventStatus = (endDateStr) => {
             const today = new Date();
@@ -258,11 +265,18 @@
         const updateActiveNav = () => {
             document.getElementById('nav-ongoing').classList.toggle('active', mainFilter === 'ongoing');
             document.getElementById('nav-ended').classList.toggle('active', mainFilter === 'ended');
-            subFilterContainer.classList.toggle('hidden', mainFilter !== 'ongoing');
+            
+            const isOngoing = mainFilter === 'ongoing';
+            subFilterContainer.classList.toggle('hidden', !isOngoing);
+            mobileParticipationFilterContainer.classList.toggle('hidden', !isOngoing);
+            mobileListHeader.classList.toggle('hidden', !isOngoing);
             endedEventsNotice.classList.toggle('hidden', mainFilter !== 'ended');
-            if (mainFilter === 'ongoing') {
+
+            if (isOngoing) {
                 document.querySelectorAll('.sub-filter-btn').forEach(btn => btn.classList.remove('active'));
                 document.getElementById(`sub-filter-${subFilter}`).classList.add('active');
+                document.querySelectorAll('.mobile-filter-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`mobile-part-filter-${mobileParticipationFilter}`).classList.add('active');
             }
         }
 
@@ -297,8 +311,24 @@
                 queryConstraints.push(orderBy("endDate", "desc"));
                 const q = query(eventsCollection, ...queryConstraints);
                 const querySnapshot = await getDocs(q);
-                const eventsData = [];
+                let eventsData = [];
                 querySnapshot.forEach((doc) => { eventsData.push({ id: doc.id, ...doc.data() }); });
+                
+                if (mainFilter === 'ongoing' && mobileParticipationFilter !== 'all' && currentUser) {
+                    const participationPromises = eventsData.map(event => {
+                        const participationRef = doc(db, "events", event.id, "participants", currentUser.uid);
+                        return getDoc(participationRef);
+                    });
+                    const participationSnaps = await Promise.all(participationPromises);
+                    
+                    eventsData = eventsData.filter((event, index) => {
+                        const hasInteracted = participationSnaps[index].exists();
+                        if(mobileParticipationFilter === 'participated') return hasInteracted;
+                        if(mobileParticipationFilter === 'not-participated') return !hasInteracted;
+                        return true;
+                    });
+                }
+                
                 eventList.innerHTML = '';
                 if (eventsData.length === 0) {
                     eventList.innerHTML = `<div class="text-center p-10 text-gray-500">표시할 이벤트가 없습니다.</div>`;
@@ -370,7 +400,12 @@
             subFilter = newSubFilter;
             updateActiveNav();
             renderEventList();
-            filterOptions.classList.add('hidden');
+        }
+        
+        const setMobileParticipationFilter = (newFilter) => {
+            mobileParticipationFilter = newFilter;
+            updateActiveNav();
+            renderEventList();
         }
         
         // --- 인증 및 사용자 정보 처리 ---
@@ -430,6 +465,7 @@
                 <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="showListPage('ongoing', 'all'); return false;">진행중인 이벤트</a>
                 <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="showListPage('ended'); return false;">종료된 이벤트</a>
                 <a href="#" class="block py-2 px-4 text-sm hover:bg-gray-100" onclick="openModal('report-modal')">이벤트 제보</a>
+                <a href="#" onclick="showListPage('ongoing', 'all'); return false;" class="block py-2 px-4 text-sm font-semibold text-blue-600 hover:bg-gray-100">모든 SNS 이벤트 참여하기</a>
             `;
             if (isAdmin || isSubAdmin) {
                 mobileNavHTML += `<a href="#" class="block py-2 px-4 text-sm text-red-500 font-bold hover:bg-gray-100" onclick="showAdminDashboard()">관리자</a>`;
@@ -627,6 +663,7 @@
         // --- 함수 전역 할당 ---
         window.showListPage = showListPage;
         window.setSubFilter = setSubFilter;
+        window.setMobileParticipationFilter = setMobileParticipationFilter;
         window.openModal = openModal;
         window.closeModal = closeModal;
         window.login = login;
@@ -651,9 +688,6 @@
             });
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
-            });
-            filterToggleButton.addEventListener('click', () => {
-                filterOptions.classList.toggle('hidden');
             });
         };
     </script>
