@@ -59,20 +59,22 @@
                 종료일로부터 2주가 지난 게시글은 자동으로 목록에서 사라집니다.
             </div>
             
-            <!-- Desktop Sub-filters -->
-            <div id="sub-filter-container" class="hidden md:flex mb-6 space-x-2 flex-wrap gap-y-2">
-                <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
-                <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
-                <button id="sub-filter-discount" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('discount')">할인이벤트</button>
-                <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
-                <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
-            </div>
+            <div id="ongoing-filters-wrapper">
+                <!-- Desktop Sub-filters -->
+                <div id="sub-filter-container" class="hidden md:flex mb-6 space-x-2 flex-wrap gap-y-2">
+                    <button id="sub-filter-all" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('all')">전체</button>
+                    <button id="sub-filter-youtube" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('youtube')">유튜브 및 SNS</button>
+                    <button id="sub-filter-discount" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('discount')">할인이벤트</button>
+                    <button id="sub-filter-airdrop" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('airdrop')">에어드랍</button>
+                    <button id="sub-filter-other" class="sub-filter-btn px-4 py-2 rounded-full text-sm font-semibold border" onclick="setSubFilter('other')">기타</button>
+                </div>
 
-            <!-- Mobile Participation Filters -->
-            <div id="mobile-participation-filter-container" class="md:hidden mb-4 grid grid-cols-3 gap-2 p-1 bg-gray-200 rounded-full">
-                <button id="mobile-part-filter-all" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('all')">전체</button>
-                <button id="mobile-part-filter-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('participated')">참여</button>
-                <button id="mobile-part-filter-not-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('not-participated')">미참여</button>
+                <!-- Mobile Participation Filters -->
+                <div id="mobile-participation-filter-container" class="md:hidden mb-4 grid grid-cols-3 gap-2 p-1 bg-gray-200 rounded-full">
+                    <button id="mobile-part-filter-all" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('all')">전체</button>
+                    <button id="mobile-part-filter-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('participated')">참여</button>
+                    <button id="mobile-part-filter-not-participated" class="mobile-filter-btn py-2 text-sm font-semibold rounded-full" onclick="setMobileParticipationFilter('not-participated')">미참여</button>
+                </div>
             </div>
 
             <div id="list-header" class="hidden md:flex bg-white rounded-t-lg px-6 py-3 text-sm font-bold text-gray-600 border-b items-center"></div>
@@ -165,6 +167,7 @@
         const reportList = document.getElementById('reportList');
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
+        const ongoingFiltersWrapper = document.getElementById('ongoing-filters-wrapper');
         
         // --- 로직 함수 ---
         const getEventStatus = (endDateStr) => {
@@ -267,8 +270,7 @@
             document.getElementById('nav-ended').classList.toggle('active', mainFilter === 'ended');
             
             const isOngoing = mainFilter === 'ongoing';
-            subFilterContainer.classList.toggle('hidden', !isOngoing);
-            mobileParticipationFilterContainer.classList.toggle('hidden', !isOngoing);
+            ongoingFiltersWrapper.classList.toggle('hidden', !isOngoing);
             mobileListHeader.classList.toggle('hidden', !isOngoing);
             endedEventsNotice.classList.toggle('hidden', mainFilter !== 'ended');
 
