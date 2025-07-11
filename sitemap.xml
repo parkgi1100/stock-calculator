@@ -31,5 +31,19 @@
   <changefreq>monthly</changefreq>
   <priority>0.9</priority>
 </url>
+  <url>
+  <loc>https://calcly.kr/YouVent/</loc>
+  <lastmod>2025-07-11</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+  <url>
+  <loc>https://https://calcly.kr/newfxdiary/</loc>
+  <lastmod>2025-07-11</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+  
+  
 
 </urlset>
